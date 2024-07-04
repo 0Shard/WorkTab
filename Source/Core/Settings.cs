@@ -1,4 +1,4 @@
-// Settings.cs
+﻿// Settings.cs
 // Copyright Karel Kroeze, 2020-2020
 
 using UnityEngine;
@@ -6,21 +6,22 @@ using Verse;
 
 namespace WorkTab {
     public class Settings: ModSettings {
-        public static  int    defaultPriority = 3;
-        public static  bool   disableScrollwheel;
-        public static  int    maxPriority            = 9;
-        public static  bool   playCrunch             = true;
-        public static  bool   playSounds             = true;
-        public static  bool   TwentyFourHourMode     = true;
-        public static  bool   verticalLabels         = true;
-        public static  bool   highlightActiveWorkCells;
-        private static string _defaultPriorityBuffer = defaultPriority.ToString();
-
-        // public static bool sharedFavourites = true;
+        public static int  maxPriority             = 9;
+        public static int  defaultPriority         = 3;
+        public static bool TwentyFourHourMode      = true;
+        public static bool playSounds              = true;
+        public static bool playCrunch              = true;
+        public static bool disableScrollwheel      = false;
+        public static bool jobTextMode             = false;
+        public static bool highlightActiveWorkCells = true;
+        public static bool verticalLabels          = true;
         private static bool _fontFix = true;
+        // public static bool sharedFavourites = true;
 
-        // buffers
-        private static string _maxPriorityBuffer = maxPriority.ToString();
+        // Buffers will be initialized with current settings as soon as
+        // DoWindowContents() → Listing_Standard.TextFieldNumericLabeled() → Widgets.TextFieldNumeric() will be called.
+        private static string maxPriorityBuffer = null;
+        private static string defaultPriorityBuffer = null;
 
         public Settings() {
             ApplyFontFix(_fontFix);
@@ -38,10 +39,10 @@ namespace WorkTab {
         public static void DoWindowContents(Rect rect) {
             Listing_Standard options = new Listing_Standard();
             options.Begin(rect);
-            options.TextFieldNumericLabeled("WorkTab.MaxPriority".Translate(), ref maxPriority, ref _maxPriorityBuffer,
+            options.TextFieldNumericLabeled("WorkTab.MaxPriority".Translate(), ref maxPriority, ref maxPriorityBuffer,
                                              4, 9, "WorkTab.MaxPriorityTip".Translate(), 1 / 8f);
             options.TextFieldNumericLabeled("WorkTab.DefaultPriority".Translate(), ref defaultPriority,
-                                             ref _defaultPriorityBuffer, 1, 9, "WorkTab.DefaultPriorityTip".Translate(),
+                                             ref defaultPriorityBuffer, 1, 9, "WorkTab.DefaultPriorityTip".Translate(),
                                              1 / 8f);
             options.CheckboxLabeled("WorkTab.24HourMode".Translate(), ref TwentyFourHourMode,
                                      "WorkTab.24HourModeTip".Translate());
