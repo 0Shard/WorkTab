@@ -85,7 +85,7 @@ namespace WorkTab {
             // of a Vector2 position
             var outRect = __instance.get_OutRect();
             float outWidth   = outRect.width - labelWidth;
-            float viewWidth  = cachedSize.x - labelWidth - 16f;
+            float viewWidth  = cachedSize.x - labelWidth;
 
             Rect labelHeaderRect = new Rect(
                 position.x,
