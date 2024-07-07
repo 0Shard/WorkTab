@@ -50,8 +50,7 @@ namespace WorkTab {
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table) {
             // bail out if showing worksettings is nonsensical
-            if (pawn.Dead
-              || !pawn.workSettings.EverWork) {
+            if (pawn.Dead || !pawn.workSettings.EverWork) {
                 return;
             }
 
@@ -218,6 +217,11 @@ namespace WorkTab {
                 return false;
             }
 
+            if ( (WorkGiver.workTags & pawn.story.DisabledWorkTagsBackstoryAndTraits) != WorkTags.None)
+            {
+                return false;
+            }
+ 
             return !pawn.WorkTypeIsDisabled(WorkGiver.workType);
         }
 
