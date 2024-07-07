@@ -163,8 +163,9 @@ namespace WorkTab {
             bool moveNextDown = false;
             foreach (PawnColumnDef columnDef in columns) {
                 if (columnDef.Worker is IAlternatingColumn worker) {
-                    worker.MoveDown = moveNextDown;
                     moveNextDown = !moveNextDown;
+                    worker.MoveDown = moveNextDown;
+                    columnDef.moveWorkTypeLabelDown = moveNextDown;
                 } else {
                     moveNextDown = false;
                 }
