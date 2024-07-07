@@ -88,6 +88,11 @@ namespace WorkTab {
             if (Find.PlaySettings.useWorkPriorities) {
                 return priority;
             }
+            // disabled workgiver
+            if ( (workgiver.workTags & Pawn.story.DisabledWorkTagsBackstoryAndTraits) != WorkTags.None)
+            {
+                return 0;
+            }
 
             return priority > 0 ? 3 : 0;
         }
@@ -168,10 +173,12 @@ namespace WorkTab {
 
             // is any workgiver different from the whole at any time during the day?
             _partScheduledWorkType[worktype] = TimeUtilities.WholeDay
-                                                            .Any(hour => worktype
-                                                                         .WorkGivers()
-                                                                         .Any(wg => GetPriority(worktype, hour) !=
-                                                                                     GetPriority(wg, hour)));
+                                                            .Any(hour => 
+                                                                worktype.WorkGivers()
+                                                                        .Any(wg => 
+                                                                            GetPriority(wg, hour) > 0 && 
+                                                                            GetPriority(worktype, hour) != GetPriority(wg, hour))
+                                                                );
         }
 
         public virtual void SetLoadId() {

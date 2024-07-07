@@ -26,6 +26,10 @@ namespace WorkTab {
             if (priority > 0) {
                 priority = Settings.defaultPriority;
             }
+            if ( (workgiver.workTags & parent.Pawn?.story.DisabledWorkTagsBackstoryAndTraits) != WorkTags.None)
+            {
+                priority = 0;
+            }
 
             for (int hour = 0; hour < GenDate.HoursPerDay; hour++) {
                 Priorities[hour] = priority;
