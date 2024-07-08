@@ -37,6 +37,7 @@
     <workerClass>WorkTab.PawnColumnWorker_WorkTabLabel</workerClass>
     <sortable>true</sortable>
     <widthPriority>100</widthPriority>
+    <showIcon>true</showIcon>
   </PawnColumnDef>
 
 </Defs>

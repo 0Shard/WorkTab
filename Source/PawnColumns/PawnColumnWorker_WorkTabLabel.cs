@@ -15,44 +15,6 @@ namespace WorkTab {
                                   StringComparison.CurrentCultureIgnoreCase);
         }
 
-        public void Decrement(Pawn pawn) {
-            bool actionTaken = false;
-            // just go over all workgivers and lower their priority number by one, with a minimum of 1
-            foreach (WorkGiverDef workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
-                if (workgiver.workType == null || pawn.WorkTypeIsDisabled(workgiver.workType)) {
-                    continue;
-                }
-
-                // get current priority
-                int priority = pawn.GetPriority(workgiver, MainTabWindow_WorkTab.VisibleHour);
-
-                // detailed mode
-                if (PriorityManager.ShowPriorities) {
-                    if (priority == 0) {
-                        priority = Settings.maxPriority;
-                        actionTaken = true;
-                    } else if (priority != 1) {
-                        priority--;
-                        actionTaken = true;
-                    }
-                } else // simple mode
-                  {
-                    if (priority == 0) {
-                        actionTaken = true;
-                    }
-
-                    priority = 3;
-                }
-
-                // apply new priority
-                pawn.SetPriority(workgiver, priority, MainTabWindow_WorkTab.SelectedHours);
-            }
-
-            if (actionTaken && Settings.playSounds) {
-                SoundDefOf.Tick_High.PlayOneShotOnCamera();
-            }
-        }
-
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table) {
             // intercept interactions before base has a chance to act on them
             if (Shift && Mouse.IsOver(rect)) {
@@ -74,6 +36,8 @@ namespace WorkTab {
             TooltipHandler.ClearTooltipsFrom(rect);
             TooltipHandler.TipRegion(rect, GetTooltip(pawn));
         }
+        
+        public override int GetMinWidth(PawnTable table) => Mathf.Max(base.GetMinWidth(table), 145);
 
         public string GetTooltip(Pawn pawn) {
             return "WorkTab.LabelCellTip".Translate() + "\n\n" + pawn.GetTooltip().text;
@@ -115,6 +79,44 @@ namespace WorkTab {
 
             if (actionTaken && Settings.playSounds) {
                 SoundDefOf.Tick_Low.PlayOneShotOnCamera();
+            }
+        }
+
+        public void Decrement(Pawn pawn) {
+            bool actionTaken = false;
+            // just go over all workgivers and lower their priority number by one, with a minimum of 1
+            foreach (WorkGiverDef workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
+                if (workgiver.workType == null || pawn.WorkTypeIsDisabled(workgiver.workType)) {
+                    continue;
+                }
+
+                // get current priority
+                int priority = pawn.GetPriority(workgiver, MainTabWindow_WorkTab.VisibleHour);
+
+                // detailed mode
+                if (PriorityManager.ShowPriorities) {
+                    if (priority == 0) {
+                        priority = Settings.maxPriority;
+                        actionTaken = true;
+                    } else if (priority != 1) {
+                        priority--;
+                        actionTaken = true;
+                    }
+                } else // simple mode
+                {
+                    if (priority == 0) {
+                        actionTaken = true;
+                    }
+
+                    priority = 3;
+                }
+
+                // apply new priority
+                pawn.SetPriority(workgiver, priority, MainTabWindow_WorkTab.SelectedHours);
+            }
+
+            if (actionTaken && Settings.playSounds) {
+                SoundDefOf.Tick_High.PlayOneShotOnCamera();
             }
         }
     }
