@@ -13,23 +13,13 @@ using static HarmonyLib.AccessTools;
 namespace WorkTab {
     [HarmonyPatch(typeof(Pawn_WorkSettings), "CacheWorkGiversInOrder")]
     public class Pawn_WorkSettings_CacheWorkGiversInOrder {
-        public static FieldInfo pawnField = typeof( Pawn_WorkSettings )
-           .GetField( "pawn", all );
+        public static FieldInfo workgiversDirtyField = typeof(Pawn_WorkSettings).GetField("workGiversDirty", all);
 
-        public static FieldInfo workgiversDirtyField = typeof( Pawn_WorkSettings )
-           .GetField( "workGiversDirty", all );
+        public static FieldInfo workgiversEmergencyField = typeof(Pawn_WorkSettings).GetField("workGiversInOrderEmerg", all);
 
-        public static FieldInfo workgiversEmergencyField = typeof( Pawn_WorkSettings )
-           .GetField( "workGiversInOrderEmerg", all );
-
-        public static FieldInfo workgiversNormalField = typeof( Pawn_WorkSettings )
-           .GetField( "workGiversInOrderNormal", all );
+        public static FieldInfo workgiversNormalField = typeof(Pawn_WorkSettings).GetField("workGiversInOrderNormal", all);
 
         static Pawn_WorkSettings_CacheWorkGiversInOrder() {
-            if (pawnField == null) {
-                throw new NullReferenceException("pawn field not found");
-            }
-
             if (workgiversDirtyField == null) {
                 throw new NullReferenceException("workGiversDirty field not found");
             }
@@ -44,7 +34,11 @@ namespace WorkTab {
         }
 
         public static bool Prefix(Pawn_WorkSettings __instance) {
-            Pawn pawn = pawnField.GetValue( __instance ) as Pawn;
+            var pawn = __instance.Pawn();
+            if (!pawn.RaceProps.Humanlike)
+            {
+                return true;
+            }
             IEnumerable<WorkGiver> allWorkgivers = DefDatabase<WorkGiverDef>.AllDefsListForReading
                                                          .Select( wgd => wgd.Worker )
                                                          .Where( wg => pawn.GetPriority( wg.def, -1 ) > 0 );

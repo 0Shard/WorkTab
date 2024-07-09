@@ -89,6 +89,8 @@ namespace WorkTab {
 
         protected override float ExtraTopSpace => base.ExtraTopSpace + Constants.ExtraTopSpace;
         protected override PawnTableDef PawnTableDef => PawnTableDefOf.Work;
+        
+        protected override IEnumerable<Pawn> Pawns => base.Pawns.Where(pawn => !pawn.DevelopmentalStage.Baby());
 
         private bool AnyExpanded => PawnTableDef.columns
                                                 .Select(c => c.Worker)

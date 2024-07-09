@@ -3,12 +3,19 @@
 
 using HarmonyLib;
 using RimWorld;
+using Verse;
 
 namespace WorkTab {
     [HarmonyPatch(typeof(Pawn_WorkSettings), "DisableAll")]
     public class Pawn_WorkSettings_DisableAll {
         public static void Prefix(Pawn_WorkSettings __instance) {
-            __instance.Pawn().DisableAll();
+            Pawn pawn = __instance.Pawn();
+            if (!pawn.RaceProps.Humanlike)
+            {
+                return;
+            }
+
+            pawn.DisableAll();
         }
     }
 }

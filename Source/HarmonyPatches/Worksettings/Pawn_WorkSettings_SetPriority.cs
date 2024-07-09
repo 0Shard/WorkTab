@@ -6,11 +6,20 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-namespace WorkTab {
+namespace WorkTab
+{
     [HarmonyPatch(typeof(Pawn_WorkSettings), "SetPriority")]
-    public class Pawn_WorkSettings_SetPriority {
-        private static void Prefix(Pawn_WorkSettings __instance, WorkTypeDef w, ref int priority) {
-            __instance.Pawn().SetPriority(w, priority, null);
+    public class Pawn_WorkSettings_SetPriority
+    {
+        private static void Prefix(Pawn_WorkSettings __instance, WorkTypeDef w, ref int priority)
+        {
+            Pawn pawn = __instance.Pawn();
+            if (!pawn.RaceProps.Humanlike)
+            {
+                return;
+            }
+
+            pawn.SetPriority(w, priority, null);
 
             // TODO: find a more elegant way to stop RW complaining about bad priorities.
             priority = Mathf.Min(priority, 4);
