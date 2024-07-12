@@ -102,10 +102,10 @@ namespace WorkTab
             // of a Vector2 position
             var outRect = __instance.get_OutRect();
             float outWidth = outRect.width - labelWidth;
-            float viewWidth = outWidth - 16f;
-            if (columns.Select(c => c.Worker).OfType<IExpandableColumn>().Any(w => w.Expanded))
+            float viewWidth = cachedSize.x - labelWidth;
+            if (cachedSize.x < UI.screenWidth)
             {
-                viewWidth = cachedSize.x - labelWidth;
+                viewWidth -= 16f;
             }
 
             Rect labelHeaderRect = new Rect(
