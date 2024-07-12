@@ -154,6 +154,11 @@ namespace WorkTab
                 tableOutRect.height += 16f;
                 viewWidth += 16f;
             }
+            // Check if the table's height exceeds the screen height.  53: MainTabWindow_WorkTab.ExtraBottomSpace  16: horizontal scrollbar
+            if (cachedHeightNoScrollbar + MainButtonDef.ButtonHeight + Constants.PriorityLabelSize.y + 53 + 16 > UI.screenHeight)
+            {
+                tableOutRect.width += 16f;
+            }
 
             // we need to add a scroll area to the column headers to make sure they stay in sync with the rest of the table, but the first (labels) column should be frozen.
             labelCol.Worker.DoHeader(labelHeaderRect, __instance);
