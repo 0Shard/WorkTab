@@ -21,6 +21,8 @@ namespace WorkTab {
         private static readonly FieldInfo cachedColumnWidthsField = AccessTools.Field( ptt, "cachedColumnWidths" );
         private static readonly FieldInfo cachedRowHeightsField   = AccessTools.Field( ptt, "cachedRowHeights" );
 
+        private static readonly FieldInfo borderColorField = AccessTools.Field(ptt, "BorderColor");
+
 
         private static readonly MethodInfo RecacheIfDirtyMethod = AccessTools.Method( ptt, "RecacheIfDirty" );
 
@@ -42,6 +44,11 @@ namespace WorkTab {
 
             if (standardMarginField == null) {
                 throw new NullReferenceException("standardMargin field not found.");
+            }
+
+            if (borderColorField == null)
+            {
+                throw new NullReferenceException("BorderColor field not found.");
             }
         }
 
@@ -65,16 +72,17 @@ namespace WorkTab {
             RecacheIfDirtyMethod.Invoke(__instance, null);
 
             // get fields
-            Vector2 cachedSize              = __instance.Size;
-            var columns                 = __instance.Columns;
-            List<float> cachedColumnWidths      = cachedColumnWidthsField.GetValue( __instance ) as List<float>;
-            float cachedHeaderHeight      = __instance.HeaderHeight;
+            Vector2 cachedSize = __instance.Size;
+            var columns = __instance.Columns;
+            List<float> cachedColumnWidths = cachedColumnWidthsField.GetValue(__instance) as List<float>;
+            float cachedHeaderHeight = __instance.HeaderHeight;
             float cachedHeightNoScrollbar = __instance.HeightNoScrollbar;
-            Vector2 headerScrollPosition    = new Vector2( ___scrollPosition.x, 0f );
-            Vector2 labelScrollPosition     = new Vector2( 0f, ___scrollPosition.y );
-            List<Pawn> cachedPawns             = __instance.PawnsListForReading;
-            List<float> cachedRowHeights        = cachedRowHeightsField.GetValue( __instance ) as List<float>;
-            float standardWindowMargin    = (float) standardMarginField.GetRawConstantValue();
+            Vector2 headerScrollPosition = new Vector2(___scrollPosition.x, 0f);
+            Vector2 labelScrollPosition = new Vector2(0f, ___scrollPosition.y);
+            List<Pawn> cachedPawns = __instance.PawnsListForReading;
+            List<float> cachedRowHeights = cachedRowHeightsField.GetValue(__instance) as List<float>;
+            float standardWindowMargin = (float)standardMarginField.GetRawConstantValue();
+            Color borderColor = (Color)borderColorField.GetValue(__instance);
 
             // this is the main change, vanilla hardcodes both outRect and viewRect to the cached size.
             // Instead, we want to limit outRect to the available view area, so a horizontal scrollbar can appear.
@@ -177,10 +185,11 @@ namespace WorkTab {
 
                 // only draw if on screen
                 if (tableViewRect.height <= tableOutRect.height ||
-                     labelRect.y - ___scrollPosition.y + (int) cachedRowHeights[j] >= 0f &&
-                     labelRect.y - ___scrollPosition.y <= tableOutRect.height) {
-                    GUI.color = new Color(1f, 1f, 1f, 0.2f);
-                    Widgets.DrawLineHorizontal(0f, pos.z, tableViewRect.width);
+                    labelRect.y - ___scrollPosition.y + (int)cachedRowHeights[j] >= 0f &&
+                    labelRect.y - ___scrollPosition.y <= tableOutRect.height)
+                {
+                    GUI.color = borderColor;
+                    Widgets.DrawLineHorizontal(0f, labelRect.y, tableViewRect.width);
                     GUI.color = Color.white;
 
                     labelCol.Worker.DoCell(labelRect, cachedPawns[j], __instance);
@@ -236,9 +245,10 @@ namespace WorkTab {
                 pos.x = 0;
                 // only draw if on screen
                 if (tableViewRect.height <= tableOutRect.height ||
-                     pos.y - ___scrollPosition.y + (int) cachedRowHeights[j] >= 0f &&
-                     pos.y - ___scrollPosition.y <= tableOutRect.height) {
-                    GUI.color = new Color(1f, 1f, 1f, 0.2f);
+                    pos.y - ___scrollPosition.y + (int)cachedRowHeights[j] >= 0f &&
+                    pos.y - ___scrollPosition.y <= tableOutRect.height)
+                {
+                    GUI.color = borderColor;
                     Widgets.DrawLineHorizontal(0f, pos.y, tableViewRect.width);
                     GUI.color = Color.white;
                     Rect rowRect = new Rect( 0f, pos.y, tableViewRect.width, (int) cachedRowHeights[j] );
