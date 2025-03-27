@@ -1,0 +1,15 @@
+<Analyzer>
+    <WorkTab>
+        <Types>
+            <li>WorkTab.MainTabWindow_WorkTab</li>
+            <li>WorkTab.PawnTable_PawnTableOnGUI</li>
+            <li>WorkTab.PawnColumnWorker_WorkType</li>
+            <li>WorkTab.PawnColumnWorker_WorkGiver</li>
+        </Types>
+        <Methods>
+            <li>WorkTab.MainTabWindow_WorkTab:DoWindowContents</li>
+            <li>WorkTab.MainTabWindow_WorkTab:RebuildTable</li>
+            <li>WorkTab.MainTabWindow_WorkTab:PostOpen</li>
+        </Methods>
+    </WorkTab>
+</Analyzer>
