@@ -21,6 +21,10 @@
 	<WorkTab.24HourModeTip>Sollen Zeiten in 12h (z.B. 9a.m, 9p.m.) der in 24h (z.B. 12:00, 21:00) Modus angezeigt werden?</WorkTab.24HourModeTip>
 	<WorkTab.MaxPriority>Anzahl Stufen von Prioritäten</WorkTab.MaxPriority>
 	<WorkTab.MaxPriorityTip>Wie viele Stufen von Prioritäten sollen eingestellt werden? (Wähle zwischen 4 und 9)</WorkTab.MaxPriorityTip>
+    <WorkTab.DefaultPriority>Standardpriorität</WorkTab.DefaultPriority>
+    <WorkTab.DefaultPriorityTip>Standardpriorität (Standardwert 3, begrenzt auf 1 bis 9)</WorkTab.DefaultPriorityTip>
+    <WorkTab.HighlightActiveWorkCells>Aktive Arbeitszellen markieren</WorkTab.HighlightActiveWorkCells>
+    <WorkTab.HighlightActiveWorkCellsTip>Markieren Sie die Rasterquadrate im Arbeitstab, wenn die Figur gerade diesen Job ausführt.</WorkTab.HighlightActiveWorkCellsTip>
     <WorkTab.PlaySounds>Geräusche</WorkTab.PlaySounds>
     <WorkTab.PlaySoundsTip>Soll ein Geräusch abgespielt werden, wenn die Priorität verändert wird?</WorkTab.PlaySoundsTip>
     <WorkTab.PlayCrunch>Knackige Geräusche</WorkTab.PlayCrunch>

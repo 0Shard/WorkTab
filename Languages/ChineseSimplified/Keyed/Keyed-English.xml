@@ -20,7 +20,11 @@
   <WorkTab.24HourMode>24小时模式</WorkTab.24HourMode>
   <WorkTab.24HourModeTip>时间显示是以12小时制（比如：中午、9p.m.）或24小时制（比如：12:00、21:00）。</WorkTab.24HourModeTip>
   <WorkTab.MaxPriority>优先级等级</WorkTab.MaxPriority>
-  <WorkTab.MaxPriorityTip>优先级使用多少个等级（限制在4至9之间）。</WorkTab.MaxPriorityTip>
+  <WorkTab.MaxPriorityTip>优先级使用多少个等级（限制在4至9之间）</WorkTab.MaxPriorityTip>
+  <WorkTab.DefaultPriority>默认优先级</WorkTab.DefaultPriority>
+  <WorkTab.DefaultPriorityTip>默认优先级（默认3，限制在1至9之间）</WorkTab.DefaultPriorityTip>
+  <WorkTab.HighlightActiveWorkCells>高亮工作单元格</WorkTab.HighlightActiveWorkCells>
+  <WorkTab.HighlightActiveWorkCellsTip>高亮显示小人当前工作的单元格</WorkTab.HighlightActiveWorkCellsTip>
   <WorkTab.PlaySounds>提示音</WorkTab.PlaySounds>
   <WorkTab.PlaySoundsTip>更改优先级时播放提示音吗？</WorkTab.PlaySoundsTip>
   <WorkTab.PlayCrunch>嘎吱声</WorkTab.PlayCrunch>

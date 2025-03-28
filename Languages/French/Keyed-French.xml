@@ -21,6 +21,10 @@
 	<WorkTab.24HourModeTip>Les heures devraient-elles être affiché en mode 12h (ex. 9p.m.) ou en mode 24h (ex. 12:00, 21:00) ?</WorkTab.24HourModeTip>
 	<WorkTab.MaxPriority>Niveaux de priorité</WorkTab.MaxPriority>
 	<WorkTab.MaxPriorityTip>Combien de niveaux de priorité devrait-être utiliser ? (Limité entre 4 et 9)</WorkTab.MaxPriorityTip>
+    <WorkTab.DefaultPriority>Priority par défaut</WorkTab.DefaultPriority>
+    <WorkTab.DefaultPriorityTip>Priorité par défaut (par défaut 3, limité à 1 à 9)</WorkTab.DefaultPriorityTip>
+    <WorkTab.HighlightActiveWorkCells>Mettre en évidence les cellules de travail actives</WorkTab.HighlightActiveWorkCells>
+    <WorkTab.HighlightActiveWorkCellsTip>Mettez en surbrillance les carrés de grille dans l'onglet Travail lorsque le pion fonctionne réellement ce travail en ce moment.</WorkTab.HighlightActiveWorkCellsTip>
     <WorkTab.PlaySounds>Sons</WorkTab.PlaySounds>
     <WorkTab.PlaySoundsTip>Jouer un son quand une priorité est changé ?</WorkTab.PlaySoundsTip>
     <WorkTab.PlayCrunch>Craquemments</WorkTab.PlayCrunch>

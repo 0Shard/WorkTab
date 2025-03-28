@@ -31,6 +31,10 @@
   <WorkTab.VerticalLabelsTip>垂直顯示字體</WorkTab.VerticalLabelsTip>
   <WorkTab.FontFix>修復垂直顯示字體</WorkTab.FontFix>
   <WorkTab.FontFixTip>Unity (Rimworld的引擎）不能很好地處理垂直字體并導致模糊。此修復程序消除了模糊，但可能導致字體位置稍微有些奇怪。</WorkTab.FontFixTip>
+  <WorkTab.DefaultPriority>默認優先級</WorkTab.DefaultPriority>
+  <WorkTab.DefaultPriorityTip>默認優先級（默認3，限制在1至9之間）</WorkTab.DefaultPriorityTip>
+  <WorkTab.HighlightActiveWorkCells>高亮工作單元格</WorkTab.HighlightActiveWorkCells>
+  <WorkTab.HighlightActiveWorkCellsTip>高亮顯示小人當前工作的單元格</WorkTab.HighlightActiveWorkCellsTip>
 
   <!-- scheduler -->
   <WorkTab.SchedulerHourTip>{0}-{1}當前{2}</WorkTab.SchedulerHourTip>

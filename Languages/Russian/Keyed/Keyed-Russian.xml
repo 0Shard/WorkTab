@@ -21,6 +21,10 @@
   <WorkTab.24HourModeTip>Отображать время в 12-часовом (например полдень, 9p.m.) или 24-часовом (например 12:00, 21:00) режиме?</WorkTab.24HourModeTip>
   <WorkTab.MaxPriority>Уровни приоритета</WorkTab.MaxPriority>
   <WorkTab.MaxPriorityTip>Сколько нужно уровней приоритета? (от 4 до 9)</WorkTab.MaxPriorityTip>
+  <WorkTab.DefaultPriority>Приоритет по умолчанию</WorkTab.DefaultPriority>
+  <WorkTab.DefaultPriorityTip>Приоритет по умолчанию (по умолчанию 3, доступен от 1 до 9)</WorkTab.DefaultPriorityTip>
+  <WorkTab.HighlightActiveWorkCells>Выделять активные рабочие ячейки</WorkTab.HighlightActiveWorkCells>
+  <WorkTab.HighlightActiveWorkCellsTip>Подсвечивать ячейки сетки во вкладке работ, когда персонаж в данный момент выполняет эту работу.</WorkTab.HighlightActiveWorkCellsTip>
   <WorkTab.PlaySounds>Звук</WorkTab.PlaySounds>
   <WorkTab.PlaySoundsTip>Воспроизводить звук при изменении приоритета?</WorkTab.PlaySoundsTip>
   <WorkTab.PlayCrunch>Хруст</WorkTab.PlayCrunch>

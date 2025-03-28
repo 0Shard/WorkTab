@@ -22,16 +22,20 @@
   <WorkTab.24HourModeTip>En caso de que se quieran mostrar las horas en formato de 12h (e.j. mediodía, 9p.m.) o 24h (e.j. 12:00, 21:00)</WorkTab.24HourModeTip>
   <WorkTab.MaxPriority>Niveles de prioridad</WorkTab.MaxPriority>
   <WorkTab.MaxPriorityTip>¿Cuántos niveles de prioridad deberíamos usar? (Limitado entre 4 y 9)</WorkTab.MaxPriorityTip>
+  <WorkTab.DefaultPriority>Prioridad predeterminada</WorkTab.DefaultPriority>
+  <WorkTab.DefaultPriorityTip>Prioridad predeterminada (valor por defecto 3, rango de 1 a 9)</WorkTab.DefaultPriorityTip>
+  <WorkTab.HighlightActiveWorkCells>Resaltar celdas de trabajo activas</WorkTab.HighlightActiveWorkCells>
+  <WorkTab.HighlightActiveWorkCellsTip>Resalta las celdas de la cuadrícula en la pestaña de trabajos cuando un colono está realizando esa tarea en este momento.</WorkTab.HighlightActiveWorkCellsTip>
   <WorkTab.PlaySounds>Sonidos</WorkTab.PlaySounds>
   <WorkTab.PlaySoundsTip>Reproducir sonido cuando se cambia una prioridad</WorkTab.PlaySoundsTip>
   <WorkTab.PlayCrunch>Sonidos crujientes</WorkTab.PlayCrunch>
   <WorkTab.PlayCrunchTip>Reproduce un sonido crujiente cuando se asigna un peón a un trabajo para el que no son expertos</WorkTab.PlayCrunchTip>
-    <WorkTab.DisableScrollwheel>Disable Scrollwheel</WorkTab.DisableScrollwheel>
-    <WorkTab.DisableScrollwheelTip>Disable the scrollwheel functions (when hovering over skills)</WorkTab.DisableScrollwheelTip>
-    <WorkTab.VerticalLabels>Vertical labels</WorkTab.VerticalLabels>
-    <WorkTab.VerticalLabelsTip>Display work labels vertically</WorkTab.VerticalLabelsTip>
-    <WorkTab.FontFix>Fix vertical fonts</WorkTab.FontFix>
-    <WorkTab.FontFixTip>Unity (the engine RimWorld is built on) does not deal well with rotated fonts, causing a blur. This fix removes the blur, but can cause slightly odd letter positioning.</WorkTab.FontFixTip>
+  <WorkTab.DisableScrollwheel>Disable Scrollwheel</WorkTab.DisableScrollwheel>
+  <WorkTab.DisableScrollwheelTip>Disable the scrollwheel functions (when hovering over skills)</WorkTab.DisableScrollwheelTip>
+  <WorkTab.VerticalLabels>Vertical labels</WorkTab.VerticalLabels>
+  <WorkTab.VerticalLabelsTip>Display work labels vertically</WorkTab.VerticalLabelsTip>
+  <WorkTab.FontFix>Fix vertical fonts</WorkTab.FontFix>
+  <WorkTab.FontFixTip>Unity (the engine RimWorld is built on) does not deal well with rotated fonts, causing a blur. This fix removes the blur, but can cause slightly odd letter positioning.</WorkTab.FontFixTip>
 
   <!-- scheduler -->
   <WorkTab.SchedulerHourTip>{0}-{1} está actualmente {2}\n\n{3}</WorkTab.SchedulerHourTip>
