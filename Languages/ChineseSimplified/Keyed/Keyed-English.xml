@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <WorkTab>更好的工作页</WorkTab>
+  <WorkTab>工作选项卡</WorkTab>
 
   <!-- Main tab toggle buttons -->
   <WorkTab.PrioritiesSimple>当前显示数值型优先级\n\n点击切换至开关型优先级</WorkTab.PrioritiesSimple>
