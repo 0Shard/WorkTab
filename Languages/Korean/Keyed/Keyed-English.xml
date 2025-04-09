@@ -54,4 +54,31 @@
     <!-- pawn label tooltip  -->
     <WorkTab.LabelCellTip>클릭하여 이동\nShift-왼쪽 클릭 혹은 휠 업으로 우선 순위 올림\nShift-오른쪽 클릭 혹은 휠 다운으로 우선 순위 낮춤</WorkTab.LabelCellTip>
 
+    <!-- Favourites -->
+    <Fluffy.WorkTab.CreateFavourite>새 즐겨찾기 만들기</Fluffy.WorkTab.CreateFavourite>
+    <Fluffy.WorkTab.LoadFavourite>즐겨찾기 불러오기</Fluffy.WorkTab.LoadFavourite>
+    <Fluffy.WorkTab.ClearFavourite>즐겨찾기 초기화</Fluffy.WorkTab.ClearFavourite>
+    <Fluffy.WorkTab.UnloadFavourite>언로드</Fluffy.WorkTab.UnloadFavourite>
+    <Fluffy.WorkTab.DeleteFavourite>언로드 및 삭제</Fluffy.WorkTab.DeleteFavourite>
+    <Fluffy.WorkTab.DefaultFavouriteLabel>즐겨찾기</Fluffy.WorkTab.DefaultFavouriteLabel>
+    <Fluffy.WorkTab.CreateFavouritesDialogTitle>새 즐겨찾기 만들기</Fluffy.WorkTab.CreateFavouritesDialogTitle>
+    <Fluffy.WorkTab.EditFavouritesDialogTitle>"{0}" 편집 중</Fluffy.WorkTab.EditFavouritesDialogTitle>
+    <Fluffy.WorkTab.NoStoredFavourites>저장된 즐겨찾기가 없습니다</Fluffy.WorkTab.NoStoredFavourites>
+
+    <Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>즐겨찾기 이름은 비워둘 수 없습니다</Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>
+    <Fluffy.WorkTab.FavouriteInvalidFilename>"{0}"은(는) 올바르지 않은 이름입니다. 즐겨찾기 이름은 유효한 파일 이름이어야 합니다</Fluffy.WorkTab.FavouriteInvalidFilename>
+    <Fluffy.WorkTab.FavouriteAlreadyExists>같은 이름의 즐겨찾기가 이미 존재합니다</Fluffy.WorkTab.FavouriteAlreadyExists>
+
+    <!-- priority labels -->
+    <Fluffy.WorkTab.Priority.None>작업하지 않음</Fluffy.WorkTab.Priority.None>
+    <Fluffy.WorkTab.Priority.Top>최우선 순위</Fluffy.WorkTab.Priority.Top>
+    <Fluffy.WorkTab.Priority.VeryHigh>매우 높은 우선순위</Fluffy.WorkTab.Priority.VeryHigh>
+    <Fluffy.WorkTab.Priority.High>높은 우선순위</Fluffy.WorkTab.Priority.High>
+    <Fluffy.WorkTab.Priority.AboveNormal>보통보다 높은 우선순위</Fluffy.WorkTab.Priority.AboveNormal>
+    <Fluffy.WorkTab.Priority.Normal>보통 우선순위</Fluffy.WorkTab.Priority.Normal>
+    <Fluffy.WorkTab.Priority.BelowNormal>보통보다 낮은 우선순위</Fluffy.WorkTab.Priority.BelowNormal>
+    <Fluffy.WorkTab.Priority.Low>낮은 우선순위</Fluffy.WorkTab.Priority.Low>
+    <Fluffy.WorkTab.Priority.VeryLow>매우 낮은 우선순위</Fluffy.WorkTab.Priority.VeryLow>
+    <Fluffy.WorkTab.Priority.Lowest>가장 낮은 우선순위</Fluffy.WorkTab.Priority.Lowest>
+
 </LanguageData>

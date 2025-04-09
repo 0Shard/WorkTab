@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-
   <WorkTab>Work Tab</WorkTab>
 
   <!-- Main tab toggle buttons -->
@@ -54,5 +53,32 @@
 
   <!-- pawn label tooltip  -->
   <WorkTab.LabelCellTip>Clic para saltar a\nHaga clic con el botón izquierdo del mouse o desplácese hacia arriba para aumentar las prioridades\nHaga clic con el botón derecho del ratón o desplácese hacia abajo para disminuir las prioridades</WorkTab.LabelCellTip>
+
+  <!-- Favourites -->
+  <Fluffy.WorkTab.CreateFavourite>Crear nuevo favorito</Fluffy.WorkTab.CreateFavourite>
+  <Fluffy.WorkTab.LoadFavourite>Cargar favorito</Fluffy.WorkTab.LoadFavourite>
+  <Fluffy.WorkTab.ClearFavourite>Limpiar favorito</Fluffy.WorkTab.ClearFavourite>
+  <Fluffy.WorkTab.UnloadFavourite>Descargar</Fluffy.WorkTab.UnloadFavourite>
+  <Fluffy.WorkTab.DeleteFavourite>Descargar y eliminar</Fluffy.WorkTab.DeleteFavourite>
+  <Fluffy.WorkTab.DefaultFavouriteLabel>Favorito</Fluffy.WorkTab.DefaultFavouriteLabel>
+  <Fluffy.WorkTab.CreateFavouritesDialogTitle>Crear nuevo favorito</Fluffy.WorkTab.CreateFavouritesDialogTitle>
+  <Fluffy.WorkTab.EditFavouritesDialogTitle>Editando "{0}"</Fluffy.WorkTab.EditFavouritesDialogTitle>
+  <Fluffy.WorkTab.NoStoredFavourites>No hay favoritos guardados</Fluffy.WorkTab.NoStoredFavourites>
+
+  <Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>El nombre del favorito no puede estar vacío</Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>
+  <Fluffy.WorkTab.FavouriteInvalidFilename>"{0}" no es un nombre válido. Los nombres de favoritos deben ser nombres de archivo válidos</Fluffy.WorkTab.FavouriteInvalidFilename>
+  <Fluffy.WorkTab.FavouriteAlreadyExists>Ya existe un favorito con ese nombre</Fluffy.WorkTab.FavouriteAlreadyExists>
+
+  <!-- priority labels -->
+  <Fluffy.WorkTab.Priority.None>No realizará</Fluffy.WorkTab.Priority.None>
+  <Fluffy.WorkTab.Priority.Top>Prioridad máxima</Fluffy.WorkTab.Priority.Top>
+  <Fluffy.WorkTab.Priority.VeryHigh>Prioridad muy alta</Fluffy.WorkTab.Priority.VeryHigh>
+  <Fluffy.WorkTab.Priority.High>Prioridad alta</Fluffy.WorkTab.Priority.High>
+  <Fluffy.WorkTab.Priority.AboveNormal>Prioridad superior a la normal</Fluffy.WorkTab.Priority.AboveNormal>
+  <Fluffy.WorkTab.Priority.Normal>Prioridad normal</Fluffy.WorkTab.Priority.Normal>
+  <Fluffy.WorkTab.Priority.BelowNormal>Prioridad inferior a la normal</Fluffy.WorkTab.Priority.BelowNormal>
+  <Fluffy.WorkTab.Priority.Low>Prioridad baja</Fluffy.WorkTab.Priority.Low>
+  <Fluffy.WorkTab.Priority.VeryLow>Prioridad muy baja</Fluffy.WorkTab.Priority.VeryLow>
+  <Fluffy.WorkTab.Priority.Lowest>Prioridad mínima</Fluffy.WorkTab.Priority.Lowest>
 
 </LanguageData>

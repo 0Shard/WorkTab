@@ -45,14 +45,6 @@ namespace WorkTab {
             return favourite;
         }
 
-        public void Apply(Pawn pawn) {
-            // apply to pawn
-            PriorityTracker priorities = PriorityManager.Get[pawn];
-            foreach (WorkGiverDef workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
-                priorities[workgiver] = this[workgiver].Clone(priorities);
-            }
-        }
-
         public override void ExposeData() {
             base.ExposeData();
             Scribe_Values.Look(ref _loadId, "ID");

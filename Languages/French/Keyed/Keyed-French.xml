@@ -63,9 +63,22 @@
     <Fluffy.WorkTab.DefaultFavouriteLabel>Favoris</Fluffy.WorkTab.DefaultFavouriteLabel>
     <Fluffy.WorkTab.CreateFavouritesDialogTitle>Créer un nouveau favori</Fluffy.WorkTab.CreateFavouritesDialogTitle>
     <Fluffy.WorkTab.EditFavouritesDialogTitle>Modification de "{0}"</Fluffy.WorkTab.EditFavouritesDialogTitle>
+    <Fluffy.WorkTab.NoStoredFavourites>Aucun favori stocké</Fluffy.WorkTab.NoStoredFavourites>
 
     <Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>Le nom du favori ne peut être vide</Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>
     <Fluffy.WorkTab.FavouriteInvalidFilename>"{0}" n'est pas un nom valide, les noms des favoris doivent être des noms de fichiers valides</Fluffy.WorkTab.FavouriteInvalidFilename>
     <Fluffy.WorkTab.FavouriteAlreadyExists>Un favori de ce nom existe déja</Fluffy.WorkTab.FavouriteAlreadyExists>
+
+    <!-- priority labels -->
+    <Fluffy.WorkTab.Priority.None>Ne fera pas</Fluffy.WorkTab.Priority.None>
+    <Fluffy.WorkTab.Priority.Top>Priorité maximale</Fluffy.WorkTab.Priority.Top>
+    <Fluffy.WorkTab.Priority.VeryHigh>Priorité très élevée</Fluffy.WorkTab.Priority.VeryHigh>
+    <Fluffy.WorkTab.Priority.High>Priorité élevée</Fluffy.WorkTab.Priority.High>
+    <Fluffy.WorkTab.Priority.AboveNormal>Priorité au-dessus de la normale</Fluffy.WorkTab.Priority.AboveNormal>
+    <Fluffy.WorkTab.Priority.Normal>Priorité normale</Fluffy.WorkTab.Priority.Normal>
+    <Fluffy.WorkTab.Priority.BelowNormal>Priorité en dessous de la normale</Fluffy.WorkTab.Priority.BelowNormal>
+    <Fluffy.WorkTab.Priority.Low>Priorité basse</Fluffy.WorkTab.Priority.Low>
+    <Fluffy.WorkTab.Priority.VeryLow>Priorité très basse</Fluffy.WorkTab.Priority.VeryLow>
+    <Fluffy.WorkTab.Priority.Lowest>Priorité minimale</Fluffy.WorkTab.Priority.Lowest>
 
 </LanguageData>

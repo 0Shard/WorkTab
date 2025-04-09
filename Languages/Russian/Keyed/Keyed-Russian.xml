@@ -54,4 +54,31 @@
   <!-- pawn label tooltip  -->
   <WorkTab.LabelCellTip>Нажмите для перехода к поселенцу\nShift+ЛКМ или Shift+прокрутка вверх — повысить приоритеты всех задач для поселенца\nShift+ПКМ или Shift+прокрутка вниз — понизить приоритеты всех задач для поселенца</WorkTab.LabelCellTip>
 
+  <!-- Favourites -->
+  <Fluffy.WorkTab.CreateFavourite>Создать новый избранный</Fluffy.WorkTab.CreateFavourite>
+  <Fluffy.WorkTab.LoadFavourite>Загрузить избранное</Fluffy.WorkTab.LoadFavourite>
+  <Fluffy.WorkTab.ClearFavourite>Очистить избранное</Fluffy.WorkTab.ClearFavourite>
+  <Fluffy.WorkTab.UnloadFavourite>Выгрузить</Fluffy.WorkTab.UnloadFavourite>
+  <Fluffy.WorkTab.DeleteFavourite>Выгрузить и удалить</Fluffy.WorkTab.DeleteFavourite>
+  <Fluffy.WorkTab.DefaultFavouriteLabel>Избранное</Fluffy.WorkTab.DefaultFavouriteLabel>
+  <Fluffy.WorkTab.CreateFavouritesDialogTitle>Создание нового избранного</Fluffy.WorkTab.CreateFavouritesDialogTitle>
+  <Fluffy.WorkTab.EditFavouritesDialogTitle>Редактирование "{0}"</Fluffy.WorkTab.EditFavouritesDialogTitle>
+  <Fluffy.WorkTab.NoStoredFavourites>Нет сохранённых избранных</Fluffy.WorkTab.NoStoredFavourites>
+
+  <Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>Имя избранного не может быть пустым</Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>
+  <Fluffy.WorkTab.FavouriteInvalidFilename>"{0}" — недопустимое имя. Имена избранных должны быть допустимыми именами файлов</Fluffy.WorkTab.FavouriteInvalidFilename>
+  <Fluffy.WorkTab.FavouriteAlreadyExists>Избранное с таким именем уже существует</Fluffy.WorkTab.FavouriteAlreadyExists>
+
+  <!-- priority labels -->
+  <Fluffy.WorkTab.Priority.None>Не будет выполнять</Fluffy.WorkTab.Priority.None>
+  <Fluffy.WorkTab.Priority.Top>Высший приоритет</Fluffy.WorkTab.Priority.Top>
+  <Fluffy.WorkTab.Priority.VeryHigh>Очень высокий приоритет</Fluffy.WorkTab.Priority.VeryHigh>
+  <Fluffy.WorkTab.Priority.High>Высокий приоритет</Fluffy.WorkTab.Priority.High>
+  <Fluffy.WorkTab.Priority.AboveNormal>Выше среднего приоритета</Fluffy.WorkTab.Priority.AboveNormal>
+  <Fluffy.WorkTab.Priority.Normal>Обычный приоритет</Fluffy.WorkTab.Priority.Normal>
+  <Fluffy.WorkTab.Priority.BelowNormal>Ниже среднего приоритета</Fluffy.WorkTab.Priority.BelowNormal>
+  <Fluffy.WorkTab.Priority.Low>Низкий приоритет</Fluffy.WorkTab.Priority.Low>
+  <Fluffy.WorkTab.Priority.VeryLow>Очень низкий приоритет</Fluffy.WorkTab.Priority.VeryLow>
+  <Fluffy.WorkTab.Priority.Lowest>Наименьший приоритет</Fluffy.WorkTab.Priority.Lowest>
+
 </LanguageData>

@@ -63,9 +63,22 @@
   <Fluffy.WorkTab.DefaultFavouriteLabel>偏好工作配置名称</Fluffy.WorkTab.DefaultFavouriteLabel>
   <Fluffy.WorkTab.CreateFavouritesDialogTitle>创建新的偏好工作</Fluffy.WorkTab.CreateFavouritesDialogTitle>
   <Fluffy.WorkTab.EditFavouritesDialogTitle>编辑 "{0}"</Fluffy.WorkTab.EditFavouritesDialogTitle>
+  <Fluffy.WorkTab.NoStoredFavourites>没有已保存的偏好工作</Fluffy.WorkTab.NoStoredFavourites>
 
   <Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>偏好工作配置名称不可为空</Fluffy.WorkTab.FavouriteLabelCannotBeEmpty>
   <Fluffy.WorkTab.FavouriteInvalidFilename>"{0}" 不是一个可用的配置名称，必须是一个合法的文件名。</Fluffy.WorkTab.FavouriteInvalidFilename>
   <Fluffy.WorkTab.FavouriteAlreadyExists>已有同名偏好工作配置名称。</Fluffy.WorkTab.FavouriteAlreadyExists>
+  
+  <!-- priority labels -->
+  <Fluffy.WorkTab.Priority.None>不会做</Fluffy.WorkTab.Priority.None>
+  <Fluffy.WorkTab.Priority.Top>最高优先级</Fluffy.WorkTab.Priority.Top>
+  <Fluffy.WorkTab.Priority.VeryHigh>极高优先级</Fluffy.WorkTab.Priority.VeryHigh>
+  <Fluffy.WorkTab.Priority.High>高优先级</Fluffy.WorkTab.Priority.High>
+  <Fluffy.WorkTab.Priority.AboveNormal>稍高优先级</Fluffy.WorkTab.Priority.AboveNormal>
+  <Fluffy.WorkTab.Priority.Normal>正常优先级</Fluffy.WorkTab.Priority.Normal>
+  <Fluffy.WorkTab.Priority.BelowNormal>稍低优先级</Fluffy.WorkTab.Priority.BelowNormal>
+  <Fluffy.WorkTab.Priority.Low>低优先级</Fluffy.WorkTab.Priority.Low>
+  <Fluffy.WorkTab.Priority.VeryLow>极低优先级</Fluffy.WorkTab.Priority.VeryLow>
+  <Fluffy.WorkTab.Priority.Lowest>最低优先级</Fluffy.WorkTab.Priority.Lowest>
 
 </LanguageData>
