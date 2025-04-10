@@ -29,6 +29,10 @@ namespace WorkTab {
         protected override Texture2D GetIconFor(Pawn pawn) {
             return FavouriteManager.Get[pawn]?.Icon;
         }
+        
+        protected override string GetIconTip(Pawn pawn) {
+            return FavouriteManager.Get[pawn]?.Label;
+        }
 
         protected override Vector2 GetIconSize(Pawn pawn) {
             return def.HeaderIconSize;
