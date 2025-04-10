@@ -42,7 +42,7 @@ namespace WorkTab {
             set => priorities[workgiver] = value;
         }
 
-        public virtual Pawn Pawn => null;
+        public virtual Pawn Pawn { get; set; }
 
         public virtual void ExposeData() {
             Logger.Assert(Scribe.mode, "Priority ScribeMode");
@@ -186,6 +186,11 @@ namespace WorkTab {
         }
 
         public void SetPriority(WorkGiverDef workgiver, int priority, int hour, bool recache = true) {
+            if (Pawn?.WorkTypeIsDisabled(workgiver.workType) == true)
+            {
+                return;
+            }
+            
             if (priority > Settings.maxPriority) {
                 priority = 0;
             }

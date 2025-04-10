@@ -7,23 +7,23 @@ using Verse;
 namespace WorkTab {
     // todo; implement IExposable
     public class PawnPriorityTracker: PriorityTracker {
-        private Pawn pawn;
+        private Pawn _pawn;
 
         public PawnPriorityTracker() {
             // Scribe
         }
 
         public PawnPriorityTracker(Pawn pawn) {
-            this.pawn = pawn;
-            foreach (WorkGiverDef workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
+            _pawn = pawn;
+            foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
                 priorities.Add(workgiver, new WorkPriority(this, workgiver));
             }
         }
 
-        public override Pawn Pawn => pawn;
+        public override Pawn Pawn => _pawn;
 
         public override void ExposeData() {
-            Scribe_References.Look(ref pawn, "Pawn");
+            Scribe_References.Look(ref _pawn, "Pawn");
             base.ExposeData();
         }
     }

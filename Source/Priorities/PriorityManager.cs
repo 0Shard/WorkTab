@@ -68,12 +68,14 @@ namespace WorkTab {
 
         public PriorityTracker this[Pawn pawn] {
             get {
-                Favourite favourite = FavouriteManager.Get[pawn];
-                if (favourite != null) {
+                var favourite = FavouriteManager.Get[pawn];
+                if (favourite != null)
+                {
+                    favourite.Pawn = pawn;
                     return favourite;
                 }
 
-                if (priorities.TryGetValue(pawn, out PawnPriorityTracker tracker)) {
+                if (priorities.TryGetValue(pawn, out var tracker)) {
                     return tracker;
                 }
 

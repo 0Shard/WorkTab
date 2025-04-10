@@ -181,9 +181,11 @@ namespace WorkTab {
 
             favourite.SetLoadId();
             Favourites.Add(favourite);
-            if (pawn != null) {
-                Get[pawn] = favourite;
+            if (pawn == null)
+            {
+                return;
             }
+            Get[pawn] = favourite;
         }
 
         private static void LoadFavouriteFloatMenu(Pawn pawn) {
