@@ -1,6 +1,7 @@
 // Dialog_EditFavourite.cs
 // Copyright Karel Kroeze, 2020-2020
 
+using System;
 using System.Collections.Generic;
 using FluffyUI;
 using RimWorld;
@@ -11,6 +12,11 @@ using Widgets = FluffyUI.Widgets;
 namespace WorkTab {
     public class Dialog_EditFavourite: Dialog_Favourite {
         public Dialog_EditFavourite(Favourite favourite) : base(favourite) {
+            var index = Array.IndexOf(Resources.Icons, favourite.Icon);
+            if (index >= 0)
+            {
+                textureChooser = new TextureChooser(Resources.Icons, index);
+            }
         }
 
         public void ApplyAndClose() {
