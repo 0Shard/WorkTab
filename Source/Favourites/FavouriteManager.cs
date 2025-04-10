@@ -36,13 +36,7 @@ namespace WorkTab {
         }
 
         public Favourite this[Pawn pawn] {
-            get {
-                if (_favourites.TryGetValue(pawn, out Favourite favourite)) {
-                    return favourite;
-                }
-
-                return null;
-            }
+            get => _favourites.GetValueOrDefault(pawn);
             set {
                 if (value == null) {
                     _favourites.Remove(pawn);
@@ -69,7 +63,7 @@ namespace WorkTab {
             List<FloatMenuOption> options = new List<FloatMenuOption> {
                 new FloatMenuOption(
                              "Fluffy.WorkTab.CreateFavourite".Translate(),
-                             () => Favourite.From(pawn, true)),
+                             () => Favourite.From(pawn)),
 
                 // load from disk
                 new FloatMenuOption(
@@ -175,8 +169,7 @@ namespace WorkTab {
             List<FloatMenuOption> options = Directory.GetFiles(FavouriteBasePath)
                                    .Select(f => new { path = f, label = Path.GetFileNameWithoutExtension(f) })
                                    .Where(f => !Favourites.Any(F => F.Label == f.label))
-                                   .Select(f => new FloatMenuOption(f.label,
-                                                                     () => LoadFavourite(f.path, pawn)))
+                                   .Select(f => new FloatMenuOption(f.label, () => LoadFavourite(f.path, pawn)))
                                    .ToList();
             if (options.Count == 0) {
                 options.Add(new FloatMenuOption("Fluffy.WorkTab.NoStoredFavourites".Translate(), null));

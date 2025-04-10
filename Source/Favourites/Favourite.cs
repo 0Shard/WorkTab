@@ -11,6 +11,8 @@ namespace WorkTab {
         private string    _iconPath;
         private string    _label;
         private int       _loadId;
+        
+        private Pawn pawn;
 
         public Texture2D Icon {
             get {
@@ -31,9 +33,11 @@ namespace WorkTab {
             set => _label = value;
         }
 
-        public static Favourite From(Pawn pawn, bool apply = false) {
+        public static Favourite From(Pawn pawn) {
             // create from pawn
             Favourite favourite  = new Favourite();
+            favourite.pawn = pawn;
+            
             PriorityTracker priorities = PriorityManager.Get[pawn];
             foreach (WorkGiverDef workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
                 favourite.priorities[workgiver] = priorities[workgiver].Clone(favourite);
@@ -44,6 +48,8 @@ namespace WorkTab {
 
             return favourite;
         }
+        
+        public override Pawn Pawn => pawn;
 
         public override void ExposeData() {
             base.ExposeData();

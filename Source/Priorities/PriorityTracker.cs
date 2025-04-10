@@ -89,7 +89,7 @@ namespace WorkTab {
                 return priority;
             }
             // disabled workgiver
-            if ( (workgiver.workTags & Pawn.story.DisabledWorkTagsBackstoryAndTraits) != WorkTags.None)
+            if ( (workgiver.workTags & Pawn?.story.DisabledWorkTagsBackstoryAndTraits) != WorkTags.None)
             {
                 return 0;
             }
