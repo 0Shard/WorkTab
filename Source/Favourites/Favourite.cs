@@ -60,7 +60,7 @@ namespace WorkTab {
 
         protected override void OnChange() {
             if (Scribe.mode == LoadSaveMode.Inactive) {
-                FavouriteManager.Save(this);
+                FavouriteManager.Save(this, true);
             }
         }
     }

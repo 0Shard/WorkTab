@@ -59,12 +59,10 @@ namespace WorkTab
                 {
                     for (var hour = 0; hour < GenDate.HoursPerDay; hour++)
                     {
+                        // recache the type (bubbles down to workgivers). InvalidateCache will be called internally.
                         pawn.SetPriority(workgiver, _clipboard[workgiver][hour], hour);
                     }
                 }
-
-                // recache the type (bubbles down to workgivers).
-                PriorityManager.Get[pawn].InvalidateCache(workTypeDef);
             }
         }
     }

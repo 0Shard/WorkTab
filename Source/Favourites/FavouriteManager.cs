@@ -1,9 +1,12 @@
 // FavouriteManager.cs
 // Copyright Karel Kroeze, 2020-2020
 
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using FluffyUI;
 using FluffyUI.FloatMenu;
 using UnityEngine;
@@ -14,6 +17,17 @@ namespace WorkTab {
     public class FavouriteManager: GameComponent {
         public static List<Favourite> Favourites = new List<Favourite>();
         private static Dictionary<Pawn, Favourite> _favourites = new Dictionary<Pawn, Favourite>();
+        
+        private static readonly ConcurrentQueue<Favourite> _saveQueue = new ConcurrentQueue<Favourite>();
+        private static readonly HashSet<string> _pendingSet = new HashSet<string>();
+        private static readonly object _lock = new object();
+
+        private static bool _workerRunning = false;
+        
+        private static int _lastFlushTick = 0;
+        private const int AutoFlushIntervalTicks = 60 * 5; // Automatic flush every 5 seconds (60 ticks = 1 second)
+
+        private bool _wasInGame;
 
         public FavouriteManager() {
             Get = this;
@@ -120,10 +134,17 @@ namespace WorkTab {
             }
         }
 
-        public static void Save(Favourite favourite) {
-            Scribe.saver.InitSaving(FavouritePath(favourite), "Favourite");
-            favourite.ExposeData();
-            Scribe.saver.FinalizeSaving();
+        public static void Save(Favourite favourite, bool async = false) {
+            if (async)
+            {
+                SaveLater(favourite);
+            }
+            else
+            {
+                Scribe.saver.InitSaving(FavouritePath(favourite), "Favourite");
+                favourite.ExposeData();
+                Scribe.saver.FinalizeSaving();
+            }
         }
 
         private static bool ExtraPart(Rect rect, Favourite favourite) {
@@ -181,6 +202,116 @@ namespace WorkTab {
             base.ExposeData();
             Scribe_Collections.Look(ref Favourites, "Favourites", LookMode.Deep);
             Scribe_Collections.Look(ref _favourites, "FavouriteAssignments", LookMode.Reference, LookMode.Reference);
+        }
+        
+        public override void GameComponentTick()
+        {
+            Tick();
+        }
+
+        public override void GameComponentOnGUI()
+        {
+            switch (Current.ProgramState)
+            {
+                // When exiting from the game (return to the main menu)
+                case ProgramState.Entry when _wasInGame:
+                    _wasInGame = false;
+                    FlushImmediately();
+                    break;
+                case ProgramState.Playing:
+                    _wasInGame = true;
+                    break;
+                case ProgramState.MapInitializing:
+                default:
+                    break;
+            }
+        }
+
+        private static void SaveLater(Favourite favourite)
+        {
+            if (favourite == null)
+            {
+                return;
+            }
+            var key = favourite.Label;
+
+            lock (_lock)
+            {
+                if (!_pendingSet.Add(key))
+                    return;
+
+                _saveQueue.Enqueue(favourite);
+            }
+
+            StartWorker();
+        }
+
+        private static void StartWorker()
+        {
+            if (_workerRunning)
+            {
+                return;
+            }
+            
+            _workerRunning = true;
+
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                while (_saveQueue.TryDequeue(out var favourite))
+                {
+                    try
+                    {
+                        lock (_lock)
+                        {
+                            _pendingSet.Remove(favourite.Label);
+                        }
+
+                        lock (typeof(Scribe))
+                        {
+                            Save(favourite);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"[Work Tab Favourite] Save error \n: {ex}");
+                    }
+
+                    Thread.Sleep(25);
+                }
+
+                _workerRunning = false;
+            });
+        }
+        
+        private static void Tick()
+        {
+            if (GenTicks.TicksGame - _lastFlushTick < AutoFlushIntervalTicks)
+            {
+                return;
+            }
+            
+            _lastFlushTick = GenTicks.TicksGame;
+            FlushImmediately();
+        }
+
+        private static void FlushImmediately()
+        {
+            lock (_lock)
+            {
+                while (_saveQueue.TryDequeue(out var favourite))
+                {
+                    try
+                    {
+                        _pendingSet.Remove(favourite.Label);
+
+                        Save(favourite);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"[Work Tab Favourite] Flush error: \n{ex}");
+                    }
+                }
+            }
         }
     }
 }
