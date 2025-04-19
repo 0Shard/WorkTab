@@ -3,336 +3,202 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
-using WorkTab.Extensions;
 
 namespace WorkTab
 {
     [HarmonyPatch(typeof(PawnTable), nameof(PawnTable.PawnTableOnGUI))]
-    public class PawnTable_PawnTableOnGUI
+    public static class PawnTable_PawnTableOnGUI
     {
         private static int _hoveredColumnContent = -1;
         private static int _hoveredColumnLabel = -1;
         private static int _hoveredRowContent = -1;
         private static int _hoveredRowLabel = -1;
-        private static readonly Type ptt = typeof(PawnTable);
-        private static readonly FieldInfo cachedColumnWidthsField = AccessTools.Field(ptt, "cachedColumnWidths");
-        private static readonly FieldInfo cachedRowHeightsField = AccessTools.Field(ptt, "cachedRowHeights");
 
-        private static readonly FieldInfo borderColorField = AccessTools.Field(ptt, "BorderColor");
+        private static readonly FieldInfo widthsField = AccessTools.Field(typeof(PawnTable), "cachedColumnWidths");
+        private static readonly FieldInfo heightsField = AccessTools.Field(typeof(PawnTable), "cachedRowHeights");
+        private static readonly FieldInfo borderField = AccessTools.Field(typeof(PawnTable), "BorderColor");
+        private static readonly FieldInfo fixedField = AccessTools.Field(typeof(PawnTable), "fixedSize");
+        private static readonly MethodInfo recache = AccessTools.Method(typeof(PawnTable), "RecacheIfDirty");
 
-
-        private static readonly MethodInfo RecacheIfDirtyMethod = AccessTools.Method(ptt, "RecacheIfDirty");
-
-        private static readonly FieldInfo standardMarginField =
-            AccessTools.Field(typeof(Window), "StandardMargin");
-
-        static PawnTable_PawnTableOnGUI()
+        public static bool Prefix(PawnTable __instance, Vector2 position, PawnTableDef ___def, ref Vector2 ___scrollPosition)
         {
-            if (RecacheIfDirtyMethod == null)
-            {
-                throw new NullReferenceException("RecacheIfDirty field not found.");
-            }
-
-            if (cachedColumnWidthsField == null)
-            {
-                throw new NullReferenceException("cachedColumnWidths field not found.");
-            }
-
-            if (cachedRowHeightsField == null)
-            {
-                throw new NullReferenceException("cachedRowHeights field not found.");
-            }
-
-            if (standardMarginField == null)
-            {
-                throw new NullReferenceException("standardMargin field not found.");
-            }
-
-            if (borderColorField == null)
-            {
-                throw new NullReferenceException("BorderColor field not found.");
-            }
-        }
-
-        public static bool Prefix(PawnTable __instance,
-                Vector2 position,
-                PawnTableDef ___def,
-                ref Vector2 ___scrollPosition)
-            //harmony 1.2.0.1 gives access to private fields by ___name.
-        {
-            if (___def != PawnTableDefOf.Work) // only apply our changes on the work tab.
-            {
+            if (___def != PawnTableDefOf.Work)
                 return true;
-            }
-
             if (Event.current.type == EventType.Layout)
-            {
                 return false;
-            }
 
+            // Refresh cache
             _hoveredRowLabel = -1;
+            recache.Invoke(__instance, null);
 
-            RecacheIfDirtyMethod.Invoke(__instance, null);
-
-            // get fields
-            Vector2 cachedSize = __instance.Size;
             var columns = __instance.Columns;
-            List<float> cachedColumnWidths = cachedColumnWidthsField.GetValue(__instance) as List<float>;
-            float cachedHeaderHeight = __instance.HeaderHeight;
-            float cachedHeightNoScrollbar = __instance.HeightNoScrollbar;
-            Vector2 headerScrollPosition = new Vector2(___scrollPosition.x, 0f);
-            Vector2 labelScrollPosition = new Vector2(0f, ___scrollPosition.y);
-            List<Pawn> cachedPawns = __instance.PawnsListForReading;
-            List<float> cachedRowHeights = cachedRowHeightsField.GetValue(__instance) as List<float>;
-            float standardWindowMargin = (float)standardMarginField.GetRawConstantValue();
-            Color borderColor = (Color)borderColorField.GetValue(__instance);
+            var pawns = __instance.PawnsListForReading;
+            var widths = (List<float>)widthsField.GetValue(__instance);
+            var heights = (List<float>)heightsField.GetValue(__instance);
+            var borderColor = (Color)borderField.GetValue(__instance);
+            var fixedSize = (Vector2)fixedField.GetValue(__instance);
 
-            // this is the main change, vanilla hardcodes both outRect and viewRect to the cached size.
-            // Instead, we want to limit outRect to the available view area, so a horizontal scrollbar can appear.
-            float labelWidth = cachedColumnWidths[0];
-            var labelCol = columns[0];
-            // ideally this method would be called with a Rect outRect
-            // indicating the window it is being drawn in instead
-            // of a Vector2 position
-            var outRect = __instance.get_OutRect();
-            float outWidth = outRect.width - labelWidth;
-            float viewWidth = cachedSize.x - labelWidth;
-            if (cachedSize.x < UI.screenWidth)
-            {
-                viewWidth -= 16f;
-            }
+            float headerH = __instance.HeaderHeight;
+            float heightNoScroll = __instance.HeightNoScrollbar;
+            float labelW = widths[0];
+            
+            // Calculate vertical space, clamped to screen, considering bottom space for the timeline
+            float bottomMargin = MainButtonDef.ButtonHeight + Constants.TimeBarHeight + 42f;
+            float maxScrollH = UI.screenHeight - position.y - bottomMargin;
+            float outH = Mathf.Min(heightNoScroll - headerH, maxScrollH);
+            float outW = fixedSize.x - labelW;
 
-            Rect labelHeaderRect = new Rect(
-                position.x,
-                position.y,
-                labelWidth,
-                cachedHeaderHeight);
+            // Adjust outH based on timeline height to ensure enough space for the timeline at the bottom
+            outH = Mathf.Min(outH, maxScrollH - Constants.TimeBarHeight);
 
-            Rect headerOutRect = new Rect(
-                position.x + labelWidth,
-                position.y,
-                outWidth,
-                cachedHeaderHeight);
-            Rect headerViewRect = new Rect(
-                0f,
-                0f,
-                viewWidth,
-                cachedHeaderHeight);
+            // Define rects
+            Rect headerOut = new Rect(position.x + labelW, position.y, outW, headerH);
+            Rect labelOut = new Rect(position.x, position.y + headerH, labelW, outH);
+            Rect tableOut = new Rect(position.x + labelW, position.y + headerH, outW, outH);
 
-            Rect labelOutRect = new Rect(
-                position.x,
-                position.y + cachedHeaderHeight,
-                labelWidth,
-                cachedSize.y - cachedHeaderHeight);
-            Rect labelViewRect = new Rect(
-                0f,
-                0f,
-                labelWidth,
-                cachedHeightNoScrollbar - cachedHeaderHeight);
+            // Calculate the content size
+            float contentW = 0f;
+            for (int i = 1; i < widths.Count; i++) contentW += widths[i];
+            float contentH = 0f;
+            foreach (var h in heights) contentH += h;
+            
+            // Ensure the content area is scrollable and scrollbars appear if content overflows
+            bool needH = contentW > outW;
+            bool needV = contentH > outH;
 
-            Rect tableOutRect = new Rect(
-                position.x + labelWidth,
-                position.y + cachedHeaderHeight,
-                outWidth,
-                cachedSize.y - cachedHeaderHeight);
-            Rect tableViewRect = new Rect(
-                0f,
-                0f,
-                viewWidth,
-                cachedHeightNoScrollbar - cachedHeaderHeight);
+            // Enable scrollbars if content is too large
+            if (needH) { headerOut.height += 16f; tableOut.height += 16f; }
+            if (needV) { labelOut.width += 16f; tableOut.width += 16f; }
+            
+            Rect headerView = new Rect(0f, 0f, contentW, headerH);
+            Rect labelView  = new Rect(0f, 0f, labelW, contentH);
+            Rect tableView = new Rect(0f, 0f, contentW, contentH);
 
-            // increase height of table to accomodate scrollbar if necessary and possible.
-            if (viewWidth > outWidth && cachedSize.y + 16f < UI.screenHeight)
-            {
-                // NOTE: this is probably optimistic about the available height, but it appears to be what vanilla uses.
-                tableOutRect.height += 16f;
-                viewWidth += 16f;
-            }
-            // Check if the table's height exceeds the screen height.  53: MainTabWindow_WorkTab.ExtraBottomSpace  16: horizontal scrollbar
-            if (cachedHeightNoScrollbar + MainButtonDef.ButtonHeight + Constants.PriorityLabelSize.y + 53 + 16 > UI.screenHeight)
-            {
-                tableOutRect.width += 16f;
-            }
+            // Draw frozen label header
+            columns[0].Worker.DoHeader(new Rect(position.x, position.y, labelW, headerH), __instance);
 
-            // we need to add a scroll area to the column headers to make sure they stay in sync with the rest of the table, but the first (labels) column should be frozen.
-            labelCol.Worker.DoHeader(labelHeaderRect, __instance);
-
-            // scroll area for the rest of the columns - HORIZONTAL ONLY
-            IntVec3 pos = IntVec3.Zero;
-            Widgets.BeginScrollView(headerOutRect, ref headerScrollPosition, headerViewRect, false);
+            // Horizontal header scroll
+            Vector2 hPos = new Vector2(___scrollPosition.x, 0f);
+            Widgets.BeginScrollView(headerOut, ref hPos, headerView, false);
+            float curX = 0f;
             for (int i = 1; i < columns.Count; i++)
             {
-                int colWidth;
-                if (i == columns.Count - 1)
-                {
-                    colWidth = (int)(viewWidth - pos.x);
-                }
-                else
-                {
-                    colWidth = (int)cachedColumnWidths[i];
-                }
-
-                Rect rect = new Rect(pos.x, 0f, colWidth, (int)cachedHeaderHeight);
-
-                // column highlight sync
-                if (Mouse.IsOver(rect))
-                {
-                    _hoveredColumnLabel = i;
-                }
-
-                if (_hoveredColumnContent == i)
-                {
-                    Widgets.DrawHighlight(rect);
-                }
-
+                float w = (i == columns.Count - 1) ? contentW - curX : widths[i];
+                var rect = new Rect(curX, 0f, w, headerH);
+                if (Mouse.IsOver(rect)) _hoveredColumnLabel = i;
+                if (_hoveredColumnContent == i) Widgets.DrawHighlight(rect);
                 columns[i].Worker.DoHeader(rect, __instance);
-                pos.x += colWidth;
+                curX += w;
             }
-
             _hoveredColumnContent = -1;
             Widgets.EndScrollView();
-            ___scrollPosition.x = headerScrollPosition.x;
-
+            ___scrollPosition.x = hPos.x;
+            
             // scrollview for label column - VERTICAL ONLY
-            if (_hoveredColumnLabel == 0)
-            {
-                Widgets.DrawHighlight(labelOutRect);
-            }
+            if (_hoveredColumnLabel == 0) Widgets.DrawHighlight(labelOut);
 
-            Widgets.BeginScrollView(labelOutRect, ref labelScrollPosition, labelViewRect, false);
-            Rect labelRect = labelOutRect.AtZero();
-            for (int j = 0; j < cachedPawns.Count; j++)
+            // Vertical label scroll with separators
+            Vector2 vPos = new Vector2(0f, ___scrollPosition.y);
+            Widgets.BeginScrollView(labelOut, ref vPos, labelView, false);
+            float curY = 0f;
+            for (int j = 0; j < pawns.Count; j++)
             {
-                labelRect.height = (int)cachedRowHeights[j];
+                GUI.color = borderColor;
+                Widgets.DrawLineHorizontal(0f, curY, labelW);
+                GUI.color = Color.white;
 
-                // only draw if on screen
-                if (tableViewRect.height <= tableOutRect.height ||
-                    labelRect.y - ___scrollPosition.y + (int)cachedRowHeights[j] >= 0f &&
-                    labelRect.y - ___scrollPosition.y <= tableOutRect.height)
+                var cellRect = new Rect(0f, curY, labelW, heights[j]);
+                columns[0].Worker.DoCell(cellRect, pawns[j], __instance);
+                if (_hoveredRowContent == j) Widgets.DrawHighlight(cellRect);
+                if (Mouse.IsOver(cellRect)) _hoveredRowLabel = j;
+                if (pawns[j].Downed)
                 {
-                    GUI.color = borderColor;
-                    Widgets.DrawLineHorizontal(0f, labelRect.y, tableViewRect.width);
+                    GUI.color = new Color(1f, 0f, 0f, 0.5f);
+                    Widgets.DrawLineHorizontal(0f, cellRect.center.y, labelW);
                     GUI.color = Color.white;
-
-                    labelCol.Worker.DoCell(labelRect, cachedPawns[j], __instance);
-                    if (_hoveredRowContent == j)
-                    {
-                        Widgets.DrawHighlight(labelRect);
-                    }
-
-                    if (Mouse.IsOver(labelRect))
-                    {
-                        _hoveredRowLabel = j;
-                    }
-
-                    if (cachedPawns[j].Downed)
-                    {
-                        GUI.color = new Color(1f, 0f, 0f, 0.5f);
-                        Widgets.DrawLineHorizontal(0f, labelRect.center.y, labelWidth);
-                        GUI.color = Color.white;
-                    }
                 }
-
-                labelRect.y += (int)cachedRowHeights[j];
+                curY += heights[j];
             }
-
             Widgets.EndScrollView();
-
-            ___scrollPosition.y = labelScrollPosition.y;
+            ___scrollPosition.y = vPos.y;
             _hoveredRowContent = -1;
 
-            // And finally, draw the rest of the table - SCROLLS VERTICALLY AND HORIZONTALLY
-            Widgets.BeginScrollView(tableOutRect, ref ___scrollPosition, tableViewRect);
-            pos.x = 0;
-            for (int k = 1; k < columns.Count; k++)
+            // Main table scroll
+            Widgets.BeginScrollView(tableOut, ref ___scrollPosition, tableView, true);
+            
+            // Column content sync highlight
+            curX = 0f;
+            for (int i = 1; i < columns.Count; i++)
             {
-                int columnWidth;
-                if (k == columns.Count - 1)
+                float w = (i == columns.Count - 1) ? contentW - curX : widths[i];
+                var rect = new Rect(curX, 0f, w, tableOut.height);
+                if (Mouse.IsOver(rect)) 
                 {
-                    columnWidth = (int)(viewWidth - pos.x);
+                    Widgets.DrawHighlight(rect);
+                    _hoveredColumnContent = i;
                 }
-                else
-                {
-                    columnWidth = (int)cachedColumnWidths[k];
-                }
-
-                Rect column = new Rect(pos.x, pos.y, columnWidth, (int)tableOutRect.height);
-                if (Mouse.IsOver(column))
-                {
-                    Widgets.DrawHighlight(column);
-                    _hoveredColumnContent = k;
-                }
-
-                if (_hoveredColumnLabel == k)
-                {
-                    Widgets.DrawHighlight(column);
-                }
-
-                pos.x += columnWidth;
+                if (_hoveredColumnLabel == i) Widgets.DrawHighlight(rect);
+                curX += w;
             }
-
             _hoveredColumnLabel = -1;
-            for (int j = 0; j < cachedPawns.Count; j++)
+            
+            // Draw rows with separators and cells
+            float rowY = 0f;
+            for (int j = 0; j < pawns.Count; j++)
             {
-                pos.x = 0;
-                // only draw if on screen
-                if (tableViewRect.height <= tableOutRect.height ||
-                    pos.y - ___scrollPosition.y + (int)cachedRowHeights[j] >= 0f &&
-                    pos.y - ___scrollPosition.y <= tableOutRect.height)
+                GUI.color = borderColor;
+                Widgets.DrawLineHorizontal(0f, rowY, tableView.width);
+                GUI.color = Color.white;
+
+                Rect rowRect = new Rect(0f, rowY, tableView.width, heights[j]);
+                if (Mouse.IsOver(rowRect))
                 {
-                    GUI.color = borderColor;
-                    Widgets.DrawLineHorizontal(0f, pos.y, tableViewRect.width);
-                    GUI.color = Color.white;
-                    Rect rowRect = new Rect(0f, pos.y, tableViewRect.width, (int)cachedRowHeights[j]);
+                    Widgets.DrawHighlight(rowRect);
+                    _hoveredRowContent = j;
+                }
+                if (_hoveredRowLabel == j) Widgets.DrawHighlight(rowRect);
 
-                    // synchronize row highlights 
-                    if (Mouse.IsOver(rowRect))
-                    {
-                        Widgets.DrawHighlight(rowRect);
-                        _hoveredRowContent = j;
-                    }
-                    else if (_hoveredRowLabel == j)
-                    {
-                        Widgets.DrawHighlight(rowRect);
-                    }
-
-                    for (int k = 1; k < columns.Count; k++)
-                    {
-                        int cellWidth;
-                        if (k == columns.Count - 1)
-                        {
-                            cellWidth = (int)(viewWidth - pos.x);
-                        }
-                        else
-                        {
-                            cellWidth = (int)cachedColumnWidths[k];
-                        }
-
-                        Rect rect3 = new Rect(pos.x, pos.y, cellWidth, (int)cachedRowHeights[j]);
-                        columns[k].Worker.DoCell(rect3, cachedPawns[j], __instance);
-                        pos.x += cellWidth;
-                    }
-
-                    if (cachedPawns[j].Downed)
-                    {
-                        GUI.color = new Color(1f, 0f, 0f, 0.5f);
-                        Widgets.DrawLineHorizontal(0f, rowRect.center.y, tableViewRect.width);
-                        GUI.color = Color.white;
-                    }
+                float cellX = 0f;
+                for (int c = 1; c < columns.Count; c++)
+                {
+                    float w = (c == columns.Count - 1) ? contentW - cellX : widths[c];
+                    var cellR = new Rect(cellX, rowY, w, heights[j]);
+                    columns[c].Worker.DoCell(cellR, pawns[j], __instance);
+                    cellX += w;
                 }
 
-                pos.y += (int)cachedRowHeights[j];
+                if (pawns[j].Downed)
+                {
+                    GUI.color = new Color(1f, 0f, 0f, 0.5f);
+                    Widgets.DrawLineHorizontal(0f, rowRect.center.y, tableView.width);
+                    GUI.color = Color.white;
+                }
+                rowY += heights[j];
             }
 
             Widgets.EndScrollView();
-
             return false;
+        }
+    }
+    
+    [HarmonyPatch(typeof(PawnTable), "RecacheSize")]
+    public static class Patch_RecacheSize_SkipFixedSize
+    {
+        // Prefix 中将 hasFixedSize 设置为 false，从而让 if (this.hasFixedSize) 跳过
+        public static void Prefix(PawnTable __instance, PawnTableDef ___def)
+        {
+            if (___def != PawnTableDefOf.Work)
+            {
+                return;
+            }
+            
+            var fieldHasFixedSize = AccessTools.Field(typeof(PawnTable), "hasFixedSize");
+            fieldHasFixedSize.SetValue(__instance, false);
         }
     }
 }

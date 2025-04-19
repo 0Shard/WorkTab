@@ -48,7 +48,7 @@ namespace WorkTab {
                 Find.PlaySettings.useWorkPriorities = value;
 
                 // force re-cache of all pawns
-                foreach (Pawn pawn in priorities.Keys.ToList()) {
+                foreach (var pawn in priorities.Keys.ToList()) {
                     pawn?.workSettings?.Notify_UseWorkPrioritiesChanged();
                 }
             }
@@ -93,12 +93,10 @@ namespace WorkTab {
             base.ExposeData();
 
             // purge null pawn elements, note that this also neatly keeps track of periodic garbage collection on autosaves
-            List<Pawn> pawns = priorities.Keys.ToList();
-            foreach (Pawn pawn in pawns) {
-                if (pawn?.Destroyed ?? true) // null or destroyed
-                {
-                    priorities.Remove(pawn);
-                }
+            var pawns = priorities.Keys.ToList();
+            foreach (var pawn in pawns.Where(pawn => pawn?.Destroyed ?? true))
+            {
+                priorities.Remove(pawn);
             }
 
             Scribe_Collections.Look(ref priorities, "Priorities", LookMode.Reference, LookMode.Deep, ref pawnsScribe,

@@ -11,8 +11,8 @@
   <WorkTab.CollapseAll>Нажмите, чтобы свернуть все приоритеты\nCtrl+ЛКМ по заголовку свернёт только его</WorkTab.CollapseAll>
 
   <!-- column header tooltips -->
-  <WorkTab.DetailedColumnTip>Shift+ЛКМ или Shift+прокрутка вверх повысит приоритет этой задачи для всех поселенцев\nShift+ПКМ или Shift+прокрутка вниз понизит приоритет этой задачи для всех поселенцев</WorkTab.DetailedColumnTip>
-  <WorkTab.ToggleColumnTip>Shift+ЛКМ или Shift+прокрутка вверх назначит эту задачу всем поселенцам\nShift+ПКМ или Shift+прокрутка вниз освободит всех поселенцев от этой задачи</WorkTab.ToggleColumnTip>
+  <WorkTab.DetailedColumnTip>прокрутка вверх повысит приоритет этой задачи для всех поселенцев или прокрутка вниз понизит приоритет этой задачи для всех поселенцев</WorkTab.DetailedColumnTip>
+  <WorkTab.ToggleColumnTip>прокрутка вверх назначит эту задачу всем поселенцам или прокрутка вниз освободит всех поселенцев от этой задачи</WorkTab.ToggleColumnTip>
   <WorkTab.ExpandWorkgiversColumnTip>Ctrl+ЛКМ развернёт подробный список приоритетов</WorkTab.ExpandWorkgiversColumnTip>
   <WorkTab.CollapseWorkgiversColumnTip>Ctrl+ЛКМ свернёт подробный список приоритетов</WorkTab.CollapseWorkgiversColumnTip>
 

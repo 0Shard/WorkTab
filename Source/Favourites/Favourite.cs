@@ -6,7 +6,7 @@ using UnityEngine;
 using Verse;
 
 namespace WorkTab {
-    public class Favourite: PriorityTracker {
+    public class Favourite : PriorityTracker {
         private Texture2D _icon;
         private string    _iconPath;
         private string    _label;
@@ -33,10 +33,10 @@ namespace WorkTab {
 
         public static Favourite From(Pawn pawn) {
             // create from pawn
-            Favourite favourite  = new Favourite();
+            var favourite  = new Favourite();
             
-            PriorityTracker priorities = PriorityManager.Get[pawn];
-            foreach (WorkGiverDef workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
+            var priorities = PriorityManager.Get[pawn];
+            foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
                 favourite.priorities[workgiver] = priorities[workgiver].Clone(favourite);
             }
 

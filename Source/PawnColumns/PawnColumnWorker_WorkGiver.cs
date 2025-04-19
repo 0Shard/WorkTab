@@ -49,43 +49,18 @@ namespace WorkTab {
         }
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table) {
-            // bail out if showing worksettings is nonsensical
-            if (pawn.Dead || !pawn.workSettings.EverWork) {
+            if (pawn.NothingCanBeDone()) {
                 return;
             }
-
-            WorkGiverDef workgiver = WorkGiver;
-
-            if (Settings.highlightActiveWorkCells)
-            {
-                bool doingNow = (pawn.CurJob?.workGiverDef?.defName == workgiver?.defName);
-                if (doingNow)
-                {
-                    GUI.color = Color.white;
-                    GUI.DrawTexture(rect.ContractedBy(-2f), DrawUtilities.GetActiveHighlightBox());
-                }
-            }
-
-            // create rect in centre of cell, slightly offsetting left to give the appearance of aligning to worktype.
-            Vector2 pos = rect.center - (new Vector2( WorkGiverBoxSize, WorkGiverBoxSize ) / 2f);
-            Rect box = new Rect( pos.x - 2f, pos.y, WorkGiverBoxSize, WorkGiverBoxSize );
-
-            // is the pawn currently capable of doing this job?
-            bool incapable = !pawn.CapableOf( workgiver );
-
-            // plop in the tooltip
-            string tipGetter() { return DrawUtilities.TipForPawnWorker(pawn, workgiver, incapable); }
-            TooltipHandler.TipRegion(box, tipGetter, pawn.thingIDNumber ^ workgiver.workType.GetHashCode());
-
-            // bail out if pawn can't actually do this work
+            
             if (!ShouldDrawCell(pawn)) {
                 return;
             }
-
+            
             // draw the workbox
             Text.Font = GameFont.Tiny;
-            DrawWorkGiverBoxFor(box, pawn, workgiver, incapable);
-
+            DrawWorkGiverBoxFor(rect, pawn);
+            
             // handle interactions
             HandleInteractions(rect, pawn);
         }
@@ -196,7 +171,7 @@ namespace WorkTab {
                             }
 
                             foreach (Pawn pawn in pawns) {
-                                pawn.SetPriority(WorkGiver, 3, SelectedHours);
+                                pawn.SetPriority(WorkGiver, Settings.defaultPriority, SelectedHours);
                             }
                         }
                     }
@@ -212,33 +187,50 @@ namespace WorkTab {
             }
         }
 
-        public bool ShouldDrawCell(Pawn pawn) {
-            if (pawn?.story == null) {
-                return false;
-            }
-
-            if ( (WorkGiver.workTags & pawn.story.DisabledWorkTagsBackstoryAndTraits) != WorkTags.None)
-            {
-                return false;
-            }
- 
-            return !pawn.WorkTypeIsDisabled(WorkGiver.workType);
+        private bool ShouldDrawCell(Pawn pawn) {
+            return pawn.AllowedToDo(WorkGiver);
         }
 
-        protected virtual void DrawWorkGiverBoxFor(Rect box, Pawn pawn, WorkGiverDef workgiver, bool incapable) {
+        protected virtual void DrawWorkGiverBoxFor(Rect rect, Pawn pawn) {
+            // is the pawn currently capable of doing this job?
+            var incapable = !pawn.CapableOf(WorkGiver);
+            
+            // create rect in centre of cell, slightly offsetting left to give the appearance of aligning to worktype.
+            var pos = rect.center - (new Vector2( WorkGiverBoxSize, WorkGiverBoxSize ) / 2f);
+            var box = new Rect( pos.x - 2f, pos.y, WorkGiverBoxSize, WorkGiverBoxSize );
+            
             // draw background
             GUI.color = incapable ? new Color(1f, .3f, .3f) : Color.white;
-            DrawUtilities.DrawWorkBoxBackground(box, pawn, workgiver.workType);
+            DrawUtilities.DrawWorkBoxBackground(box, pawn, WorkGiver.workType);
             GUI.color = Color.white;
-
+            
+            HighlightActiveWorkGiver(pawn, box);
+            
             // draw extras
-            PriorityTracker tracker = PriorityManager.Get[pawn];
-            if (tracker.TimeScheduled(workgiver)) {
+            var tracker = PriorityManager.Get[pawn];
+            if (tracker.TimeScheduled(WorkGiver)) {
                 DrawUtilities.DrawTimeScheduled(box);
             }
 
             // draw priorities / checks
-            DrawUtilities.DrawPriority(box, pawn.GetPriority(workgiver, VisibleHour), true);
+            DrawUtilities.DrawPriority(box, pawn.GetPriority(WorkGiver, VisibleHour), true);
+            
+            if (Mouse.IsOver(box)) {
+                // plop in the tooltip
+                TooltipHandler.TipRegion(box, 
+                    () => DrawUtilities.TipForPawnWorker(pawn, WorkGiver, incapable), 
+                    pawn.thingIDNumber ^ WorkGiver.workType.GetHashCode());
+            }
+        }
+
+        private void HighlightActiveWorkGiver(Pawn pawn, Rect box)
+        {
+            if (!Settings.highlightActiveWorkCells) return;
+            var doingNow = pawn.CurJob?.workGiverDef?.defName == WorkGiver.defName;
+            if (!doingNow) return;
+            GUI.color = Color.magenta;
+            Widgets.DrawBox(box);
+            GUI.color = Color.white;
         }
 
         protected override string GetHeaderTip(PawnTable table) {
@@ -290,16 +282,16 @@ namespace WorkTab {
 
         private string CreateHeaderTip(PawnTable table) {
             string tip = "";
-            tip += Label + "\n";
+            tip += Label.Colorize(ColoredText.TipSectionTitleColor) + "\n";
             if (!WorkGiver.description.NullOrEmpty()) {
                 tip += "\n" + WorkGiver.description + "\n";
             }
 
-            tip += "\n" + "ClickToSortByThisColumn".Translate();
+            tip += "\n" + "ClickToSortByThisColumn".Translate().Colorize(ColoredText.SubtleGrayColor);
             if (Find.PlaySettings.useWorkPriorities) {
-                tip += "\n" + "WorkTab.DetailedColumnTip".Translate();
+                tip += "\n" + "WorkTab.DetailedColumnTip".Translate().Colorize(ColoredText.SubtleGrayColor);
             } else {
-                tip += "\n" + "WorkTab.ToggleColumnTip".Translate();
+                tip += "\n" + "WorkTab.ToggleColumnTip".Translate().Colorize(ColoredText.SubtleGrayColor);
             }
 
             return tip;
@@ -372,7 +364,7 @@ namespace WorkTab {
                         SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
                     }
                 } else {
-                    pawn.SetPriority(WorkGiver, Mathf.Min(Settings.maxPriority, 3), SelectedHours);
+                    pawn.SetPriority(WorkGiver, Settings.defaultPriority, SelectedHours);
                     if (Settings.playSounds) {
                         SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
                     }

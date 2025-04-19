@@ -13,13 +13,11 @@ namespace WorkTab {
         private readonly Dictionary<WorkTypeDef, bool>  _partScheduledWorkType  = new Dictionary<WorkTypeDef, bool>();
         private readonly Dictionary<WorkGiverDef, bool> _timeScheduledWorkGiver = new Dictionary<WorkGiverDef, bool>();
 
-        private readonly Dictionary<WorkGiverDef, string> _timeScheduledWorkGiverTip =
-            new Dictionary<WorkGiverDef, string>();
+        private readonly Dictionary<WorkGiverDef, string> _timeScheduledWorkGiverTip = new Dictionary<WorkGiverDef, string>();
 
         private readonly Dictionary<WorkTypeDef, bool> _timeScheduledWorkType = new Dictionary<WorkTypeDef, bool>();
 
-        private readonly Dictionary<WorkTypeDef, string> _timeScheduledWorkTypeTip =
-            new Dictionary<WorkTypeDef, string>();
+        private readonly Dictionary<WorkTypeDef, string> _timeScheduledWorkTypeTip = new Dictionary<WorkTypeDef, string>();
 
         protected Dictionary<WorkGiverDef, WorkPriority> priorities = new Dictionary<WorkGiverDef, WorkPriority>();
         protected List<WorkPriority>                     workPriorityTrackersScribe;
@@ -31,13 +29,17 @@ namespace WorkTab {
 
         public virtual WorkPriority this[WorkGiverDef workgiver] {
             get {
-                if (!priorities.ContainsKey(workgiver)) {
-                    Logger.Debug(
-                        $"requested {workgiver.defName} priorities for {Pawn?.LabelShort ?? "<no pawn>"}, which did not yet exist.");
-                    priorities.Add(workgiver, new WorkPriority(this, workgiver));
-                }
-
-                return priorities[workgiver];
+                if (priorities.TryGetValue(workgiver, out var item))
+                {
+                    return item;
+                };
+                
+                Logger.Debug(
+                    $"requested {workgiver.defName} priorities for {Pawn?.LabelShort ?? "<no pawn>"}, which did not yet exist.");
+                
+                item = new WorkPriority(this, workgiver);
+                priorities.Add(workgiver, item);
+                return item;
             }
             set => priorities[workgiver] = value;
         }
@@ -83,34 +85,22 @@ namespace WorkTab {
             return TimeUtilities.WholeDay.Select(h => GetPriority(worktype, h)).ToArray();
         }
 
-        public int GetPriority(WorkGiverDef workgiver, int hour) {
-            int priority = this[workgiver][hour];
-            if (Find.PlaySettings.useWorkPriorities) {
-                return priority;
-            }
-            // disabled workgiver
-            if ( (workgiver.workTags & Pawn?.story.DisabledWorkTagsBackstoryAndTraits) != WorkTags.None)
-            {
-                return 0;
-            }
-
-            return priority > 0 ? 3 : 0;
+        public int GetPriority(WorkGiverDef workGiver, int hour)
+        {
+            return Pawn.AllowedToDo(workGiver) ? this[workGiver][hour] : 0;
         }
 
-        public int GetPriority(WorkTypeDef worktype, int hour) {
-            if (worktype == null) {
+        public int GetPriority(WorkTypeDef workType, int hour) {
+            if (workType == null) {
                 return 0;
             }
+            var priorityList = workType.WorkGivers()
+                                       .Where(wg => Pawn.AllowedToDo(wg))
+                                       .Select(wg => this[wg][hour] )
+                                       .Where(p => p > 0 )
+                                       .ToList();
 
-            IEnumerable<int> priorities = worktype.WorkGivers()
-                                     .Select( wg => this[wg][hour] )
-                                     .Where( p => p > 0 );
-
-            if (!priorities.Any()) {
-                return 0;
-            }
-
-            return Find.PlaySettings.useWorkPriorities ? priorities.Min() : 3;
+            return priorityList.Any() ? priorityList.Min() : 0;
         }
 
         public void InvalidateCache(WorkGiverDef workgiver, bool bubble = true) {
@@ -161,10 +151,9 @@ namespace WorkTab {
             int[] priorities = GetPriorities( worktype );
 
             // first make sure all workgivers are cached
-            foreach (WorkGiverDef workgiver in workgivers) {
-                if (!_everScheduledWorkGiver.ContainsKey(workgiver)) {
-                    Recache(workgiver);
-                }
+            foreach (var workgiver in workgivers.Where(workgiver => !_everScheduledWorkGiver.ContainsKey(workgiver)))
+            {
+                Recache(workgiver);
             }
 
             // recache worktype stuff
@@ -176,7 +165,7 @@ namespace WorkTab {
                                                             .Any(hour => 
                                                                 worktype.WorkGivers()
                                                                         .Any(wg => 
-                                                                            GetPriority(wg, hour) > 0 && 
+                                                                            Pawn.AllowedToDo(wg) &&
                                                                             GetPriority(worktype, hour) != GetPriority(wg, hour))
                                                                 );
         }
@@ -186,7 +175,7 @@ namespace WorkTab {
         }
 
         public void SetPriority(WorkGiverDef workgiver, int priority, int hour, bool recache = true) {
-            if (Pawn?.WorkTypeIsDisabled(workgiver.workType) == true)
+            if (!Pawn.AllowedToDo(workgiver))
             {
                 return;
             }

@@ -3,6 +3,7 @@
 
 using UnityEngine;
 using Verse;
+using static WorkTab.Constants;
 
 namespace WorkTab {
     public static class LabelUtilities {
@@ -60,6 +61,39 @@ namespace WorkTab {
 
             // restore the original scaling matrix
             GUI.matrix = matrix;
+        }
+
+        public static void DoHeaderLabel(Rect labelRect, string labelShort, Rect rect)
+        {
+            if (Settings.verticalLabels) {
+                DrawVerticalHeader(rect, labelShort);
+            } else {
+                DrawHorizontalHeader(rect,labelShort, labelRect);
+            }
+        }
+
+        private static void DrawHorizontalHeader(Rect rect, string label, Rect labelRect) {
+            Widgets.Label(labelRect, label.Truncate(labelRect.width, TruncationCache));
+            
+            Vector2 start = new Vector2(labelRect.center.x, labelRect.yMax);
+            float length = rect.yMax - start.y;
+            if (start.x - (int)start.x < 1e-4) {
+                start.x += 0.5f;
+            }
+            
+            GUI.color = new Color(1f, 1f, 1f, 0.3f);
+            Widgets.DrawLineVertical(Mathf.FloorToInt(start.x), start.y, length);
+            Widgets.DrawLineVertical(Mathf.CeilToInt(start.x), start.y, length);
+            GUI.color = Color.white;
+            Text.Anchor = TextAnchor.UpperLeft;
+        }
+
+        private static void DrawVerticalHeader(Rect rect, string label) {
+            GUI.color = new Color(0.8f, 0.8f, 0.8f);
+            Text.Anchor = TextAnchor.MiddleLeft;
+            VerticalLabel(rect, label.Truncate(rect.height, VerticalTruncationCache));
+            Text.Anchor = TextAnchor.UpperLeft;
+            GUI.color = Color.white;
         }
     }
 }

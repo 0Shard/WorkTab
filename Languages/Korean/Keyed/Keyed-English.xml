@@ -11,8 +11,8 @@
     <WorkTab.CollapseAll>클릭해 세부적인 우선 순위 정책을 축소합니다.\n해더를 Ctrl-click 해서 개별 우선 순위 정책에 대한 상세 보기를 축소합니다.</WorkTab.CollapseAll>
 
     <!-- column header tooltips -->
-    <WorkTab.DetailedColumnTip>Shift + 왼쪽 클릭 혹은 휠 업으로 우선 순위를 올립니다.\nShift + 오른쪽 클릭 혹은 휠 다운으로 우선 순위를 낮춥니다.</WorkTab.DetailedColumnTip>
-    <WorkTab.ToggleColumnTip>Shift + 왼쪽 클릭 혹은 휠 업으로 우선 순위를 토글을 켭니다.\nShift + 오른쪽 클릭 혹은 휠 다운으로 우선 순위 토글을 끕니다.</WorkTab.ToggleColumnTip>
+    <WorkTab.DetailedColumnTip>휠 업으로 우선 순위를 올립니다. 혹은 휠 다운으로 우선 순위를 낮춥니다.</WorkTab.DetailedColumnTip>
+    <WorkTab.ToggleColumnTip>휠 업으로 우선 순위를 토글을 켭니다.혹은 휠 다운으로 우선 순위 토글을 끕니다.</WorkTab.ToggleColumnTip>
     <WorkTab.ExpandWorkgiversColumnTip>Ctrl + 클릭으로 상세 우선 순위 리스트를 확장합니다.</WorkTab.ExpandWorkgiversColumnTip>
     <WorkTab.CollapseWorkgiversColumnTip>Ctrl + 클릭으로 상세 우선 순위 이스트를 축소합니다.</WorkTab.CollapseWorkgiversColumnTip>
 

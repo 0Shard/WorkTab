@@ -7,27 +7,41 @@ using Verse;
 
 namespace WorkTab {
     public static class Pawn_Extensions {
-        public static bool AllowedToDo(this Pawn pawn, WorkGiverDef workgiver) {
-            if (pawn?.story == null) {
-                return true;
-            }
-
-            if (pawn.IsSlave) {
-                return true;
-            }
-
+        
+        public static bool AllowedToDo(this Pawn pawn, WorkGiverDef workgiver)
+        {
             return !pawn.WorkTypeIsDisabled(workgiver.workType) &&
                    (pawn.CombinedDisabledWorkTags & workgiver.workTags) == WorkTags.None &&
-                   (pawn.CombinedDisabledWorkTags & workgiver.workType?.workTags) == WorkTags.None;
+                   // (pawn.CombinedDisabledWorkTags & workgiver.workType?.workTags) == WorkTags.None &&
+                   (workgiver.workTags & pawn.story?.DisabledWorkTagsBackstoryAndTraits) == WorkTags.None;
+        }   
+        
+        public static bool AllowedToDo(this Pawn pawn, WorkTypeDef workType)
+        {
+            return !pawn.WorkTypeIsDisabled(workType) && (pawn.CombinedDisabledWorkTags & workType.workTags) == WorkTags.None;
+        }
+        
+        public static bool NotAllowedToDo(this Pawn pawn, WorkTypeDef workType)
+        {
+            return !AllowedToDo(pawn, workType);
+        }
+
+        public static bool NothingCanBeDone(this Pawn pawn)
+        {
+            return pawn.Dead || pawn.workSettings == null || !pawn.workSettings.EverWork;
         }
 
         public static bool CapableOf(this Pawn pawn, WorkGiverDef workgiver) {
             return !workgiver.requiredCapacities.Any(c => !pawn.health.capacities.CapableOf(c));
         }
 
+        public static void Disable(this Pawn pawn, WorkTypeDef worktype) {
+            pawn.SetPriority(worktype, 0, null);
+        }
+
         public static void DisableAll(this Pawn pawn) {
-            foreach (WorkTypeDef worktype in DefDatabase<WorkTypeDef>.AllDefsListForReading) {
-                pawn.SetPriority(worktype, 0, null);
+            foreach (var worktype in DefDatabase<WorkTypeDef>.AllDefsListForReading) {
+                Disable(pawn, worktype);
             }
         }
 

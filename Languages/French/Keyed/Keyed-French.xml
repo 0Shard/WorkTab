@@ -11,8 +11,8 @@
     <WorkTab.CollapseAll>Clic pour masquer toutes les priorités\nCtrl-clic sur les entêtes pour masquer des priorités individuellement</WorkTab.CollapseAll>
 
     <!-- column header tooltips -->
-    <WorkTab.DetailedColumnTip>Shift + clic-gauche ou scroller vers le haut pour augmenter les priorités\nShift + clic-droit ou scroller vers le bas pour diminuer les priorités</WorkTab.DetailedColumnTip>
-    <WorkTab.ToggleColumnTip>Shift + clic-gauche ou scroller vers le haut pour activer une priorité\nShift + clic-droit ou scroller vers le bas pour désactiver une priorité</WorkTab.ToggleColumnTip>
+    <WorkTab.DetailedColumnTip>scroller vers le haut pour augmenter les priorités ou scroller vers le bas pour diminuer les priorités</WorkTab.DetailedColumnTip>
+    <WorkTab.ToggleColumnTip>scroller vers le haut pour activer une priorité ou scroller vers le bas pour désactiver une priorité</WorkTab.ToggleColumnTip>
     <WorkTab.ExpandWorkgiversColumnTip>Ctrl + clic  pour afficher la liste détaillée des priorités</WorkTab.ExpandWorkgiversColumnTip>
     <WorkTab.CollapseWorkgiversColumnTip>Ctrl + clic pour masquer la liste détaillée des priorités</WorkTab.CollapseWorkgiversColumnTip>
 

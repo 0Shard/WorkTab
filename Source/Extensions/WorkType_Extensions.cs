@@ -103,28 +103,6 @@ namespace WorkTab {
             }
         }
 
-        public static string SpecificWorkListString(this WorkTypeDef def) {
-            if (workListCache.TryGetValue(def, out string tip)) {
-                return tip;
-            }
-
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < def.workGiversByPriority.Count; i++) {
-                stringBuilder.Append(def.workGiversByPriority[i].LabelCap);
-                if (def.workGiversByPriority[i].emergency) {
-                    stringBuilder.Append(" (" + "EmergencyWorkMarker".Translate() + ")");
-                }
-
-                if (i < def.workGiversByPriority.Count - 1) {
-                    stringBuilder.AppendLine();
-                }
-            }
-
-            tip = stringBuilder.ToString();
-            workListCache.Add(def, tip);
-            return tip;
-        }
-
         public static List<WorkGiverDef> WorkGivers(this WorkTypeDef worktype) {
             if (!_workgiversByType.TryGetValue(worktype, out List<WorkGiverDef> result)) {
                 result = DefDatabase<WorkGiverDef>

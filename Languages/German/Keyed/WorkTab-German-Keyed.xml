@@ -11,8 +11,8 @@
     <WorkTab.CollapseAll>Klick, um alle Prioritäten einzuklappen\nStrg-klick auf Kopfzeile, um individuell die Prioritäten ein- und auszuklappen</WorkTab.CollapseAll>
 
     <!-- column header tooltips -->
-    <WorkTab.DetailedColumnTip>Shift + Linksklick oder hochscrollen, um die Prioritäten zu erhöhen\nShift + Rechtsklick oder runterscrollen, um die Prioritäten zu verringern</WorkTab.DetailedColumnTip>
-    <WorkTab.ToggleColumnTip>Shift + Linksklick oder hochscrollen, um die Prioritäten anzuschalten\nShift + Rechtsklick oder runterscrollen, um die Prioritäten auszuschalten</WorkTab.ToggleColumnTip>
+    <WorkTab.DetailedColumnTip>hochscrollen, um die Prioritäten zu erhöhen oder runterscrollen, um die Prioritäten zu verringern</WorkTab.DetailedColumnTip>
+    <WorkTab.ToggleColumnTip>hochscrollen, um die Prioritäten anzuschalten oder runterscrollen, um die Prioritäten auszuschalten</WorkTab.ToggleColumnTip>
     <WorkTab.ExpandWorkgiversColumnTip>Strg + klick, um die detailierte Priorisierungsliste auszuklappen</WorkTab.ExpandWorkgiversColumnTip>
     <WorkTab.CollapseWorkgiversColumnTip>Strg + klick, um die detailierte Priorisierungsliste einzuklappen</WorkTab.CollapseWorkgiversColumnTip>
 

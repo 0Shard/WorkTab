@@ -41,6 +41,7 @@ namespace WorkTab {
             }
             IEnumerable<WorkGiver> allWorkgivers = DefDatabase<WorkGiverDef>.AllDefsListForReading
                                                          .Select( wgd => wgd.Worker )
+                                                         .Where(wg => wg != null)
                                                          .Where( wg => pawn.GetPriority( wg.def, -1 ) > 0 );
             List<WorkGiver> normalWorkgivers    = new List<WorkGiver>();
             List<WorkGiver> emergencyWorkgivers = new List<WorkGiver>();

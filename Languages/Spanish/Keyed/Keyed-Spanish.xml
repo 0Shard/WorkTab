@@ -11,8 +11,8 @@
   <WorkTab.CollapseAll>Haga clic para contraer todas las prioridades\nCtrl-clic encabezados para alternar la expansión de las prioridades individuales</WorkTab.CollapseAll>
 
   <!-- column header tooltips -->
-  <WorkTab.DetailedColumnTip>Shift + clic izquierdo o desplazarse hacia arriba para aumentar las prioridades\nShift + clic derecho o desplácese hacia abajo para disminuir las prioridades</WorkTab.DetailedColumnTip>
-  <WorkTab.ToggleColumnTip>Shift + clic izquierdo o desplazarse hacia arriba para alternar prioridades en\nShift + clic derecho o desplácese hacia abajo para alternar las prioridades</WorkTab.ToggleColumnTip>
+  <WorkTab.DetailedColumnTip>desplazarse hacia arriba para aumentar las prioridades o desplácese hacia abajo para disminuir las prioridades</WorkTab.DetailedColumnTip>
+  <WorkTab.ToggleColumnTip>desplazarse hacia arriba para alternar prioridades en o desplácese hacia abajo para alternar las prioridades</WorkTab.ToggleColumnTip>
   <WorkTab.ExpandWorkgiversColumnTip>Ctrl + clic para ampliar la lista de prioridades detalladas</WorkTab.ExpandWorkgiversColumnTip>
   <WorkTab.CollapseWorkgiversColumnTip>Ctrl + clic para colapsar la lista de prioridades detalladas</WorkTab.CollapseWorkgiversColumnTip>
 

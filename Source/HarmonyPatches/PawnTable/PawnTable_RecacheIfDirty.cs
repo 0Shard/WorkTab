@@ -11,8 +11,7 @@ using UnityEngine;
 namespace WorkTab {
     [HarmonyPatch(typeof(PawnTable), "RecacheIfDirty")]
     public class PawnTable_RecacheIfDirty {
-        private static readonly FieldInfo cachecColumnWidthsField =
-            AccessTools.Field( typeof( PawnTable ), "cachedColumnWidths" );
+        private static readonly FieldInfo cachecColumnWidthsField = AccessTools.Field( typeof( PawnTable ), "cachedColumnWidths" );
 
         private static readonly FieldInfo cachedSizeField = AccessTools.Field( typeof( PawnTable ), "cachedSize" );
         private static readonly FieldInfo dirtyField      = AccessTools.Field( typeof( PawnTable ), "dirty" );

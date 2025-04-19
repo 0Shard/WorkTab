@@ -2,6 +2,7 @@
 // WorkTab/WorkTab/PawnColumnWorker_WorkTabLabel.cs
 
 using System;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -18,12 +19,12 @@ namespace WorkTab {
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table) {
             // intercept interactions before base has a chance to act on them
             if (Shift && Mouse.IsOver(rect)) {
-                if (RightClicked(rect) || ScrolledUp(rect)) {
+                if (RightClicked(rect) || ScrolledUp(rect, true)) {
                     Increment(pawn);
                     return;
                 }
 
-                if (LeftClicked(rect) || ScrolledDown(rect)) {
+                if (LeftClicked(rect) || ScrolledDown(rect, true)) {
                     Decrement(pawn);
                     return;
                 }
@@ -39,21 +40,17 @@ namespace WorkTab {
         
         public override int GetMinWidth(PawnTable table) => Mathf.Max(base.GetMinWidth(table), 145);
 
-        public string GetTooltip(Pawn pawn) {
+        private static string GetTooltip(Pawn pawn) {
             return "WorkTab.LabelCellTip".Translate() + "\n\n" + pawn.GetTooltip().text;
         }
 
         public void Increment(Pawn pawn) {
             bool actionTaken = false;
             // just go over all workgivers and increase their priority number by one, with a maximum of maxPriority
-            foreach (WorkGiverDef workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
-                if (workgiver.workType == null || pawn.WorkTypeIsDisabled(workgiver.workType)) {
-                    continue;
-                }
-
+            foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(pawn.AllowedToDo)) {
                 // get current priority
-                int priority = pawn.GetPriority(workgiver, MainTabWindow_WorkTab.VisibleHour);
-
+                var priority = pawn.GetPriority(workgiver, MainTabWindow_WorkTab.VisibleHour);
+                var curr = priority;
                 // detailed mode
                 if (PriorityManager.ShowPriorities) {
                     if (priority == Settings.maxPriority) {
@@ -64,7 +61,7 @@ namespace WorkTab {
                         actionTaken = true;
                     }
                 } else // simple mode
-                  {
+                {
                     if (priority != 0) {
                         actionTaken = true;
                     }
@@ -72,9 +69,11 @@ namespace WorkTab {
                     priority = 0;
                 }
 
-
-                // apply new priority
-                pawn.SetPriority(workgiver, priority, MainTabWindow_WorkTab.SelectedHours);
+                if (curr != priority)
+                {
+                    // apply new priority
+                    pawn.SetPriority(workgiver, priority, MainTabWindow_WorkTab.SelectedHours);
+                }
             }
 
             if (actionTaken && Settings.playSounds) {
@@ -85,14 +84,10 @@ namespace WorkTab {
         public void Decrement(Pawn pawn) {
             bool actionTaken = false;
             // just go over all workgivers and lower their priority number by one, with a minimum of 1
-            foreach (WorkGiverDef workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
-                if (workgiver.workType == null || pawn.WorkTypeIsDisabled(workgiver.workType)) {
-                    continue;
-                }
-
+            foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(pawn.AllowedToDo)) {
                 // get current priority
-                int priority = pawn.GetPriority(workgiver, MainTabWindow_WorkTab.VisibleHour);
-
+                var priority = pawn.GetPriority(workgiver, MainTabWindow_WorkTab.VisibleHour);
+                var curr = priority;
                 // detailed mode
                 if (PriorityManager.ShowPriorities) {
                     if (priority == 0) {
@@ -108,11 +103,14 @@ namespace WorkTab {
                         actionTaken = true;
                     }
 
-                    priority = 3;
+                    priority = Settings.defaultPriority;
                 }
 
-                // apply new priority
-                pawn.SetPriority(workgiver, priority, MainTabWindow_WorkTab.SelectedHours);
+                if (curr != priority)
+                {
+                    // apply new priority
+                    pawn.SetPriority(workgiver, priority, MainTabWindow_WorkTab.SelectedHours);
+                }
             }
 
             if (actionTaken && Settings.playSounds) {

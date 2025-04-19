@@ -23,15 +23,17 @@ namespace WorkTab {
                 $"Initiating worktracker for {workgiver.defName}/{workgiver.workType?.defName ?? "NULL"} ({parent.Pawn.LabelShort})");
             int priority = parent.Pawn?.GetVanillaPriority( workgiver.workType ) ?? 0;
             Logger.Debug($"Vanilla priority: {priority}, default: {Settings.defaultPriority}");
-            if (priority > 0) {
-                priority = Settings.defaultPriority;
+            
+            if (priority < 0) {
+                priority = 0;
             }
-            if ( (workgiver.workTags & parent.Pawn?.story.DisabledWorkTagsBackstoryAndTraits) != WorkTags.None)
+            
+            if (!parent.Pawn.AllowedToDo(workgiver))
             {
                 priority = 0;
             }
-
-            for (int hour = 0; hour < GenDate.HoursPerDay; hour++) {
+            
+            for (var hour = 0; hour < GenDate.HoursPerDay; hour++) {
                 Priorities[hour] = priority;
             }
         }

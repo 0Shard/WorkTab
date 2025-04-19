@@ -13,12 +13,13 @@ namespace WorkTab {
 
     public static class InteractionUtilities {
         public static bool Alt => Input.GetKey(KeyCode.AltGr) || Input.GetKey(KeyCode.LeftAlt) ||
-                                  Input.GetKey(KeyCode.RightAlt);
+                                  Input.GetKey(KeyCode.RightAlt) || Event.current.alt;
 
         public static bool Ctrl => Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.LeftControl) ||
-                                   Input.GetKey(KeyCode.RightCommand) || Input.GetKey(KeyCode.RightControl);
+                                   Input.GetKey(KeyCode.RightCommand) || Input.GetKey(KeyCode.RightControl) ||
+                                   Event.current.control;
 
-        public static bool Shift => Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        public static bool Shift => Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) || Event.current.shift;
 
         public static void ButtonImageToggle(Func<bool> getter, Action<bool> setter, Rect canvas,
                                               string tipOn, Texture2D texOn,

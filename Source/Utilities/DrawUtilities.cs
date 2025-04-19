@@ -71,41 +71,21 @@ namespace WorkTab {
             _drawWorkBoxBackgroundMethodInfo.Invoke(null, new object[] { box, pawn, worktype });
         }
 
-        private static Texture2D activeHighlightBox;
-        public static Texture2D GetActiveHighlightBox()
-        {
-            if (activeHighlightBox != null)
-            {
-                return activeHighlightBox;
-            }
-            Color color = Color.Lerp(Color.black, Color.magenta, 0.7f);
-            Texture2D startingExample = WidgetsWork.WorkBoxOverlay_PreceptWarning;
-            int width = startingExample.width;
-            int height = startingExample.height;
-            Texture2D texture = new Texture2D(width, height);
-            Color[] pixels = Enumerable.Repeat(color, width * height).ToArray();
-            texture.SetPixels(pixels);
-            texture.Apply();
-            activeHighlightBox = texture;
-            return activeHighlightBox;
-        }
-
+        /**
+         *                  9   8   7   6   5   4
+         * top              1   1   1   1   1   1
+         * very high        2   2   2   2
+         * high             3   3   3   3   2   2
+         * above normal     4   4
+         * normal           5       4       3   3
+         * below normal     6   5
+         * low              7   6   5   4   4   4
+         * very low         8   7   6   5
+         * lowest           9   8   7   6   5
+         *
+         * KILL ME NOW.
+         */
         public static string PriorityLabel(int priority) {
-            /**
-             *                  9   8   7   6   5   4
-             * top              1   1   1   1   1   1
-             * very high        2   2   2   2
-             * high             3   3   3   3   2   2
-             * above normal     4   4
-             * normal           5       4       3   3
-             * below normal     6   5
-             * low              7   6   5   4   4   4
-             * very low         8   7   6   5
-             * lowest           9   8   7   6   5
-             *
-             * KILL ME NOW.
-             */
-
             string label;
             switch (priority) {
                 case 0:
@@ -232,20 +212,40 @@ namespace WorkTab {
         }
 
         public static string TipForPawnWorker(Pawn pawn, WorkGiverDef workgiver, bool incapableBecauseOfCapacities) {
-            StringBuilder tip = new StringBuilder();
+            var tip = new StringBuilder();
             tip.Append(workgiver.LabelCap);
             tip.Append(": " + PriorityLabel(pawn.GetPriority(workgiver, -1)));
             tip.AppendLine();
 
-            if (pawn.WorkTypeIsDisabled(workgiver.workType) ||
-                 (workgiver.workTags & pawn.story.DisabledWorkTagsBackstoryAndTraits) != WorkTags.None) {
-                tip.Append("CannotDoThisWork".Translate(pawn.LabelShort, pawn));
+            if (!pawn.AllowedToDo(workgiver)) {
+                string str = "CannotDoThisWork".Translate( pawn.LabelShort, pawn);
+                var disabledWorkType = pawn.GetReasonsForDisabledWorkType(workgiver.workType);
+                if (!disabledWorkType.NullOrEmpty())
+                {
+                    var s = "\n\n" + string.Join(". ", disabledWorkType);
+                    if (disabledWorkType.Count == 1)
+                        s += ".";
+                    str += s.Colorize(ColorLibrary.RedReadable);
+                }
+                tip.Append(str);
             } else {
-                float skill = pawn.skills.AverageOfRelevantSkillsFor(workgiver.workType);
+                var num = pawn.skills.AverageOfRelevantSkillsFor(workgiver.workType);
                 if (workgiver.workType.relevantSkills.Any()) {
-                    tip.AppendLine("RelevantSkills".Translate(
-                                        workgiver.workType.relevantSkills.Select(s => s.skillLabel).ToCommaList(),
-                                        skill.ToString("0.#"), 20));
+                    var str = workgiver.workType.relevantSkills
+                                       .Aggregate("", (current, relevantSkill) => $"{current}{relevantSkill.skillLabel.CapitalizeFirst()}, ");
+                    tip.AppendLine("RelevantSkills".Translate(str.Substring(0, str.Length - 2), num.ToString("0.#"), 20));
+                }
+                
+                if (pawn.Ideo != null && pawn.Ideo.IsWorkTypeConsideredDangerous(workgiver.workType))
+                {
+                    tip.AppendLine();
+                    tip.AppendLine(((string) "SelectedWorkTypeOpposedByIdeo".Translate(pawn)).Colorize(WidgetsWork.ColorOfPriority(2)));
+                }
+                
+                if (workgiver.workType.relevantSkills.Any() && num <= 2.0 && pawn.workSettings.WorkIsActive(workgiver.workType))
+                {
+                    tip.AppendLine();
+                    tip.AppendLine(((string) "SelectedWorkTypeWithVeryBadSkill".Translate()).Colorize(WidgetsWork.ColorOfPriority(2)));
                 }
 
                 if (!workgiver.description.NullOrEmpty()) {
@@ -259,65 +259,20 @@ namespace WorkTab {
                     tip.Append("IncapableOfWorkTypeBecauseOfCapacities".Translate());
                 }
 
-                PriorityTracker tracker = PriorityManager.Get[pawn];
-                if (tracker.TimeScheduled(workgiver)) {
-                    tip.AppendLine();
-                    tip.Append("WorkTab.XIsAssignedToY".Translate(pawn.NameShortColored, workgiver.LabelCap));
-                    tip.Append(tracker.TimeScheduledTip(workgiver));
+                var tracker = PriorityManager.Get[pawn];
+                if (!tracker.TimeScheduled(workgiver))
+                {
+                    return tip.ToString();
                 }
-            }
-
-            return tip.ToString();
-        }
-
-        public static string TipForPawnWorker(Pawn pawn, WorkTypeDef worktype, bool incapableBecauseOfCapacities) {
-            StringBuilder tip = new StringBuilder();
-            tip.Append(worktype.gerundLabel.CapitalizeFirst());
-            tip.Append(": " + PriorityLabel(pawn.workSettings.GetPriority(worktype)));
-            tip.AppendLine();
-
-            if (pawn.WorkTypeIsDisabled(worktype)) {
-                tip.AppendLine("CannotDoThisWork".Translate(pawn.LabelShort, pawn));
-
-                foreach (string reason in pawn.GetReasonsForDisabledWorkType(worktype)) {
-                    tip.AppendLine();
-                    tip.Append("- " + reason);
-                }
-            } else {
-                float num = pawn.skills.AverageOfRelevantSkillsFor(worktype);
-                if (worktype.relevantSkills.Any()) {
-                    tip.AppendLine("RelevantSkills".Translate(
-                                        worktype.relevantSkills.Select(s => s.skillLabel).ToCommaList(),
-                                        num.ToString("0.#"), 20));
-                }
-
                 tip.AppendLine();
-                tip.Append(worktype.description);
-
-                if (incapableBecauseOfCapacities) {
-                    tip.AppendLine();
-                    tip.AppendLine();
-                    tip.Append("IncapableOfWorkTypeBecauseOfCapacities".Translate());
-                }
-
-                if (worktype.relevantSkills.Any() && num <= 2f && pawn.workSettings.WorkIsActive(worktype)) {
-                    tip.AppendLine();
-                    tip.AppendLine();
-                    tip.Append("SelectedWorkTypeWithVeryBadSkill".Translate());
-                }
-
-                PriorityTracker tracker = PriorityManager.Get[pawn];
-                if (tracker.TimeScheduled(worktype)) {
-                    tip.AppendLine();
-                    tip.Append("WorkTab.XIsAssignedToY".Translate(pawn.NameShortColored, worktype.LabelCap));
-                    tip.Append(tracker.TimeScheduledTip(worktype));
-                }
+                tip.Append("WorkTab.XIsAssignedToY".Translate(pawn.NameShortColored, workgiver.LabelCap));
+                tip.Append(tracker.TimeScheduledTip(workgiver));
             }
 
             return tip.ToString();
         }
 
-        private static Color ColorOfPriority(int priority) {
+        public static Color ColorOfPriority(int priority) {
             if (priority == 0) {
                 return Color.grey;
             }

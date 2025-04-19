@@ -10,7 +10,6 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
-using WorkTab.Extensions;
 using static WorkTab.Constants;
 using static WorkTab.InteractionUtilities;
 using static WorkTab.Resources;
@@ -41,13 +40,9 @@ namespace WorkTab {
 
         public static MainTabWindow_WorkTab Instance { get; private set; }
 
-        public static List<int> SelectedHours => PriorityManager.ShowScheduler
-            ? _selectedHours
-            : TimeUtilities.WholeDay;
+        public static List<int> SelectedHours => PriorityManager.ShowScheduler ? _selectedHours : TimeUtilities.WholeDay;
 
-        public static int VisibleHour => PriorityManager.ShowScheduler
-            ? _visibleHour
-            : -1;
+        public static int VisibleHour => PriorityManager.ShowScheduler ? _visibleHour : -1;
 
         private static List<PawnColumnDef> Columns {
             get {
@@ -83,8 +78,7 @@ namespace WorkTab {
         }
 
         protected override float ExtraBottomSpace => PriorityManager.ShowScheduler
-            ? (base.ExtraBottomSpace / 2f) +
-              TimeBarHeight // slightly less margin if we're showing the scheduler, as it already takes quite a sizeable chunk of screen space
+            ? (base.ExtraBottomSpace / 2f) + TimeBarHeight // slightly less margin if we're showing the scheduler, as it already takes quite a sizeable chunk of screen space
             : base.ExtraBottomSpace;
 
         protected override float ExtraTopSpace => base.ExtraTopSpace + Constants.ExtraTopSpace;
@@ -125,7 +119,7 @@ namespace WorkTab {
         }
 
         public override void DoWindowContents(Rect rect) {
-            Instance.Table.set_OutRect(rect);
+            Instance.Table.SetFixedSize(new Vector2(rect.width, rect.height - ExtraTopSpace));
             if (_columnsChanged) {
                 RebuildTable();
             }
@@ -174,12 +168,10 @@ namespace WorkTab {
             }
 
             // rebuild table
-            PawnTableDefOf.Work.columns = columns;
-            //Instance.Table = new PawnTable( PawnTableDefOf.Work, () => Instance.Pawns, UI.screenWidth - (int)(Instance.Margin * 2f), 
-            //                       (int)(UI.screenHeight - 35 - Instance.ExtraBottomSpace - Instance.ExtraTopSpace - Instance.Margin * 2f));
+            PawnTableDef.columns = columns;
 
             // force recache of table sizes: set the table to be dirty, then get the size - which calls the private recache routine.
-            Instance.Table.SetDirty();
+            SetDirty();
             Vector2 tmp = Instance.Table.Size;
             Instance.windowRect.width = Math.Min(tmp.x, UI.screenWidth);
 
@@ -325,23 +317,20 @@ namespace WorkTab {
                     }
 
                     // handle tooltip
-                    TaggedString selectedString = selected
-                        ? "WorkTab.Selected".Translate()
-                        : "WorkTab.NotSelected".Translate();
-                    string interactionString = "";
+                    var selectedString = selected ? "WorkTab.Selected".Translate() : "WorkTab.NotSelected".Translate();
+                    var interactionString = "";
                     if (selected) {
-                        interactionString += "WorkTab.RightClickToDeselect".Translate();
+                        interactionString += "WorkTab.RightClickToDeselect".Translate().Colorize(ColoredText.SubtleGrayColor);
                         if (focused) {
-                            interactionString += "\n" + "WorkTab.ClickToFocus".Translate();
+                            interactionString += "\n" + "WorkTab.ClickToFocus".Translate().Colorize(ColoredText.SubtleGrayColor);
                         }
                     } else {
-                        interactionString += "WorkTab.ClickToSelect".Translate();
+                        interactionString += "WorkTab.ClickToSelect".Translate().Colorize(ColoredText.SubtleGrayColor);
                     }
 
                     TooltipHandler.TipRegion(hourRect,
                                               "WorkTab.SchedulerHourTip".Translate(hour.FormatHour(),
-                                                                                    (hour + (1 % GenDate.HoursPerDay))
-                                                                                   .FormatHour(),
+                                                                                    (hour + (1 % GenDate.HoursPerDay)).FormatHour(),
                                                                                     selectedString,
                                                                                     interactionString));
                 }

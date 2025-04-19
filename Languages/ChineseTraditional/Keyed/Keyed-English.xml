@@ -11,8 +11,8 @@
   <WorkTab.CollapseAll>當前顯示縮略優先級\nCtrl+點擊以切换縮略優先級</WorkTab.CollapseAll>
 
   <!-- column header tooltips -->
-  <WorkTab.DetailedColumnTip>Shift+左鍵點擊或滾輪上滾以提升優先級\nShift+右鍵點擊或滾輪下滾以降低優先級</WorkTab.DetailedColumnTip>
-  <WorkTab.ToggleColumnTip>Shift+左鍵點擊或滾輪上滾以開啟優先級\nShift+右鍵點擊或滾輪下滾以關閉優先級</WorkTab.ToggleColumnTip>
+  <WorkTab.DetailedColumnTip>滾輪上滾以提升優先級或滾輪下滾以降低優先級</WorkTab.DetailedColumnTip>
+  <WorkTab.ToggleColumnTip>滾輪上滾以開啟優先級或滾輪下滾以關閉優先級</WorkTab.ToggleColumnTip>
   <WorkTab.ExpandWorkgiversColumnTip>Ctrl+點擊以展開詳細優先級列表</WorkTab.ExpandWorkgiversColumnTip>
   <WorkTab.CollapseWorkgiversColumnTip>Ctrl+點擊以收起詳細優先級列表</WorkTab.CollapseWorkgiversColumnTip>
 
@@ -37,7 +37,7 @@
   <WorkTab.HighlightActiveWorkCellsTip>高亮顯示小人當前工作的單元格</WorkTab.HighlightActiveWorkCellsTip>
 
   <!-- scheduler -->
-  <WorkTab.SchedulerHourTip>{0}-{1}當前{2}</WorkTab.SchedulerHourTip>
+  <WorkTab.SchedulerHourTip>{0}-{1}當前{2}\n\n{3}</WorkTab.SchedulerHourTip>
   <WorkTab.Selected>已選擇</WorkTab.Selected>
   <WorkTab.NotSelected>未選擇</WorkTab.NotSelected>
   <WorkTab.ClickToSelect>點擊以選擇\nShift+點擊來取消其他選擇</WorkTab.ClickToSelect>

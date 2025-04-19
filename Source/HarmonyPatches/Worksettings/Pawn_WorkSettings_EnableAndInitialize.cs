@@ -15,18 +15,18 @@ namespace WorkTab {
         }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> _instr) {
-            List<CodeInstruction> instructions = _instr.ToList();
-            System.Reflection.MethodInfo setPriorityMI =
-                AccessTools.Method( typeof( Pawn_WorkSettings ), nameof( Pawn_WorkSettings.SetPriority ) );
-            System.Reflection.MethodInfo getDefaultPriorityMI =
-                AccessTools.Method( typeof( Pawn_WorkSettings_EnableAndInitialize ), nameof( GetDefaultPriority ) );
+            var instructions = _instr.ToList();
+            var setPriorityMI = AccessTools.Method( typeof( Pawn_WorkSettings ), nameof( Pawn_WorkSettings.SetPriority ) );
+            var getDefaultPriorityMI = AccessTools.Method( typeof( Pawn_WorkSettings_EnableAndInitialize ), nameof( GetDefaultPriority ) );
 
-            for (int i = 0; i < instructions.Count; i++) {
-                if (instructions[i].opcode == OpCodes.Ldc_I4_3) {
-                    if (instructions[i + 1].Calls(setPriorityMI)) {
-                        yield return new CodeInstruction(OpCodes.Call, getDefaultPriorityMI);
-                        continue;
-                    }
+            var count = instructions.Count;
+            for (var i = 0; i < count; i++) {
+                if (i < count - 1 &&
+                    instructions[i].opcode == OpCodes.Ldc_I4_3 &&
+                    instructions[i + 1].Calls(setPriorityMI)) {
+                    
+                    yield return new CodeInstruction(OpCodes.Call, getDefaultPriorityMI);
+                    continue;
                 }
 
                 yield return instructions[i];

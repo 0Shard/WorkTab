@@ -5,6 +5,7 @@ using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using static WorkTab.MainTabWindow_WorkTab;
 
 namespace WorkTab
 {
@@ -13,13 +14,13 @@ namespace WorkTab
     {
         private static void Prefix(Pawn_WorkSettings __instance, WorkTypeDef w, ref int priority)
         {
-            Pawn pawn = __instance.Pawn();
+            var pawn = __instance.Pawn();
             if (!pawn.RaceProps.Humanlike)
             {
                 return;
             }
 
-            pawn.SetPriority(w, priority, null);
+            pawn.SetPriority(w, priority, SelectedHours);
 
             // TODO: find a more elegant way to stop RW complaining about bad priorities.
             priority = Mathf.Min(priority, 4);
