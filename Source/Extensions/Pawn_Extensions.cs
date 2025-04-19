@@ -50,7 +50,7 @@ namespace WorkTab {
         }
 
         public static int[] GetPriorities(this Pawn pawn, WorkGiverDef workgiver) {
-            return PriorityManager.Get[pawn][workgiver].Priorities;
+            return PriorityManager.Get[pawn].GetPriorities(workgiver);
         }
 
         public static int GetPriority(this Pawn pawn, WorkTypeDef worktype, int hour) {
