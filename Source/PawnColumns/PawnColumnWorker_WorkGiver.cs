@@ -14,20 +14,27 @@ using static WorkTab.Resources;
 
 namespace WorkTab {
     public class PawnColumnWorker_WorkGiver: PawnColumnWorker, IAlternatingColumn {
-        private string _headerTip;
-
-
+        
         private Vector2 cachedLabelSize = Vector2.zero;
 
-        public List<Pawn> CapablePawns => Instance
-                                         .Table
-                                         .PawnsListForReading
-                                         .Where(ShouldDrawCell)
-                                         .ToList();
+        private List<Pawn> _cachedCapablePawns;
+        private int _cachedCapablePawnsFrame = -1;
+        private List<Pawn> CapablePawns {
+            get {
+                if (_cachedCapablePawnsFrame == Time.frameCount) return _cachedCapablePawns;
+                _cachedCapablePawns = Instance
+                                      .Table
+                                      .PawnsListForReading
+                                      .Where(ShouldDrawCell)
+                                      .ToList();
+                _cachedCapablePawnsFrame = Time.frameCount;
+                return _cachedCapablePawns;
+            }
+        }
 
         public PawnColumnDef_WorkGiver Def => def as PawnColumnDef_WorkGiver;
 
-        public string Label => WorkGiver.label.NullOrEmpty() ? WorkGiver.gerund : WorkGiver.LabelCap.Resolve();
+        public string Label => WorkGiver.label.NullOrEmpty() ? WorkGiver.gerund?.CapitalizeFirst() : WorkGiver.LabelCap.Resolve()?.CapitalizeFirst();
 
         public WorkGiverDef WorkGiver => Def?.workgiver;
 
@@ -43,10 +50,6 @@ namespace WorkTab {
         }
 
         public bool MoveDown { get; set; }
-
-        public override int Compare(Pawn a, Pawn b) {
-            return GetValueToCompare(a).CompareTo(GetValueToCompare(b));
-        }
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table) {
             if (pawn.NothingCanBeDone()) {
@@ -80,8 +83,11 @@ namespace WorkTab {
             HeaderInteractions(labelRect, table);
 
             // mouseover stuff
-            Widgets.DrawHighlightIfMouseover(labelRect);
-            TooltipHandler.TipRegion(labelRect, GetHeaderTip(table));
+            if (Mouse.IsOver(labelRect))
+            {
+                Widgets.DrawHighlight(labelRect);
+                TooltipHandler.TipRegion(labelRect, GetHeaderTip(table));
+            }
 
             // sort icon
             if (table.SortingBy == def) {
@@ -188,7 +194,7 @@ namespace WorkTab {
         }
 
         private bool ShouldDrawCell(Pawn pawn) {
-            return pawn.AllowedToDo(WorkGiver);
+            return pawn.AllowedToDo(WorkGiver) && !pawn.NothingCanBeDone();
         }
 
         protected virtual void DrawWorkGiverBoxFor(Rect rect, Pawn pawn) {
@@ -234,26 +240,13 @@ namespace WorkTab {
         }
 
         protected override string GetHeaderTip(PawnTable table) {
-            if (_headerTip.NullOrEmpty()) {
-                _headerTip = CreateHeaderTip(table);
-            }
-
-            return _headerTip;
+            return CreateHeaderTip();
         }
-
-        protected virtual void HandleInteractions(Rect rect, Pawn pawn) {
-            if (Find.PlaySettings.useWorkPriorities) {
-                HandleInteractionsDetailed(rect, pawn);
-            } else {
-                HandleInteractionsToggle(rect, pawn);
-            }
+        
+        public override int Compare(Pawn a, Pawn b) {
+            return GetValueToCompare(a).CompareTo(GetValueToCompare(b));
         }
-
-
-        protected override void HeaderClicked(Rect headerRect, PawnTable table) {
-            // replaced with HeaderInteractions
-        }
-
+        
         protected virtual void Sort(PawnTable table, bool ascending = true) {
             if (ascending) {
                 if (table.SortingBy != def) {
@@ -279,9 +272,10 @@ namespace WorkTab {
                 }
             }
         }
-
-        private string CreateHeaderTip(PawnTable table) {
-            string tip = "";
+        
+        private string CreateHeaderTip()
+        {
+            var tip = "";
             tip += Label.Colorize(ColoredText.TipSectionTitleColor) + "\n";
             if (!WorkGiver.description.NullOrEmpty()) {
                 tip += "\n" + WorkGiver.description + "\n";
@@ -309,17 +303,25 @@ namespace WorkTab {
         }
 
         private float GetValueToCompare(Pawn pawn) {
-            if (pawn.workSettings == null || !pawn.workSettings.EverWork) {
+            if (pawn.NothingCanBeDone()) {
                 return -2f;
             }
 
-            if (pawn.story != null && pawn.WorkTypeIsDisabled(WorkGiver.workType)) {
+            if (pawn.NotAllowedToDo(WorkGiver.workType)) {
                 return -1f;
             }
 
             return pawn.skills.AverageOfRelevantSkillsFor(WorkGiver.workType);
         }
 
+        protected virtual void HandleInteractions(Rect rect, Pawn pawn) {
+            if (Find.PlaySettings.useWorkPriorities) {
+                HandleInteractionsDetailed(rect, pawn);
+            } else {
+                HandleInteractionsToggle(rect, pawn);
+            }
+        }
+        
         private void HandleInteractionsDetailed(Rect rect, Pawn pawn) {
             if ((Event.current.type == EventType.MouseDown || Event.current.type == EventType.ScrollWheel)
               && Mouse.IsOver(rect)) {

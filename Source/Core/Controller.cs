@@ -7,6 +7,7 @@ using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using WorkTab.WorkManager;
 
 namespace WorkTab {
     public class Controller: Mod {
@@ -26,6 +27,8 @@ namespace WorkTab {
 
             //            if ( MP.enabled )
             //                MP.RegisterAll();
+            
+            WorkManagerPatches.UnPatch(harmony);
         }
 
         public override void DoSettingsWindowContents(Rect inRect) {

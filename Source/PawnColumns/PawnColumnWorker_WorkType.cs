@@ -20,14 +20,13 @@ namespace WorkTab {
         private int _cachedCapablePawnsFrame = -1;
         private List<Pawn> CapablePawns {
             get {
-                if (_cachedCapablePawnsFrame != Time.frameCount) {
-                    _cachedCapablePawns = Instance
-                                          .Table
-                                          .PawnsListForReading
-                                          .Where(ShouldDrawCell)
-                                          .ToList();
-                    _cachedCapablePawnsFrame = Time.frameCount;
-                }
+                if (_cachedCapablePawnsFrame == Time.frameCount) return _cachedCapablePawns;
+                _cachedCapablePawns = Instance
+                                      .Table
+                                      .PawnsListForReading
+                                      .Where(ShouldDrawCell)
+                                      .ToList();
+                _cachedCapablePawnsFrame = Time.frameCount;
                 return _cachedCapablePawns;
             }
         }
@@ -35,7 +34,7 @@ namespace WorkTab {
         public Vector2 LabelSize {
             get {
                 if (cachedLabelSize == Vector2.zero) {
-                    cachedLabelSize = Text.CalcSize(def.workType.labelShort);
+                    cachedLabelSize = Text.CalcSize(def.workType.labelShort.CapitalizeFirst());
                 }
                 return cachedLabelSize;
             }
@@ -44,17 +43,21 @@ namespace WorkTab {
         public bool MoveDown { get; set; }
         
         public bool CanExpand => ChildColumns.Count > 1;
+        
+        private List<PawnColumnDef> _cachedChildColumns;
+        private int _cachedChildColumnsFrame = -1;
 
         public List<PawnColumnDef> ChildColumns {
             get {
-                var columns = DefDatabase<PawnColumnDef>.AllDefsListForReading
-                                                        .OfType<PawnColumnDef_WorkGiver>()
-                                                        .Where(c => def.workType.workGiversByPriority.Contains(c.workgiver))
-                                                        .ToList();
-                if (columns.Count > 1) {
-                    columns = columns.OrderByDescending(c => c.workgiver.priorityInType).ToList();
-                }
-                return columns.Cast<PawnColumnDef>().ToList();
+                if (_cachedChildColumnsFrame == Time.frameCount) return _cachedChildColumns;
+                _cachedChildColumns = DefDatabase<PawnColumnDef>.AllDefsListForReading
+                    .OfType<PawnColumnDef_WorkGiver>()
+                    .Where(c => def.workType.workGiversByPriority.Contains(c.workgiver))
+                    .OrderByDescending(c => c.workgiver.priorityInType)
+                    .Cast<PawnColumnDef>()
+                    .ToList();;
+                _cachedChildColumnsFrame = Time.frameCount;
+                return _cachedChildColumns;
             }
         }
 
@@ -74,10 +77,12 @@ namespace WorkTab {
             if (!ShouldDrawCell(pawn)) {
                 return;
             }
-            DrawWorkTypeBoxFor(rect, pawn, def.workType);
-            
-            // 处理输入交互（点击、滚动等）
             HandleInteractions(rect, pawn);
+            
+            // create rect in centre of cell
+            var pos = rect.center - (new Vector2( WorkTypeBoxSize, WorkTypeBoxSize ) / 2f);
+            var box = new Rect( pos.x, pos.y, WorkTypeBoxSize, WorkTypeBoxSize );
+            DrawWorkTypeBoxFor(box, pawn, def.workType);
         }
 
         public override void DoHeader(Rect rect, PawnTable table)
@@ -149,7 +154,7 @@ namespace WorkTab {
         }
 
         private bool ShouldDrawCell(Pawn pawn) {
-            return pawn.AllowedToDo(def.workType);
+            return pawn.AllowedToDo(def.workType) && !pawn.NothingCanBeDone();
         }
         
         private void HighlightCurrentJob(Rect rect, Pawn pawn)
@@ -162,11 +167,8 @@ namespace WorkTab {
             GUI.color = Color.white;
         }
         
-        protected virtual void DrawWorkTypeBoxFor(Rect rect, Pawn pawn, WorkTypeDef worktype) {
-            // create rect in centre of cell
-            var pos = rect.center - (new Vector2( WorkTypeBoxSize, WorkTypeBoxSize ) / 2f);
-            var box = new Rect( pos.x, pos.y, WorkTypeBoxSize, WorkTypeBoxSize );
-
+        // WorkManager mod need the box param. Don't rename it.
+        protected virtual void DrawWorkTypeBoxFor(Rect box, Pawn pawn, WorkTypeDef worktype) {
             // 缓存 PriorityTracker 避免多次查找
             var tracker = PriorityManager.Get[pawn];
             if (tracker.TimeScheduled(worktype)) {
