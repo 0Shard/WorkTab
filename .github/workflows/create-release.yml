@@ -19,6 +19,7 @@ jobs:
           mkdir release
           rsync -av \
             --exclude='Source/' \
+            --exclude='release/' \
             --exclude='.github/' \
             --exclude='.git/' \
             --exclude='.gitignore' \
