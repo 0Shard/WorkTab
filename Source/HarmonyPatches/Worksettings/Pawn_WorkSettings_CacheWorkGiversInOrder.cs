@@ -35,23 +35,25 @@ namespace WorkTab {
 
         public static bool Prefix(Pawn_WorkSettings __instance) {
             var pawn = __instance.Pawn();
-            if (!pawn.RaceProps.Humanlike)
+            if (pawn == null || !pawn.RaceProps.Humanlike)
             {
                 return true;
             }
             var allWorkgivers = DefDatabase<WorkGiverDef>.AllDefsListForReading
                                                          .Select( wgd => wgd.Worker )
-                                                         .Where(wg => wg != null)
-                                                         .Where( wg => pawn.GetPriority( wg.def, MainTabWindow_WorkTab.VisibleHour ) > 0 );
+                                                         .Where(wg => wg is { def: not null })
+                                                         .Where(wg => pawn.GetPriority(wg.def, MainTabWindow_WorkTab.VisibleHour) > 0)
+                                                         .ToList();
+            
             var normalWorkgivers    = new List<WorkGiver>();
             var emergencyWorkgivers = new List<WorkGiver>();
 
             // sort by player set workgiver priorities => worktype order => workgiver order
             if (allWorkgivers.Any()) {
-                allWorkgivers = allWorkgivers
-                               .OrderBy(wg => pawn.GetPriority(wg.def, MainTabWindow_WorkTab.VisibleHour))
-                               .ThenByDescending(wg => wg.def.workType.naturalPriority)
-                               .ThenByDescending(wg => wg.def.priorityInType).ToList();
+                allWorkgivers = allWorkgivers.OrderBy(wg => pawn.GetPriority(wg.def, MainTabWindow_WorkTab.VisibleHour))
+                                             .ThenByDescending(wg => wg.def?.workType?.naturalPriority)
+                                             .ThenByDescending(wg => wg.def?.priorityInType)
+                                             .ToList();
 
                 // lowest priority non-emergency job
                 var maxEmergPrio = allWorkgivers.Where( wg => !wg.def.emergency )
@@ -60,12 +62,10 @@ namespace WorkTab {
                                                 .Min();
 
                 // create lists of workgivers
-                normalWorkgivers = allWorkgivers
-                                  .Where(wg => !wg.def.emergency || pawn.GetPriority(wg.def, MainTabWindow_WorkTab.VisibleHour) > maxEmergPrio)
-                                  .ToList();
-                emergencyWorkgivers = allWorkgivers
-                                     .Where(wg => wg.def.emergency && pawn.GetPriority(wg.def, MainTabWindow_WorkTab.VisibleHour) <= maxEmergPrio)
-                                     .ToList();
+                normalWorkgivers = allWorkgivers.Where(wg => !wg.def.emergency || pawn.GetPriority(wg.def, MainTabWindow_WorkTab.VisibleHour) > maxEmergPrio)
+                                                .ToList();
+                emergencyWorkgivers = allWorkgivers.Where(wg => wg.def.emergency && pawn.GetPriority(wg.def, MainTabWindow_WorkTab.VisibleHour) <= maxEmergPrio)
+                                                   .ToList();
             }
 
             Logger.Debug($"Updating priorities for {pawn.LabelShort};\n\t" +
