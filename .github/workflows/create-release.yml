@@ -1,0 +1,39 @@
+﻿name: Create Release on Tag
+
+on:
+  push:
+    tags:
+      - '*'  # 匹配所有 tag，比如 v1.0.0
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            自动生成的 Release，用于版本 ${{ github.ref_name }}。
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Zip release assets (excluding Source/)
+        run: |
+          mkdir release
+          rsync -av --exclude='Source/' ./ ./release/
+          cd release
+          zip -r ../release-${{ github.ref_name }}.zip .
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-${{ github.ref_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
