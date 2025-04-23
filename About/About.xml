@@ -18,44 +18,6 @@
     <loadAfter>
         <li>brrainz.harmony</li>
     </loadAfter>
-    <description>
-        Forked 1.5 version of [url=steamcommunity.com/workshop/filedetails/?id=725219116] Fluffy Work Tab [/url] mod.
-
-        [b] The packageId of the mod has not been modified. Can maintain compatibility. [/b]
-
-        Fixed some bugs:
-        [list]
-        [*]Fix: Numeric settings are reset after restarting the game.
-        修复了重启游戏后优先级设置被重置的问题
-        [*]Fix: Disabled WorkGiver still draws a priority box.
-        修复了被禁用的工作也显示优先级单元格的问题
-        [*]Fix: Paste button cannot be displayed.
-        修复了粘贴按钮不显示的问题
-        [*]Fix: Biotech DLC Mechs error
-        修复了生物科技DLC机械体不兼容的问题
-        [*]Fix: draw horizontal line bug
-        修复了绘制水平分割线的问题
-        [*]Fix: paste button of the last column does not appear when the column is expanded.
-        修复了工作列展开时粘贴按钮的问题
-        [*]Check if the table's height exceeds the screen height.
-        修复了表格超出屏幕高度的问题
-        [*]Highlight the pawn's current work.
-        高亮小人当前的工作
-        [*]Add missing translations
-        添加缺失的翻译信息
-
-        [/list]
-
-        For more information, please refer to  [url=https://github.com/JiaRG/WorkTab] GitHub [/url] submission information.
-
-        Recommended to use with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2069684319] [FSF] Complex Jobs [/url] mod.
-
-        If you encounter any problems, please try to create an issue on GitHub. Thx!
-
-
-        [h1]IMPORTANT[/h1]
-        This is an updated version of an existing mod, I claim no ownership of the original code.
-        This version may be taken down by request from the original author.
-        The original author is free to use this mod to update their own.
-    </description>
+    <description>Forked 1.5 version of [url=steamcommunity.com/workshop/filedetails/?id=725219116] Fluffy Work Tab [/url] mod.</description>
+    <modVersion IgnoreIfNoMatchingField="True">1.5.10</modVersion>
 </ModMetaData>
