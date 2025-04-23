@@ -74,15 +74,14 @@ namespace WorkTab {
             Text.Font = GameFont.Tiny;
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = new Color(1f, 1f, 1f, .8f);
-
+            var label = Label.Truncate(LabelSize.x, TruncationCache);
             if (CompactWorkTabPatches.CanDrawLabel())
             {
                 var originalMatrix = GUI.matrix;
-                var (transformedRect, transformationMatrix) = CompactWorkTabPatches.DrawLabel(rect, Label);
+                var (transformedRect, transformationMatrix) = CompactWorkTabPatches.DrawLabel(rect, label);
                 GUI.matrix = transformationMatrix;
                 var mouseIsOver = transformedRect.Contains(Event.current.mousePosition);
                 GUI.matrix = originalMatrix;
-                MouseoverSounds.DoRegion(rect);
                 if (!mouseIsOver)
                 {
                     return;
@@ -98,11 +97,20 @@ namespace WorkTab {
                 // get offset rect
                 var labelRect = GetLabelRect(rect);
                 // draw label, slightly greyed out to contrast with work types
-                Widgets.Label(labelRect, Label.Truncate(labelRect.width, TruncationCache));
+                Widgets.Label(labelRect, label);
 
+                // handle interactions (click and scroll)
+                HeaderInteractions(labelRect, table);
+                // mouseover stuff
+                if (Mouse.IsOver(labelRect))
+                {
+                    Widgets.DrawHighlight(labelRect);
+                    TooltipHandler.TipRegion(labelRect, GetHeaderTip(table));
+                }
+                
                 // get bottom center of label, offset left to align with boxes
-                Vector2 start  = new Vector2( labelRect.center.x - 2f, labelRect.yMax );
-                float length = rect.yMax - start.y;
+                var start  = new Vector2( labelRect.center.x - 2f, labelRect.yMax );
+                var length = rect.yMax - start.y;
 
                 // make sure we're not at a whole pixel
                 if (start.x - (int) start.x < 1e-4) {
@@ -113,20 +121,11 @@ namespace WorkTab {
                 GUI.color = new Color(1f, 1f, 1f, 0.3f);
                 Widgets.DrawLineVertical(Mathf.FloorToInt(start.x), start.y, length);
                 Widgets.DrawLineVertical(Mathf.CeilToInt(start.x), start.y, length);
-                
-                // handle interactions (click and scroll)
-                HeaderInteractions(labelRect, table);
-
-                // mouseover stuff
-                if (Mouse.IsOver(labelRect))
-                {
-                    Widgets.DrawHighlight(labelRect);
-                    TooltipHandler.TipRegion(labelRect, GetHeaderTip(table));
-                }
             }
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
             GUI.color = Color.white;
+            
             if (table.SortingBy != def)
             {
                 return;
@@ -140,7 +139,6 @@ namespace WorkTab {
             GUI.DrawTexture(bottomRight, sortIcon);
         }
         
-
         public override int GetMinHeaderHeight(PawnTable table) {
             return HorizontalHeaderHeight;
         }

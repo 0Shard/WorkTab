@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
-using Verse;
 
 namespace WorkTab.HarmonyPatches.ThirdPart;
 
@@ -46,7 +45,7 @@ public static class CompactWorkTabPatches
         
         _maxPriorityFieldInfo.SetValue(null, Settings.maxPriority);
         _defPriorityFieldInfo.SetValue(null, Settings.defaultPriority);
-        _minHeaderHeightFieldInfo.SetValue(null, Constants.HorizontalHeaderHeight + 20);
+        _minHeaderHeightFieldInfo.SetValue(null, Constants.HorizontalHeaderHeight);
     }
 
     public static bool CanDrawLabel()
