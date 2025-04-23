@@ -10,16 +10,17 @@ namespace WorkTab
 {
     public class PawnColumnWorker_CopyPasteDetailedWorkPriorities : PawnColumnWorker_CopyPasteWorkPriorities
     {
-        private static Dictionary<WorkGiverDef, int[]> _clipboard;
+        // Don't rename it. Multiplayer Compatibility mod need.
+        private static Dictionary<WorkGiverDef, int[]> clipboard;
         
-        protected override bool AnythingInClipboard => _clipboard != null;
+        protected override bool AnythingInClipboard => clipboard != null;
         
         protected override void CopyFrom(Pawn pawn)
         {
-            _clipboard ??= new Dictionary<WorkGiverDef, int[]>();
+            clipboard ??= new Dictionary<WorkGiverDef, int[]>();
             foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading)
             {
-                _clipboard[workgiver] = pawn.GetPriorities(workgiver);
+                clipboard[workgiver] = pawn.GetPriorities(workgiver);
             }
         }
 
@@ -34,7 +35,7 @@ namespace WorkTab
                     for (var hour = 0; hour < GenDate.HoursPerDay; hour++)
                     {
                         // recache the type (bubbles down to workgivers). InvalidateCache will be called internally.
-                        pawn.SetPriority(workgiver, _clipboard[workgiver][hour], hour);
+                        pawn.SetPriority(workgiver, clipboard[workgiver][hour], hour);
                     }
                 }
             }
