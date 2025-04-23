@@ -17,6 +17,15 @@ namespace WorkTab {
         private static string maxPriorityBuffer = null;
         private static string defaultPriorityBuffer = null;
 
+        // Never used. But keep to maintain compatibility.
+        public static bool playSounds              = true;  // Grouped Pawns Lists mod needed.
+        public static bool playCrunch              = true;
+        public static bool jobTextMode             = false;
+        public static bool verticalLabels          = true;
+#pragma warning disable CS0414
+        private static bool _fontFix = true;
+#pragma warning restore CS0414
+        
         public static void DoWindowContents(Rect rect) {
             Listing_Standard options = new Listing_Standard();
             options.Begin(rect);
