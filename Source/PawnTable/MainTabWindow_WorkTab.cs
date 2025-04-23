@@ -47,15 +47,24 @@ namespace WorkTab {
         private static List<PawnColumnDef> Columns {
             get {
                 // get clean copy of base columns
-                List<PawnColumnDef> columns = new List<PawnColumnDef>( Controller.allColumns );
+                var columns = new List<PawnColumnDef>( Controller.allColumns );
+
+                if (columns[0] != PawnColumnDefOf.WorkTabLabel)
+                {
+                    columns.Remove(PawnColumnDefOf.WorkTabLabel);
+                    columns.Insert(0, PawnColumnDefOf.WorkTabLabel);
+                }
 
                 // add workgiver columns for expanded worktypes
-                List<PawnColumnDef> templist = new List<PawnColumnDef>( columns );
-                foreach (PawnColumnDef column in templist) {
-                    if (column.Worker is IExpandableColumn expandable && expandable.Expanded) {
-                        int index = columns.IndexOf( column );
-                        columns.InsertRange(index + 1, expandable.ChildColumns);
+                var tempList = new List<PawnColumnDef>( columns );
+                foreach (var column in tempList)
+                {
+                    if (column.Worker is not IExpandableColumn { Expanded: true } expandable)
+                    {
+                        continue;
                     }
+                    var index = columns.IndexOf( column );
+                    columns.InsertRange(index + 1, expandable.ChildColumns);
                 }
 
                 return columns;
