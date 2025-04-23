@@ -3,7 +3,7 @@
 on:
   push:
     tags:
-      - '*'  # 匹配所有 tag，比如 v1.0.0
+      - '*'
 
 jobs:
   release:
@@ -24,10 +24,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Zip release assets (excluding Source/)
+      - name: Zip release assets (excluding Source/, .github/, .git/)
         run: |
           mkdir release
-          rsync -av --exclude='Source/' ./ ./release/
+          rsync -av \
+            --exclude='Source/' \
+            --exclude='.github/' \
+            --exclude='.git/' \
+            ./ ./release/
           cd release
           zip -r ../release-${{ github.ref_name }}.zip .
 
