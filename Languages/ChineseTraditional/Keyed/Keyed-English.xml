@@ -21,16 +21,8 @@
   <WorkTab.24HourModeTip>時間顯示是以12小時制（比如：中午、9p.m.）或24小時制（比如：12:00、21:00）。</WorkTab.24HourModeTip>
   <WorkTab.MaxPriority>優先級等級</WorkTab.MaxPriority>
   <WorkTab.MaxPriorityTip>優先級使用多少個等級（限制在4至9之間）。</WorkTab.MaxPriorityTip>
-  <WorkTab.PlaySounds>音效</WorkTab.PlaySounds>
-  <WorkTab.PlaySoundsTip>當優先級變更時播放音效？</WorkTab.PlaySoundsTip>
-  <WorkTab.PlayCrunch>嘎吱聲</WorkTab.PlayCrunch>
-  <WorkTab.PlayCrunchTip>當為殖民者分配不擅長的工作時，是否要播放嘎吱聲？</WorkTab.PlayCrunchTip>
   <WorkTab.DisableScrollwheel>禁用滾輪代替點擊</WorkTab.DisableScrollwheel>
   <WorkTab.DisableScrollwheelTip>禁用滾輪代替點擊（當滑鼠懸停在技能上時）</WorkTab.DisableScrollwheelTip>
-  <WorkTab.VerticalLabels>垂直顯示字體</WorkTab.VerticalLabels>
-  <WorkTab.VerticalLabelsTip>垂直顯示字體</WorkTab.VerticalLabelsTip>
-  <WorkTab.FontFix>修復垂直顯示字體</WorkTab.FontFix>
-  <WorkTab.FontFixTip>Unity (Rimworld的引擎）不能很好地處理垂直字體并導致模糊。此修復程序消除了模糊，但可能導致字體位置稍微有些奇怪。</WorkTab.FontFixTip>
   <WorkTab.DefaultPriority>默認優先級</WorkTab.DefaultPriority>
   <WorkTab.DefaultPriorityTip>默認優先級（默認3，限制在1至9之間）</WorkTab.DefaultPriorityTip>
   <WorkTab.HighlightActiveWorkCells>高亮工作單元格</WorkTab.HighlightActiveWorkCells>

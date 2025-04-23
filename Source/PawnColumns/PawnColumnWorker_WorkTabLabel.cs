@@ -76,7 +76,7 @@ namespace WorkTab {
                 }
             }
 
-            if (actionTaken && Settings.playSounds) {
+            if (actionTaken) {
                 SoundDefOf.Tick_Low.PlayOneShotOnCamera();
             }
         }
@@ -113,7 +113,7 @@ namespace WorkTab {
                 }
             }
 
-            if (actionTaken && Settings.playSounds) {
+            if (actionTaken) {
                 SoundDefOf.Tick_High.PlayOneShotOnCamera();
             }
         }

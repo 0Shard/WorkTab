@@ -25,17 +25,9 @@
     <WorkTab.DefaultPriorityTip>Priorité par défaut (par défaut 3, limité à 1 à 9)</WorkTab.DefaultPriorityTip>
     <WorkTab.HighlightActiveWorkCells>Mettre en évidence les cellules de travail actives</WorkTab.HighlightActiveWorkCells>
     <WorkTab.HighlightActiveWorkCellsTip>Mettez en surbrillance les carrés de grille dans l'onglet Travail lorsque le pion fonctionne réellement ce travail en ce moment.</WorkTab.HighlightActiveWorkCellsTip>
-    <WorkTab.PlaySounds>Sons</WorkTab.PlaySounds>
-    <WorkTab.PlaySoundsTip>Jouer un son quand une priorité est changé ?</WorkTab.PlaySoundsTip>
-    <WorkTab.PlayCrunch>Craquemments</WorkTab.PlayCrunch>
-    <WorkTab.PlayCrunchTip>Jouer un son de craquemment quand un colons est assigné à un métier pour lequed il n'est pas qualifié ?</WorkTab.PlayCrunchTip>
     <WorkTab.DisableScrollwheel>Désactiver la mollette</WorkTab.DisableScrollwheel>
     <WorkTab.DisableScrollwheelTip>Désactive les fonctions de la molette (en passant au dessus des compétences)</WorkTab.DisableScrollwheelTip>
-    <WorkTab.VerticalLabels>Intitulés verticaux</WorkTab.VerticalLabels>
-    <WorkTab.VerticalLabelsTip>Affiche les intitulés des métiers verticalement</WorkTab.VerticalLabelsTip>
-    <WorkTab.FontFix>Réparer les polices verticales</WorkTab.FontFix>
-    <WorkTab.FontFixTip>Unity (le moteur de jeu de Rimworld) ne gère pas les polices verticales, et crée du flou. Cette réparation enlève ce flou, mais peut un positionnement des lettres assez étrange.</WorkTab.FontFixTip>
-
+    
     <!-- scheduler -->
     <WorkTab.SchedulerHourTip>{0}-{1} est actuellement {2}\n\n{3}</WorkTab.SchedulerHourTip>
     <WorkTab.Selected>sélectionné</WorkTab.Selected>

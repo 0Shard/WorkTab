@@ -25,17 +25,9 @@
     <WorkTab.DefaultPriorityTip>Standardpriorität (Standardwert 3, begrenzt auf 1 bis 9)</WorkTab.DefaultPriorityTip>
     <WorkTab.HighlightActiveWorkCells>Aktive Arbeitszellen markieren</WorkTab.HighlightActiveWorkCells>
     <WorkTab.HighlightActiveWorkCellsTip>Markieren Sie die Rasterquadrate im Arbeitstab, wenn die Figur gerade diesen Job ausführt.</WorkTab.HighlightActiveWorkCellsTip>
-    <WorkTab.PlaySounds>Geräusche</WorkTab.PlaySounds>
-    <WorkTab.PlaySoundsTip>Soll ein Geräusch abgespielt werden, wenn die Priorität verändert wird?</WorkTab.PlaySoundsTip>
-    <WorkTab.PlayCrunch>Knackige Geräusche</WorkTab.PlayCrunch>
-    <WorkTab.PlayCrunchTip>Soll ein knackiges Geräusch abgespielt werden, wenn ein Koloniest einem Job zugeordnet wird, welches er nicht beherrscht?</WorkTab.PlayCrunchTip>
     <WorkTab.DisableScrollwheel>Scrollrad deaktivieren</WorkTab.DisableScrollwheel>
     <WorkTab.DisableScrollwheelTip>Deaktiviert die Scrollradfunktion (wenn die Maus sich über Prioritäten befindet)</WorkTab.DisableScrollwheelTip>
-    <WorkTab.VerticalLabels>Vertikale Beschriftung</WorkTab.VerticalLabels>
-    <WorkTab.VerticalLabelsTip>Zeigt Arbeitsbeschriftungen vertikal an</WorkTab.VerticalLabelsTip>
-    <WorkTab.FontFix>Feste vertikale Schriftart</WorkTab.FontFix>
-    <WorkTab.FontFixTip>Unity (die Engine womit RimWorld mit erstellt worden ist) kann nicht gut mit rotierten Schriftarten umgehen und verursacht ein verwischen. Dieser Fix entfernt das verwischen, aber es kann zu einer leichten Verschiebung der Buchstaben führen</WorkTab.FontFixTip>
-
+    
     <!-- scheduler -->
     <WorkTab.SchedulerHourTip>{0}-{1} ist aktuell {2}\n\n{3}</WorkTab.SchedulerHourTip>
     <WorkTab.Selected>ausgewählt</WorkTab.Selected>

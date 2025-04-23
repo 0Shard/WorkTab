@@ -21,11 +21,11 @@ namespace WorkTab {
             pawn.SetPriority(workgiver, priority - 1, hours);
 
             // play sounds
-            if (Settings.playSounds && playSound && priority > 1) {
+            if (playSound && priority > 1) {
                 SoundDefOf.Tick_High.PlayOneShotOnCamera();
             }
 
-            if (Settings.playSounds && playSound && priority == 1) {
+            if (playSound && priority == 1) {
                 SoundDefOf.Tick_Low.PlayOneShotOnCamera();
             }
         }
@@ -43,7 +43,7 @@ namespace WorkTab {
             }
 
             // play sounds
-            if (Settings.playSounds && playSound && pawns.Any(p => p.GetPriority(workgiver, hour) != 1)) {
+            if (playSound && pawns.Any(p => p.GetPriority(workgiver, hour) != 1)) {
                 SoundDefOf.Tick_High.PlayOneShotOnCamera();
             }
 
@@ -65,11 +65,11 @@ namespace WorkTab {
             pawn.SetPriority(workgiver, priority + 1, hours);
 
             // play sounds
-            if (Settings.playSounds && playSound && priority == 0) {
+            if (playSound && priority == 0) {
                 SoundDefOf.Tick_High.PlayOneShotOnCamera();
             }
 
-            if (Settings.playSounds && playSound && priority > 0) {
+            if (playSound && priority > 0) {
                 SoundDefOf.Tick_Low.PlayOneShotOnCamera();
             }
         }
@@ -87,7 +87,7 @@ namespace WorkTab {
             }
 
             // play sounds
-            if (Settings.playSounds && playSound && pawns.Any(p => p.GetPriority(workgiver, hour) > 0)) {
+            if (playSound && pawns.Any(p => p.GetPriority(workgiver, hour) > 0)) {
                 SoundDefOf.Tick_Low.PlayOneShotOnCamera();
             }
 

@@ -7,6 +7,7 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
+using WorkTab.HarmonyPatches.ThirdPart;
 using static WorkTab.Constants;
 using static WorkTab.InteractionUtilities;
 using static WorkTab.MainTabWindow_WorkTab;
@@ -98,8 +99,9 @@ namespace WorkTab {
             base.HeaderClicked(headerRect, table);
         }
 
+        // WorkManager mod needed. Don't remove it.
         public override int GetMinHeaderHeight(PawnTable table) {
-            return Settings.verticalLabels ? VerticalHeaderHeight : HorizontalHeaderHeight;
+            return base.GetMinHeaderHeight(table);
         }
 
         public override int GetMinWidth(PawnTable table) {
@@ -132,9 +134,7 @@ namespace WorkTab {
                 List<Pawn> pawns = CapablePawns;
                 if (ScrolledUp(headerRect, true)) {
                     if (pawns.Any(p => p.GetPriority(def.workType, VisibleHour) != 0)) {
-                        if (Settings.playSounds) {
-                            SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
-                        }
+                        SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
                         foreach (Pawn pawn in pawns) {
                             pawn.SetPriority(def.workType, 0, SelectedHours);
                         }
@@ -142,9 +142,7 @@ namespace WorkTab {
                 }
                 if (ScrolledDown(headerRect, true)) {
                     if (pawns.Any(p => p.GetPriority(def.workType, VisibleHour) == 0)) {
-                        if (Settings.playSounds) {
-                            SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
-                        }
+                        SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
                         foreach (Pawn pawn in pawns) {
                             pawn.SetPriority(def.workType, Settings.defaultPriority, SelectedHours);
                         }
@@ -254,14 +252,10 @@ namespace WorkTab {
 
             if (active) {
                 pawn.SetPriority(def.workType, 0, SelectedHours);
-                if (Settings.playSounds) {
-                    SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
-                }
+                SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
             } else {
                 pawn.SetPriority(def.workType, Settings.defaultPriority, SelectedHours);
-                if (Settings.playSounds) {
-                    SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
-                }
+                SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
 
                 if (def.workType.relevantSkills.Any() && pawn.skills.AverageOfRelevantSkillsFor(def.workType) <= 2.0)
                     SoundDefOf.Crunch.PlayOneShotOnCamera();

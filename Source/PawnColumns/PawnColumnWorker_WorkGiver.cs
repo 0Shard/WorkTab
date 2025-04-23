@@ -7,6 +7,7 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
+using WorkTab.HarmonyPatches.ThirdPart;
 using static WorkTab.Constants;
 using static WorkTab.InteractionUtilities;
 using static WorkTab.MainTabWindow_WorkTab;
@@ -71,68 +72,77 @@ namespace WorkTab {
         public override void DoHeader(Rect rect, PawnTable table) {
             // make sure we're at the correct font size
             Text.Font = GameFont.Tiny;
-            Rect labelRect = rect;
-
-            if (Settings.verticalLabels) {
-                DrawVerticalHeader(rect, table);
-            } else {
-                DrawHorizontalHeader(rect, table, out labelRect);
-            }
-
-            // handle interactions (click + scroll)
-            HeaderInteractions(labelRect, table);
-
-            // mouseover stuff
-            if (Mouse.IsOver(labelRect))
-            {
-                Widgets.DrawHighlight(labelRect);
-                TooltipHandler.TipRegion(labelRect, GetHeaderTip(table));
-            }
-
-            // sort icon
-            if (table.SortingBy == def) {
-                Texture2D sortIcon = !table.SortingDescending ? SortingIcon : SortingDescendingIcon;
-                Rect bottomRight = new Rect( rect.xMax - sortIcon.width - 1f, rect.yMax - sortIcon.height - 1f,
-                                            sortIcon.width, sortIcon.height );
-                GUI.DrawTexture(bottomRight, sortIcon);
-            }
-        }
-
-        public void DrawHorizontalHeader(Rect rect, PawnTable table, out Rect labelRect) {
-            // get offset rect
-            labelRect = GetLabelRect(rect);
-
-            // draw label, slightly greyed out to contrast with work types
-            GUI.color = new Color(1f, 1f, 1f, .8f);
-            Widgets.Label(labelRect, Label.Truncate(labelRect.width, TruncationCache));
-            GUI.color = Color.white;
-
-            // get bottom center of label, offset left to align with boxes
-            Vector2 start  = new Vector2( labelRect.center.x - 2f, labelRect.yMax );
-            float length = rect.yMax - start.y;
-
-            // make sure we're not at a whole pixel
-            if (start.x - (int) start.x < 1e-4) {
-                start.x += .5f;
-            }
-
-            // draw the lines - two separate lines give a clearer edge than one 2px line...
-            GUI.color = new Color(1f, 1f, 1f, 0.3f);
-            Widgets.DrawLineVertical(Mathf.FloorToInt(start.x), start.y, length);
-            Widgets.DrawLineVertical(Mathf.CeilToInt(start.x), start.y, length);
-            GUI.color = Color.white;
-        }
-
-        public void DrawVerticalHeader(Rect rect, PawnTable table) {
-            GUI.color = new Color(.8f, .8f, .8f);
             Text.Anchor = TextAnchor.MiddleLeft;
-            LabelUtilities.VerticalLabel(rect, Label.Truncate(rect.height, VerticalTruncationCache));
+            GUI.color = new Color(1f, 1f, 1f, .8f);
+
+            if (CompactWorkTabPatches.CanDrawLabel())
+            {
+                var originalMatrix = GUI.matrix;
+                var (transformedRect, transformationMatrix) = CompactWorkTabPatches.DrawLabel(rect, Label);
+                GUI.matrix = transformationMatrix;
+                var mouseIsOver = transformedRect.Contains(Event.current.mousePosition);
+                GUI.matrix = originalMatrix;
+                MouseoverSounds.DoRegion(rect);
+                if (!mouseIsOver)
+                {
+                    return;
+                }
+
+                var rect1 = new Rect(0f, 0f, UI.screenWidth, UI.screenHeight);
+                TooltipHandler.TipRegion(rect1, GetHeaderTip(table));
+                // handle interactions (click and scroll)
+                HeaderInteractions(rect1, table);
+            }
+            else
+            {
+                // get offset rect
+                var labelRect = GetLabelRect(rect);
+                // draw label, slightly greyed out to contrast with work types
+                Widgets.Label(labelRect, Label.Truncate(labelRect.width, TruncationCache));
+
+                // get bottom center of label, offset left to align with boxes
+                Vector2 start  = new Vector2( labelRect.center.x - 2f, labelRect.yMax );
+                float length = rect.yMax - start.y;
+
+                // make sure we're not at a whole pixel
+                if (start.x - (int) start.x < 1e-4) {
+                    start.x += .5f;
+                }
+
+                // draw the lines - two separate lines give a clearer edge than one 2px line...
+                GUI.color = new Color(1f, 1f, 1f, 0.3f);
+                Widgets.DrawLineVertical(Mathf.FloorToInt(start.x), start.y, length);
+                Widgets.DrawLineVertical(Mathf.CeilToInt(start.x), start.y, length);
+                
+                // handle interactions (click and scroll)
+                HeaderInteractions(labelRect, table);
+
+                // mouseover stuff
+                if (Mouse.IsOver(labelRect))
+                {
+                    Widgets.DrawHighlight(labelRect);
+                    TooltipHandler.TipRegion(labelRect, GetHeaderTip(table));
+                }
+            }
+            Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
             GUI.color = Color.white;
+            if (table.SortingBy != def)
+            {
+                return;
+            }
+            // sort icon
+            var sortIcon = !table.SortingDescending ? SortingIcon : SortingDescendingIcon;
+            var bottomRight = new Rect(rect.xMax - sortIcon.width - 1f,
+                rect.yMax - sortIcon.height - 1f, 
+                sortIcon.width,
+                sortIcon.height);
+            GUI.DrawTexture(bottomRight, sortIcon);
         }
+        
 
         public override int GetMinHeaderHeight(PawnTable table) {
-            return Settings.verticalLabels ? VerticalHeaderHeight : HorizontalHeaderHeight;
+            return HorizontalHeaderHeight;
         }
 
         public override int GetMinWidth(PawnTable table) {
@@ -160,9 +170,7 @@ namespace WorkTab {
                     List<Pawn> pawns = CapablePawns;
                     if (ScrolledUp(headerRect, true) || RightClicked(headerRect)) {
                         if (pawns.Any(p => p.GetPriority(WorkGiver, VisibleHour) != 0)) {
-                            if (Settings.playSounds) {
-                                SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
-                            }
+                            SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
 
                             foreach (Pawn pawn in pawns) {
                                 pawn.SetPriority(WorkGiver, 0, SelectedHours);
@@ -172,9 +180,7 @@ namespace WorkTab {
 
                     if (ScrolledDown(headerRect, true) || LeftClicked(headerRect)) {
                         if (pawns.Any(p => p.GetPriority(WorkGiver, VisibleHour) == 0)) {
-                            if (Settings.playSounds) {
-                                SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
-                            }
+                            SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
 
                             foreach (Pawn pawn in pawns) {
                                 pawn.SetPriority(WorkGiver, Settings.defaultPriority, SelectedHours);
@@ -282,9 +288,9 @@ namespace WorkTab {
             }
 
             tip += "\n" + "ClickToSortByThisColumn".Translate().Colorize(ColoredText.SubtleGrayColor);
-            if (Find.PlaySettings.useWorkPriorities) {
+            if (Find.PlaySettings.useWorkPriorities && !Settings.disableScrollwheel) {
                 tip += "\n" + "WorkTab.DetailedColumnTip".Translate().Colorize(ColoredText.SubtleGrayColor);
-            } else {
+            } else if (!Settings.disableScrollwheel) {
                 tip += "\n" + "WorkTab.ToggleColumnTip".Translate().Colorize(ColoredText.SubtleGrayColor);
             }
 
@@ -338,10 +344,8 @@ namespace WorkTab {
                 }
 
                 // get new priority, play crunch if it wasn't pretty
-                int newPriority = pawn.GetPriority( WorkGiver, VisibleHour );
-                if (Settings.playSounds && Settings.playCrunch &&
-                     oldpriority == 0 && newPriority > 0 &&
-                     pawn.skills.AverageOfRelevantSkillsFor(WorkGiver.workType) <= 2f) {
+                var newPriority = pawn.GetPriority( WorkGiver, VisibleHour );
+                if (oldpriority == 0 && newPriority > 0 && pawn.skills.AverageOfRelevantSkillsFor(WorkGiver.workType) <= 2f) {
                     SoundDefOf.Crunch.PlayOneShotOnCamera();
                 }
 
@@ -362,25 +366,19 @@ namespace WorkTab {
 
                 if (active) {
                     pawn.SetPriority(WorkGiver, 0, SelectedHours);
-                    if (Settings.playSounds) {
-                        SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
-                    }
+                    SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
                 } else {
                     pawn.SetPriority(WorkGiver, Settings.defaultPriority, SelectedHours);
-                    if (Settings.playSounds) {
-                        SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
-                    }
+                    SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
 
-                    if (Settings.playSounds && Settings.playCrunch &&
-                         pawn.skills.AverageOfRelevantSkillsFor(WorkGiver.workType) <= 2f) {
+                    if (pawn.skills.AverageOfRelevantSkillsFor(WorkGiver.workType) <= 2f) {
                         SoundDefOf.Crunch.PlayOneShotOnCamera();
                     }
                 }
 
                 // stop event propagation, update tutorials
                 Event.current.Use();
-                PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.WorkTab,
-                                                               KnowledgeAmount.SpecificInteraction);
+                PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.WorkTab, KnowledgeAmount.SpecificInteraction);
             }
         }
     }

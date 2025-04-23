@@ -25,17 +25,9 @@
   <WorkTab.DefaultPriorityTip>默认优先级（默认3，限制在1至9之间）</WorkTab.DefaultPriorityTip>
   <WorkTab.HighlightActiveWorkCells>高亮工作单元格</WorkTab.HighlightActiveWorkCells>
   <WorkTab.HighlightActiveWorkCellsTip>高亮显示小人当前工作的单元格</WorkTab.HighlightActiveWorkCellsTip>
-  <WorkTab.PlaySounds>提示音</WorkTab.PlaySounds>
-  <WorkTab.PlaySoundsTip>更改优先级时播放提示音吗？</WorkTab.PlaySoundsTip>
-  <WorkTab.PlayCrunch>嘎吱声</WorkTab.PlayCrunch>
-  <WorkTab.PlayCrunchTip>当给小人分配不熟练的工作时，是否播放嘎吱声吗？</WorkTab.PlayCrunchTip>
   <WorkTab.DisableScrollwheel>禁用滚轮代替点击</WorkTab.DisableScrollwheel>
   <WorkTab.DisableScrollwheelTip>禁用滚轮代替点击功能（当鼠标悬停在技能上时）</WorkTab.DisableScrollwheelTip>
-  <WorkTab.VerticalLabels>垂直显示并旋转标签字体</WorkTab.VerticalLabels>
-  <WorkTab.VerticalLabelsTip>垂直显示并旋转标签字体</WorkTab.VerticalLabelsTip>
-  <WorkTab.FontFix>修复旋转显示字体</WorkTab.FontFix>
-  <WorkTab.FontFixTip>Unity（RimWorld的引擎）不能很好地处理旋转字体从而导致模糊。此修复程序消除了模糊，但可能会导致字体位置稍微有些奇怪。</WorkTab.FontFixTip>
-
+  
   <!-- scheduler -->
   <WorkTab.SchedulerHourTip>{0}-{1}当前{2}\n\n{3}</WorkTab.SchedulerHourTip>
   <WorkTab.Selected>已选择</WorkTab.Selected>

@@ -7,7 +7,7 @@ using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
-using WorkTab.WorkManager;
+using WorkTab.HarmonyPatches.ThirdPart;
 
 namespace WorkTab {
     public class Controller: Mod {

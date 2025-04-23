@@ -25,17 +25,9 @@
   <WorkTab.DefaultPriorityTip>Приоритет по умолчанию (по умолчанию 3, доступен от 1 до 9)</WorkTab.DefaultPriorityTip>
   <WorkTab.HighlightActiveWorkCells>Выделять активные рабочие ячейки</WorkTab.HighlightActiveWorkCells>
   <WorkTab.HighlightActiveWorkCellsTip>Подсвечивать ячейки сетки во вкладке работ, когда персонаж в данный момент выполняет эту работу.</WorkTab.HighlightActiveWorkCellsTip>
-  <WorkTab.PlaySounds>Звук</WorkTab.PlaySounds>
-  <WorkTab.PlaySoundsTip>Воспроизводить звук при изменении приоритета?</WorkTab.PlaySoundsTip>
-  <WorkTab.PlayCrunch>Хруст</WorkTab.PlayCrunch>
-  <WorkTab.PlayCrunchTip>Воспроизводить хрустящий звук при назначении поселенцу работы, в которой он ничего не смыслит</WorkTab.PlayCrunchTip>
   <WorkTab.DisableScrollwheel>Отключить прокрутку</WorkTab.DisableScrollwheel>
   <WorkTab.DisableScrollwheelTip>Отключить функцию прокрутки колёсиком мыши (при наведении курсора на навыки)</WorkTab.DisableScrollwheelTip>
-  <WorkTab.VerticalLabels>Вертикальные метки</WorkTab.VerticalLabels>
-  <WorkTab.VerticalLabelsTip>Отображение меток работ по вертикали</WorkTab.VerticalLabelsTip>
-  <WorkTab.FontFix>Исправление шрифтов</WorkTab.FontFix>
-  <WorkTab.FontFixTip>Unity (движок, на котором основан RimWorld) не очень хорошо справляется с повернутыми шрифтами, вызывая размытие. Эта опция устраняет размытие, но может вызвать странное позиционирование букв.</WorkTab.FontFixTip>
-
+  
   <!-- scheduler -->
   <WorkTab.SchedulerHourTip>Временной интервал {0}-{1} сейчас {2}\n\n{3}</WorkTab.SchedulerHourTip>
   <WorkTab.Selected>выделен</WorkTab.Selected>
