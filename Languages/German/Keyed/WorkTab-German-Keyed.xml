@@ -73,4 +73,6 @@
     <Fluffy.WorkTab.Priority.VeryLow>Sehr niedrige Priorität</Fluffy.WorkTab.Priority.VeryLow>
     <Fluffy.WorkTab.Priority.Lowest>Niedrigste Priorität</Fluffy.WorkTab.Priority.Lowest>
 
+    <Fluffy.WorkTab.CompactWorkTabSettingDisabledTip>Diese Einstellung ist deaktiviert. Bitte konfigurieren Sie sie in {0}.</Fluffy.WorkTab.CompactWorkTabSettingDisabledTip>
+
 </LanguageData>
