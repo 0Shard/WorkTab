@@ -1,6 +1,7 @@
 ﻿// Settings.cs
 // Copyright Karel Kroeze, 2020-2020
 
+using System;
 using UnityEngine;
 using Verse;
 
@@ -18,11 +19,16 @@ namespace WorkTab {
         private static string defaultPriorityBuffer = null;
 
         // Never used. But keep to maintain compatibility.
+        [Obsolete("playSounds setting is abandoned.")]
         public static bool playSounds              = true;  // Grouped Pawns Lists mod needed.
+        [Obsolete("playCrunch setting is abandoned.")]
         public static bool playCrunch              = true;
+        [Obsolete("jobTextMode setting is abandoned.")]
         public static bool jobTextMode             = false;
-        public static bool verticalLabels          = true;
+        [Obsolete("verticalLabels setting is abandoned.")]
+        public static bool verticalLabels          = false;
 #pragma warning disable CS0414
+        [Obsolete("_fontFix setting is abandoned.")]
         private static bool _fontFix = true;
 #pragma warning restore CS0414
         

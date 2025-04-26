@@ -1,19 +1,20 @@
 // WorkType_Extensions.cs
 // Copyright Karel Kroeze, 2020-2020
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using RimWorld;
 using Verse;
 using Verse.Sound;
 
 namespace WorkTab {
     public static class WorkType_Extensions {
-        private static readonly Dictionary<WorkTypeDef, List<WorkGiverDef>> _workgiversByType =
-            new Dictionary<WorkTypeDef, List<WorkGiverDef>>();
+        
+        private static readonly Dictionary<WorkTypeDef, List<WorkGiverDef>> _workgiversByType = new();
 
-        private static readonly Dictionary<WorkTypeDef, string> workListCache = new Dictionary<WorkTypeDef, string>();
+        [Obsolete("workListCache field is abandoned.")]
+        private static readonly Dictionary<WorkTypeDef, string> workListCache = new();
 
         public static void DecrementPriority(this WorkTypeDef worktype, Pawn pawn, int hour = -1,
                                               List<int> hours = null, bool playSound = true) {
@@ -104,13 +105,21 @@ namespace WorkTab {
         }
 
         public static List<WorkGiverDef> WorkGivers(this WorkTypeDef worktype) {
-            if (!_workgiversByType.TryGetValue(worktype, out List<WorkGiverDef> result)) {
-                result = DefDatabase<WorkGiverDef>
-                        .AllDefsListForReading.Where(wg => wg.workType == worktype).ToList();
-                _workgiversByType[worktype] = result;
+            if (_workgiversByType.TryGetValue(worktype, out var result))
+            {
+                return result;
             }
-
+            result = DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(wg => wg.workType == worktype).ToList();
+            _workgiversByType[worktype] = result;
             return result;
+        }
+
+        public static void ClearCache()
+        {
+            _workgiversByType.Clear();
+#pragma warning disable CS0618
+            workListCache.Clear();
+#pragma warning restore CS0618
         }
     }
 }
