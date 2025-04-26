@@ -21,8 +21,7 @@ namespace WorkTab {
         private static          int       _visibleHour = -1;
 
         private bool _columnsChanged;
-
-
+        
         private Rect _timeBarRect;
 
         static MainTabWindow_WorkTab() {
