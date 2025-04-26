@@ -1,8 +1,8 @@
 // PawnTable_PawnTableOnGUI.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -43,52 +43,50 @@ namespace WorkTab
             var borderColor = (Color)borderField.GetValue(__instance);
             var fixedSize = (Vector2)fixedField.GetValue(__instance);
 
-            float headerH = __instance.HeaderHeight;
-            float heightNoScroll = __instance.HeightNoScrollbar;
-            float labelW = widths[0];
+            var headerH = __instance.HeaderHeight;
+            var heightNoScroll = __instance.HeightNoScrollbar;
+            var labelW = widths[0];
             
             // Calculate vertical space, clamped to screen, considering bottom space for the timeline
-            float bottomMargin = MainButtonDef.ButtonHeight + Constants.TimeBarHeight + 42f;
-            float maxScrollH = UI.screenHeight - position.y - bottomMargin;
-            float outH = Mathf.Min(heightNoScroll - headerH, maxScrollH);
-            float outW = fixedSize.x - labelW;
+            const float bottomMargin = MainButtonDef.ButtonHeight + Constants.TimeBarHeight + 42f;
+            var maxScrollH = UI.screenHeight - position.y - bottomMargin;
+            var outH = Mathf.Min(heightNoScroll - headerH, maxScrollH);
+            var outW = fixedSize.x - labelW;
 
             // Adjust outH based on timeline height to ensure enough space for the timeline at the bottom
             outH = Mathf.Min(outH, maxScrollH - Constants.TimeBarHeight);
 
             // Define rects
-            Rect headerOut = new Rect(position.x + labelW, position.y, outW, headerH);
-            Rect labelOut = new Rect(position.x, position.y + headerH, labelW, outH);
-            Rect tableOut = new Rect(position.x + labelW, position.y + headerH, outW, outH);
+            var headerOut = new Rect(position.x + labelW, position.y, outW, headerH);
+            var labelOut = new Rect(position.x, position.y + headerH, labelW, outH);
+            var tableOut = new Rect(position.x + labelW, position.y + headerH, outW, outH);
 
             // Calculate the content size
-            float contentW = 0f;
-            for (int i = 1; i < widths.Count; i++) contentW += widths[i];
-            float contentH = 0f;
-            foreach (var h in heights) contentH += h;
-            
+            var contentW = widths.Skip(1).Sum(); // Skipping the label width for content
+            var contentH = heights.Sum();
+
             // Ensure the content area is scrollable and scrollbars appear if content overflows
-            bool needH = contentW > outW;
-            bool needV = contentH > outH;
+            var needH = contentW > outW;
+            var needV = contentH > outH;
 
             // Enable scrollbars if content is too large
             if (needH) { headerOut.height += 16f; tableOut.height += 16f; }
             if (needV) { labelOut.width += 16f; tableOut.width += 16f; }
             
-            Rect headerView = new Rect(0f, 0f, contentW, headerH);
-            Rect labelView  = new Rect(0f, 0f, labelW, contentH);
-            Rect tableView = new Rect(0f, 0f, contentW, contentH);
+            var headerView = new Rect(0f, 0f, contentW, headerH);
+            var labelView  = new Rect(0f, 0f, labelW, contentH);
+            var tableView = new Rect(0f, 0f, contentW, contentH);
 
             // Draw frozen label header
             columns[0].Worker.DoHeader(new Rect(position.x, position.y, labelW, headerH), __instance);
 
             // Horizontal header scroll
-            Vector2 hPos = new Vector2(___scrollPosition.x, 0f);
+            var hPos = new Vector2(___scrollPosition.x, 0f);
             Widgets.BeginScrollView(headerOut, ref hPos, headerView, false);
-            float curX = 0f;
-            for (int i = 1; i < columns.Count; i++)
+            var curX = 0f;
+            for (var i = 1; i < columns.Count; i++)
             {
-                float w = (i == columns.Count - 1) ? contentW - curX : widths[i];
+                var w = (i == columns.Count - 1) ? contentW - curX : widths[i];
                 var rect = new Rect(curX, 0f, w, headerH);
                 if (Mouse.IsOver(rect)) _hoveredColumnLabel = i;
                 if (_hoveredColumnContent == i) Widgets.DrawHighlight(rect);
@@ -103,25 +101,32 @@ namespace WorkTab
             if (_hoveredColumnLabel == 0) Widgets.DrawHighlight(labelOut);
 
             // Vertical label scroll with separators
-            Vector2 vPos = new Vector2(0f, ___scrollPosition.y);
+            var vPos = new Vector2(0f, ___scrollPosition.y);
             Widgets.BeginScrollView(labelOut, ref vPos, labelView, false);
-            float curY = 0f;
-            for (int j = 0; j < pawns.Count; j++)
+            var curY = 0f;
+            for (var j = 0; j < pawns.Count; j++)
             {
-                GUI.color = borderColor;
-                Widgets.DrawLineHorizontal(0f, curY, labelW);
-                GUI.color = Color.white;
-
-                var cellRect = new Rect(0f, curY, labelW, heights[j]);
-                columns[0].Worker.DoCell(cellRect, pawns[j], __instance);
-                if (_hoveredRowContent == j) Widgets.DrawHighlight(cellRect);
-                if (Mouse.IsOver(cellRect)) _hoveredRowLabel = j;
-                if (pawns[j].Downed)
+                // only draw if on screen
+                if (tableView.height <= tableOut.height ||
+                    curY - ___scrollPosition.y + heights[j] >= 0f &&
+                    curY - ___scrollPosition.y <= tableOut.height)
                 {
-                    GUI.color = new Color(1f, 0f, 0f, 0.5f);
-                    Widgets.DrawLineHorizontal(0f, cellRect.center.y, labelW);
+                    GUI.color = borderColor;
+                    Widgets.DrawLineHorizontal(0f, curY, labelW);
                     GUI.color = Color.white;
+
+                    var cellRect = new Rect(0f, curY, labelW, heights[j]);
+                    columns[0].Worker.DoCell(cellRect, pawns[j], __instance);
+                    if (_hoveredRowContent == j) Widgets.DrawHighlight(cellRect);
+                    if (Mouse.IsOver(cellRect)) _hoveredRowLabel = j;
+                    if (pawns[j].Downed)
+                    {
+                        GUI.color = new Color(1f, 0f, 0f, 0.5f);
+                        Widgets.DrawLineHorizontal(0f, cellRect.center.y, labelW);
+                        GUI.color = Color.white;
+                    }
                 }
+
                 curY += heights[j];
             }
             Widgets.EndScrollView();
@@ -133,9 +138,9 @@ namespace WorkTab
             
             // Column content sync highlight
             curX = 0f;
-            for (int i = 1; i < columns.Count; i++)
+            for (var i = 1; i < columns.Count; i++)
             {
-                float w = (i == columns.Count - 1) ? contentW - curX : widths[i];
+                var w = (i == columns.Count - 1) ? contentW - curX : widths[i];
                 var rect = new Rect(curX, 0f, w, tableOut.height);
                 if (Mouse.IsOver(rect)) 
                 {
@@ -148,36 +153,43 @@ namespace WorkTab
             _hoveredColumnLabel = -1;
             
             // Draw rows with separators and cells
-            float rowY = 0f;
-            for (int j = 0; j < pawns.Count; j++)
+            var rowY = 0f;
+            for (var j = 0; j < pawns.Count; j++)
             {
-                GUI.color = borderColor;
-                Widgets.DrawLineHorizontal(0f, rowY, tableView.width);
-                GUI.color = Color.white;
-
-                Rect rowRect = new Rect(0f, rowY, tableView.width, heights[j]);
-                if (Mouse.IsOver(rowRect))
+                if (tableView.height <= tableOut.height ||
+                    rowY - ___scrollPosition.y + heights[j] >= 0f &&
+                    rowY - ___scrollPosition.y <= tableOut.height)
                 {
-                    Widgets.DrawHighlight(rowRect);
-                    _hoveredRowContent = j;
-                }
-                if (_hoveredRowLabel == j) Widgets.DrawHighlight(rowRect);
-
-                float cellX = 0f;
-                for (int c = 1; c < columns.Count; c++)
-                {
-                    float w = (c == columns.Count - 1) ? contentW - cellX : widths[c];
-                    var cellR = new Rect(cellX, rowY, w, heights[j]);
-                    columns[c].Worker.DoCell(cellR, pawns[j], __instance);
-                    cellX += w;
-                }
-
-                if (pawns[j].Downed)
-                {
-                    GUI.color = new Color(1f, 0f, 0f, 0.5f);
-                    Widgets.DrawLineHorizontal(0f, rowRect.center.y, tableView.width);
+                    GUI.color = borderColor;
+                    Widgets.DrawLineHorizontal(0f, rowY, tableView.width);
                     GUI.color = Color.white;
+
+                    var rowRect = new Rect(0f, rowY, tableView.width, heights[j]);
+                    if (Mouse.IsOver(rowRect))
+                    {
+                        Widgets.DrawHighlight(rowRect);
+                        _hoveredRowContent = j;
+                    }
+
+                    if (_hoveredRowLabel == j) Widgets.DrawHighlight(rowRect);
+
+                    var cellX = 0f;
+                    for (var c = 1; c < columns.Count; c++)
+                    {
+                        var w = (c == columns.Count - 1) ? contentW - cellX : widths[c];
+                        var cellR = new Rect(cellX, rowY, w, heights[j]);
+                        columns[c].Worker.DoCell(cellR, pawns[j], __instance);
+                        cellX += w;
+                    }
+
+                    if (pawns[j].Downed)
+                    {
+                        GUI.color = new Color(1f, 0f, 0f, 0.5f);
+                        Widgets.DrawLineHorizontal(0f, rowRect.center.y, tableView.width);
+                        GUI.color = Color.white;
+                    }
                 }
+
                 rowY += heights[j];
             }
 
