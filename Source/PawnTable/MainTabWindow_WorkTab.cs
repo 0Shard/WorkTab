@@ -127,7 +127,6 @@ namespace WorkTab {
         }
 
         public override void DoWindowContents(Rect rect) {
-            Instance.Table.SetFixedSize(new Vector2(rect.width, rect.height - ExtraTopSpace));
             if (_columnsChanged) {
                 RebuildTable();
             }
@@ -155,16 +154,11 @@ namespace WorkTab {
         }
 
         public void RebuildTable() {
-            if (Instance == null) {
-                Logger.Debug("calling RebuildTable on a null instance");
-                return;
-            }
-
             // get columns
-            List<PawnColumnDef> columns = Columns;
+            var columns = Columns;
 
             // update alternating vertical positions
-            bool moveNextDown = false;
+            var moveNextDown = false;
             foreach (PawnColumnDef columnDef in columns) {
                 if (columnDef.Worker is IAlternatingColumn worker) {
                     moveNextDown = !moveNextDown;
@@ -180,11 +174,11 @@ namespace WorkTab {
 
             // force recache of table sizes: set the table to be dirty, then get the size - which calls the private recache routine.
             SetDirty();
-            Vector2 tmp = Instance.Table.Size;
-            Instance.windowRect.width = Math.Min(tmp.x, UI.screenWidth);
+            var tmp = Table.Size;
+            windowRect.width = Math.Min(tmp.x, UI.screenWidth);
 
             // force recache of timeBarRect
-            Instance._timeBarRect = default;
+            _timeBarRect = default;
 
             // clear dirty flag
             _columnsChanged = false;
