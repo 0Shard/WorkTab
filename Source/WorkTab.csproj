@@ -4,8 +4,7 @@
     <RuntimeIdentifier>win</RuntimeIdentifier>
     <AssemblyTitle>WorkTab</AssemblyTitle>
     <Product>WorkTab</Product>
-    <Copyright>Copyright © 2017-2021</Copyright>
-    <DebugType>portable</DebugType>
+    <Copyright>Copyright © 2017-2025</Copyright>
     <OutputPath>..\Assemblies\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
