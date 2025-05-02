@@ -26,6 +26,17 @@ public static class AchtungPatches
         public static bool Prefix(PawnTableDef workTable)
         {
             WorkType_Extensions.ClearCache();
+            // update alternating vertical positions
+            var moveNextDown = false;
+            foreach (var columnDef in workTable.columns) {
+                if (columnDef.Worker is IAlternatingColumn worker) {
+                    moveNextDown = !moveNextDown;
+                    worker.MoveDown = moveNextDown;
+                    columnDef.moveWorkTypeLabelDown = moveNextDown;
+                } else {
+                    moveNextDown = false;
+                }
+            }
             Controller.allColumns = workTable.columns;
             if (MainTabWindow_WorkTab.Instance != null)
             {

@@ -148,7 +148,7 @@ namespace WorkTab {
         }
 
         public void HeaderInteractions(Rect headerRect, PawnTable table) {
-            if (!Mouse.IsOver(headerRect)) {
+            if (!Mouse.IsOver(headerRect) || Instance == null) {
                 return;
             }
 

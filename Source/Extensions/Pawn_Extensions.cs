@@ -31,6 +31,11 @@ namespace WorkTab {
             return pawn.Dead || pawn.workSettings == null || !pawn.workSettings.EverWork;
         }
 
+        public static bool Humanlike(this Pawn pawn)
+        {
+            return pawn != null && pawn.RaceProps.Humanlike;
+        }
+
         public static bool CapableOf(this Pawn pawn, WorkGiverDef workgiver) {
             return !workgiver.requiredCapacities.Any(c => !pawn.health.capacities.CapableOf(c));
         }

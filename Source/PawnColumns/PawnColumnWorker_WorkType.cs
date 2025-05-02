@@ -110,7 +110,7 @@ namespace WorkTab {
 
         private void HeaderExpand()
         {
-            if (!Ctrl || !CanExpand)
+            if (!Ctrl || !CanExpand || Instance == null)
             {
                 return;
             }
@@ -118,8 +118,8 @@ namespace WorkTab {
         }
         
         // Numbers mod need the table param. Don't remove it.
-        public void HeaderInteractions(Rect headerRect, PawnTable table) {
-            if (!Mouse.IsOver(headerRect) || !Shift) {
+        private void HeaderInteractions(Rect headerRect, PawnTable table) {
+            if (!Mouse.IsOver(headerRect) || !Shift || Instance == null) {
                 return;
             }
             
@@ -131,21 +131,21 @@ namespace WorkTab {
                     def.workType.DecrementPriority(CapablePawns, VisibleHour, SelectedHours);
                 }
             } else {
-                List<Pawn> pawns = CapablePawns;
-                if (ScrolledUp(headerRect, true)) {
-                    if (pawns.Any(p => p.GetPriority(def.workType, VisibleHour) != 0)) {
-                        SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
-                        foreach (Pawn pawn in pawns) {
-                            pawn.SetPriority(def.workType, 0, SelectedHours);
-                        }
+                var pawns = CapablePawns;
+                if (ScrolledUp(headerRect, true) &&
+                    pawns.Any(p => p.GetPriority(def.workType, VisibleHour) != 0)) {
+                    
+                    SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
+                    foreach (var pawn in pawns) {
+                        pawn.SetPriority(def.workType, 0, SelectedHours);
                     }
                 }
-                if (ScrolledDown(headerRect, true)) {
-                    if (pawns.Any(p => p.GetPriority(def.workType, VisibleHour) == 0)) {
-                        SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
-                        foreach (Pawn pawn in pawns) {
-                            pawn.SetPriority(def.workType, Settings.defaultPriority, SelectedHours);
-                        }
+                if (ScrolledDown(headerRect, true) &&
+                    pawns.Any(p => p.GetPriority(def.workType, VisibleHour) == 0)) {
+                    
+                    SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
+                    foreach (var pawn in pawns) {
+                        pawn.SetPriority(def.workType, Settings.defaultPriority, SelectedHours);
                     }
                 }
             }

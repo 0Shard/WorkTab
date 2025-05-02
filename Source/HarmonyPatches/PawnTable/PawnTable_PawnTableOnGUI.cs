@@ -22,8 +22,11 @@ public static class PawnTable_PawnTableOnGUI
     private static readonly FieldInfo widthsField = AccessTools.Field(typeof(PawnTable), "cachedColumnWidths");
     private static readonly FieldInfo heightsField = AccessTools.Field(typeof(PawnTable), "cachedRowHeights");
     private static readonly FieldInfo borderField = AccessTools.Field(typeof(PawnTable), "BorderColor");
+
     private static readonly MethodInfo recache = AccessTools.Method(typeof(PawnTable), "RecacheIfDirty");
 
+    // The above three FieldInfos can actually be injected into method parameters through ___field, but in order to maintain compatibility
+    // Don't change this method param. 'Grouped Pawns Lists' mod need.
     public static bool Prefix(PawnTable __instance, Vector2 position, PawnTableDef ___def, ref Vector2 ___scrollPosition)
     {
         if (___def != PawnTableDefOf.Work)

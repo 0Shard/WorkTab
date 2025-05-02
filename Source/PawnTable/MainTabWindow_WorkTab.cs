@@ -25,9 +25,7 @@ namespace WorkTab {
         private Rect _timeBarRect;
 
         static MainTabWindow_WorkTab() {
-            _tableFieldInfo = typeof(MainTabWindow_PawnTable).GetField("table",
-                                                                          BindingFlags.Instance |
-                                                                          BindingFlags.NonPublic);
+            _tableFieldInfo = AccessTools.Field(typeof(MainTabWindow_PawnTable), "table");
             if (_tableFieldInfo == null) {
                 throw new NullReferenceException("table field not found!");
             }

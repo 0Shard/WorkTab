@@ -15,7 +15,7 @@ namespace WorkTab
         private static void Prefix(Pawn_WorkSettings __instance, WorkTypeDef w, ref int priority)
         {
             var pawn = __instance.Pawn();
-            if (!pawn.RaceProps.Humanlike)
+            if (!pawn.Humanlike())
             {
                 return;
             }

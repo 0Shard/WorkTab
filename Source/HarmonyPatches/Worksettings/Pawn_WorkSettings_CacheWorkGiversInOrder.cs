@@ -35,7 +35,7 @@ namespace WorkTab {
 
         public static bool Prefix(Pawn_WorkSettings __instance) {
             var pawn = __instance.Pawn();
-            if (pawn == null || !pawn.RaceProps.Humanlike)
+            if (!pawn.Humanlike())
             {
                 return true;
             }
