@@ -14,41 +14,26 @@ namespace WorkTab {
             MainButtonDefOf.Work.tabWindowClass = typeof(MainTabWindow_WorkTab);
 
             // get our table
-            PawnTableDef workTable = PawnTableDefOf.Work;
-
-            // replace label column
-            int labelIndex = workTable.columns.IndexOf(PawnColumnDefOf.LabelWithIcon);
-            // Fix for 1.5 returning invalid index
-            if (labelIndex != -1)
-            {
-                workTable.columns.RemoveAt(labelIndex);
-                workTable.columns.Insert(labelIndex, PawnColumnDefOf.WorkTabLabel);
-            }
-            else
-            {
-                //Logger.Debug($"Invalid work table index for {PawnColumnDefOf.LabelShortWithIcon.LabelCap}.");
-                workTable.columns.RemoveAt(0);
-                workTable.columns.Insert(0, PawnColumnDefOf.WorkTabLabel);
-            }
+            var workTable = PawnTableDefOf.Work;
+            var workTableColumns = workTable.columns;
 
             // insert mood and job columns before first work column name
-            int firstWorkindex =
-                workTable.columns.FindIndex(d => d.workerClass == typeof(PawnColumnWorker_WorkPriority));
-            workTable.columns.Insert(firstWorkindex, PawnColumnDefOf.Job);
-            workTable.columns.Insert(firstWorkindex + 1, PawnColumnDefOf.Mood);
+            var firstWorkIndex = workTableColumns.FindIndex(d => d.workerClass == typeof(PawnColumnWorker_WorkPriority));
+            workTableColumns.Insert(firstWorkIndex, PawnColumnDefOf.Job);
+            workTableColumns.Insert(firstWorkIndex + 1, PawnColumnDefOf.Mood);
 
             // go over PawnColumnDefs and replace all PawnColumnWorker_WorkPriority
-            foreach (PawnColumnDef column in DefDatabase<PawnColumnDef>.AllDefs) {
+            foreach (var column in DefDatabase<PawnColumnDef>.AllDefs) {
                 if (column.workerClass == typeof(PawnColumnWorker_WorkPriority)) {
                     column.workerClass = typeof(PawnColumnWorker_WorkType);
                 }
             }
 
             // add PawnColumnDefs for all workgivers
-            foreach (WorkGiverDef workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
+            foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading) {
                 // prepare the def, note that we're not assigning label or tip, we'll get those from the def later.
                 // we're also not adding the def to the table, we'll do that dynamically when a worktype is expanded.
-                PawnColumnDef_WorkGiver column = new PawnColumnDef_WorkGiver {
+                var column = new PawnColumnDef_WorkGiver {
                     defName = "WorkGiver_" + workgiver.defName,
                     workgiver = workgiver,
                     workerClass = typeof(PawnColumnWorker_WorkGiver),
@@ -61,17 +46,18 @@ namespace WorkTab {
             }
 
             // replace and move copy/paste to the right
-            int copyPasteColumnIndex = workTable.columns.IndexOf(PawnColumnDefOf.CopyPasteWorkPriorities);
-            workTable.columns.RemoveAt(copyPasteColumnIndex);
+            var copyPasteColumnIndex = workTableColumns.IndexOf(PawnColumnDefOf.CopyPasteWorkPriorities);
+            workTableColumns.RemoveAt(copyPasteColumnIndex);
+
+            var count = workTableColumns.Count;
             // Note; the far right column is a spacer to take all remaining available space, so index should be count - 2 (count - 1 before insert).
-            workTable.columns.Insert(workTable.columns.Count - 1,
-                                     PawnColumnDefOf.CopyPasteDetailedWorkPriorities);
+            workTableColumns.Insert(count - 2, PawnColumnDefOf.CopyPasteWorkPriorities);
 
             // add favourite column before copy paste
-            workTable.columns.Insert(workTable.columns.Count - 2, PawnColumnDefOf.Favourite);
+            workTableColumns.Insert(count - 3, PawnColumnDefOf.Favourite);
 
             // store this list of all columns
-            Controller.allColumns = new List<PawnColumnDef>(workTable.columns);
+            Controller.allColumns = new List<PawnColumnDef>(workTableColumns);
         }
     }
 }

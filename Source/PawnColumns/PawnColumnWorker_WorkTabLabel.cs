@@ -10,6 +10,8 @@ using Verse.Sound;
 using static WorkTab.InteractionUtilities;
 
 namespace WorkTab {
+    
+    [Obsolete("PawnColumnWorker_WorkTabLabel is abandoned. See PawnColumnWorker_Label_DoCell.cs for a replacement.")]
     public class PawnColumnWorker_WorkTabLabel: PawnColumnWorker_Label {
         public override int Compare(Pawn a, Pawn b) {
             return string.Compare(a.Name.ToStringShort, b.Name.ToStringShort,
@@ -45,7 +47,7 @@ namespace WorkTab {
         }
 
         public void Increment(Pawn pawn) {
-            bool actionTaken = false;
+            var actionTaken = false;
             // just go over all workgivers and increase their priority number by one, with a maximum of maxPriority
             foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(pawn.AllowedToDo)) {
                 // get current priority
@@ -82,7 +84,7 @@ namespace WorkTab {
         }
 
         public void Decrement(Pawn pawn) {
-            bool actionTaken = false;
+            var actionTaken = false;
             // just go over all workgivers and lower their priority number by one, with a minimum of 1
             foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(pawn.AllowedToDo)) {
                 // get current priority

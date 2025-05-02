@@ -20,24 +20,11 @@
   </PawnColumnDef>
 
   <PawnColumnDef>
-    <defName>CopyPasteDetailedWorkPriorities</defName>
-    <workerClass>WorkTab.PawnColumnWorker_CopyPasteDetailedWorkPriorities</workerClass>
-  </PawnColumnDef>
-
-  <PawnColumnDef>
     <defName>Favourite</defName>
     <workerClass>WorkTab.PawnColumnWorker_Favourite</workerClass>
     <headerTip>Favourite</headerTip>
     <headerIcon>UI/Icons/star</headerIcon>
     <headerIconSize>(16,16)</headerIconSize>
-  </PawnColumnDef>
-  
-  <PawnColumnDef>
-    <defName>WorkTabLabel</defName>
-    <workerClass>WorkTab.PawnColumnWorker_WorkTabLabel</workerClass>
-    <sortable>true</sortable>
-    <widthPriority>100</widthPriority>
-    <showIcon>true</showIcon>
   </PawnColumnDef>
 
 </Defs>

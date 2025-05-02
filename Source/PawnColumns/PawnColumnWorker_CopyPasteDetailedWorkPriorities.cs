@@ -1,6 +1,7 @@
 // PawnColumnWorker_CopyPasteDetailedWorkPriorities.cs
 // Copyright Karel Kroeze, 2020-2020
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -8,14 +9,13 @@ using Verse;
 
 namespace WorkTab
 {
-    public class PawnColumnWorker_CopyPasteDetailedWorkPriorities : PawnColumnWorker_CopyPasteWorkPriorities
+    [Obsolete("PawnColumnWorker_CopyPasteDetailedWorkPriorities is abandoned. See PawnColumnWorker_CopyPasteWorkPriorities_CopyFrom_PasteTo.cs for replacement.")]
+    public class PawnColumnWorker_CopyPasteDetailedWorkPriorities
     {
         // Don't rename it. Multiplayer Compatibility mod need.
-        private static Dictionary<WorkGiverDef, int[]> clipboard;
+        public static Dictionary<WorkGiverDef, int[]> clipboard;
         
-        protected override bool AnythingInClipboard => clipboard != null;
-        
-        protected override void CopyFrom(Pawn pawn)
+        public void CopyFrom(Pawn pawn)
         {
             clipboard ??= new Dictionary<WorkGiverDef, int[]>();
             foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading)
@@ -24,7 +24,7 @@ namespace WorkTab
             }
         }
 
-        protected override void PasteTo(Pawn pawn)
+        public void PasteTo(Pawn pawn)
         {
             foreach (var workTypeDef in DefDatabase<WorkTypeDef>.AllDefsListForReading
                          .Where(workTypeDef => !pawn.WorkTypeIsDisabled(workTypeDef)))

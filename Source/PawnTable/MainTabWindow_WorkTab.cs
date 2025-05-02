@@ -46,10 +46,10 @@ namespace WorkTab {
                 // get clean copy of base columns
                 var columns = new List<PawnColumnDef>( Controller.allColumns );
 
-                if (columns[0] != PawnColumnDefOf.WorkTabLabel)
+                if (columns[0] != PawnColumnDefOf.LabelWithIcon)
                 {
-                    columns.Remove(PawnColumnDefOf.WorkTabLabel);
-                    columns.Insert(0, PawnColumnDefOf.WorkTabLabel);
+                    columns.Remove(PawnColumnDefOf.LabelWithIcon);
+                    columns.Insert(0, PawnColumnDefOf.LabelWithIcon);
                 }
 
                 // add workgiver columns for expanded worktypes
