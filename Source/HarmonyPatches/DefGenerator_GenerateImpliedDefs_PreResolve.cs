@@ -51,10 +51,10 @@ namespace WorkTab {
 
             var count = workTableColumns.Count;
             // Note; the far right column is a spacer to take all remaining available space, so index should be count - 2 (count - 1 before insert).
-            workTableColumns.Insert(count - 2, PawnColumnDefOf.CopyPasteWorkPriorities);
+            workTableColumns.Insert(count - 1, PawnColumnDefOf.CopyPasteWorkPriorities);
 
             // add favourite column before copy paste
-            workTableColumns.Insert(count - 3, PawnColumnDefOf.Favourite);
+            workTableColumns.Insert(count - 2, PawnColumnDefOf.Favourite);
 
             // store this list of all columns
             Controller.allColumns = new List<PawnColumnDef>(workTableColumns);
