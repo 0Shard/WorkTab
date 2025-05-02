@@ -49,7 +49,7 @@ public static class PawnTable_PawnTableOnGUI
         const float bottomMargin = MainButtonDef.ButtonHeight + Constants.TimeBarHeight + 42f;
         var maxScrollH = UI.screenHeight - position.y - bottomMargin;
         var outH = Mathf.Min(heightNoScroll - headerH, maxScrollH);
-        var outW = WindowRect.x - labelW;
+        var outW = InitialSize(__instance.Size) - labelW;
 
         // Adjust outH based on timeline height to ensure enough space for the timeline at the bottom
         outH = Mathf.Min(outH, maxScrollH - Constants.TimeBarHeight);
@@ -105,10 +105,10 @@ public static class PawnTable_PawnTableOnGUI
         for (var j = 0; j < pawns.Count; j++)
         {
             // only draw if on screen
-            // if (tableView.height <= tableOut.height ||
-            //     curY - ___scrollPosition.y + heights[j] >= 0f &&
-            //     curY - ___scrollPosition.y <= tableOut.height)
-            // {
+            if (tableView.height <= tableOut.height ||
+                curY - ___scrollPosition.y + heights[j] >= 0f &&
+                curY - ___scrollPosition.y <= tableOut.height)
+            {
                 GUI.color = borderColor;
                 Widgets.DrawLineHorizontal(0f, curY, labelW);
                 GUI.color = Color.white;
@@ -123,7 +123,7 @@ public static class PawnTable_PawnTableOnGUI
                     Widgets.DrawLineHorizontal(0f, cellRect.center.y, labelW);
                     GUI.color = Color.white;
                 }
-            // }
+            }
 
             curY += heights[j];
         }
@@ -154,10 +154,10 @@ public static class PawnTable_PawnTableOnGUI
         var rowY = 0f;
         for (var j = 0; j < pawns.Count; j++)
         {
-            // if (tableView.height <= tableOut.height ||
-            //     rowY - ___scrollPosition.y + heights[j] >= 0f &&
-            //     rowY - ___scrollPosition.y <= tableOut.height)
-            // {
+            if (tableView.height <= tableOut.height ||
+                rowY - ___scrollPosition.y + heights[j] >= 0f &&
+                rowY - ___scrollPosition.y <= tableOut.height)
+            {
                 GUI.color = borderColor;
                 Widgets.DrawLineHorizontal(0f, rowY, tableView.width);
                 GUI.color = Color.white;
@@ -186,7 +186,7 @@ public static class PawnTable_PawnTableOnGUI
                     Widgets.DrawLineHorizontal(0f, rowRect.center.y, tableView.width);
                     GUI.color = Color.white;
                 }
-            // }
+            }
 
             rowY += heights[j];
         }
@@ -195,20 +195,12 @@ public static class PawnTable_PawnTableOnGUI
         return false;
     }
     
-    // see MainTabWindow
-    private static Rect WindowRect
+    private static float InitialSize(Vector2 size)
     {
-        get
-        {
-            var initialSize = new Vector2(1010f, 684f);
-            if (initialSize.y > UI.screenHeight - 35)
-                initialSize.y = UI.screenHeight - 35;
-            if (initialSize.x > UI.screenWidth)
-                initialSize.x = UI.screenWidth;
-            
-            var windowRect = new Rect((float) ((UI.screenWidth - (double) initialSize.x) / 2.0), 
-                (float) ((UI.screenHeight - (double) initialSize.y) / 2.0), initialSize.x, initialSize.y);
-            return windowRect.Rounded();
-        }
+        const float margin = 6f;
+        var initialSize = size.x - margin * 2f;
+        if (initialSize > UI.screenWidth)
+            initialSize = UI.screenWidth - margin * 2f;
+        return initialSize;
     }
 }

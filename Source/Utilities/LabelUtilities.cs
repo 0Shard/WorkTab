@@ -1,6 +1,7 @@
 // LabelUtilities.cs
 // Copyright Karel Kroeze, 2020-2020
 
+using System;
 using UnityEngine;
 using Verse;
 
@@ -44,6 +45,23 @@ namespace WorkTab {
             GUI.color = oldColor;
             Text.Font = oldFont;
             Text.Anchor = oldAnchor;
+        }
+        
+        [Obsolete("LabelUtilities.VerticalLabel() method is never used. It is kept for compatibility with mods that use it.")]
+        public static void VerticalLabel(Rect rect, string text, float margin = Constants.Margin) {
+            // store the scaling matrix
+            Matrix4x4 matrix = GUI.matrix;
+
+            // rotate and then apply the scaling
+            GUI.matrix = Matrix4x4.identity;
+            GUIUtility.RotateAroundPivot(-90f, rect.center);
+            GUI.matrix = matrix * GUI.matrix;
+
+            Rect flipped = new Rect( 0f, 0f, rect.height, rect.width ) {center = rect.center};
+            Widgets.Label(flipped, text);
+
+            // restore the original scaling matrix
+            GUI.matrix = matrix;
         }
     }
 }
