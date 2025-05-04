@@ -4,10 +4,13 @@
 using System.Collections.Generic;
 using RimWorld;
 
-namespace WorkTab {
-    public interface IExpandableColumn {
-        bool CanExpand { get; }
-        List<PawnColumnDef> ChildColumns { get; }
-        bool Expanded { get; set; }
-    }
+namespace WorkTab;
+
+public interface IExpandableColumn
+{
+    bool CanExpand { get; }
+
+    List<PawnColumnDef> ChildColumns { get; }
+
+    bool Expanded { get; set; }
 }

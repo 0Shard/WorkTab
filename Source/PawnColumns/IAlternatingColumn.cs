@@ -3,9 +3,11 @@
 
 using UnityEngine;
 
-namespace WorkTab {
-    public interface IAlternatingColumn {
-        Vector2 LabelSize { get; }
-        bool MoveDown { get; set; }
-    }
+namespace WorkTab;
+
+public interface IAlternatingColumn
+{
+    Vector2 LabelSize { get; }
+
+    bool MoveDown { get; set; }
 }
