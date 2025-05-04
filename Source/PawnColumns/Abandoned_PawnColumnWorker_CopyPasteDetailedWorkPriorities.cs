@@ -12,9 +12,9 @@ namespace WorkTab
     [Obsolete("PawnColumnWorker_CopyPasteDetailedWorkPriorities is abandoned. See PawnColumnWorker_CopyPasteWorkPriorities_CopyFrom_PasteTo.cs for replacement.")]
     public class PawnColumnWorker_CopyPasteDetailedWorkPriorities
     {
-        // Don't rename it. Multiplayer Compatibility mod need.
+        // HIGHLIGHT: Don't rename it. Multiplayer Compatibility mod need.
         public static Dictionary<WorkGiverDef, int[]> clipboard;
-        
+
         public void CopyFrom(Pawn pawn)
         {
             clipboard ??= new Dictionary<WorkGiverDef, int[]>();

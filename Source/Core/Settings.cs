@@ -18,9 +18,10 @@ namespace WorkTab {
         private static string maxPriorityBuffer = null;
         private static string defaultPriorityBuffer = null;
 
+        #region Obsolete field
         // Never used. But keep to maintain compatibility.
         [Obsolete("playSounds setting is abandoned.")]
-        public static bool playSounds              = true;  // Grouped Pawns Lists mod needed.
+        public static bool playSounds              = true;  // HIGHLIGHT: Grouped Pawns Lists mod needed.
         [Obsolete("playCrunch setting is abandoned.")]
         public static bool playCrunch              = true;
         [Obsolete("jobTextMode setting is abandoned.")]
@@ -31,7 +32,8 @@ namespace WorkTab {
         [Obsolete("_fontFix setting is abandoned.")]
         private static bool _fontFix = true;
 #pragma warning restore CS0414
-        
+        #endregion
+
         public static void DoWindowContents(Rect rect) {
             Listing_Standard options = new Listing_Standard();
             options.Begin(rect);

@@ -26,7 +26,7 @@ public static class PawnTable_PawnTableOnGUI
     private static readonly MethodInfo recache = AccessTools.Method(typeof(PawnTable), "RecacheIfDirty");
 
     // The above three FieldInfos can actually be injected into method parameters through ___field, but in order to maintain compatibility
-    // Don't change this method param. 'Grouped Pawns Lists' mod need.
+    // HIGHLIGHT: Don't change this method param. 'Grouped Pawns Lists' mod need.
     public static bool Prefix(PawnTable __instance, Vector2 position, PawnTableDef ___def, ref Vector2 ___scrollPosition)
     {
         if (___def != PawnTableDefOf.Work)
@@ -47,7 +47,7 @@ public static class PawnTable_PawnTableOnGUI
         var headerH = __instance.HeaderHeight;
         var heightNoScroll = __instance.HeightNoScrollbar;
         var labelW = widths[0];
-        
+
         // Calculate vertical space, clamped to screen, considering bottom space for the timeline
         const float bottomMargin = MainButtonDef.ButtonHeight + Constants.TimeBarHeight + 42f;
         var maxScrollH = UI.screenHeight - position.y - bottomMargin;
@@ -73,7 +73,7 @@ public static class PawnTable_PawnTableOnGUI
         // Enable scrollbars if content is too large
         if (needH) { headerOut.height += 16f; tableOut.height += 16f; }
         if (needV) { labelOut.width += 16f; tableOut.width += 16f; }
-        
+
         var headerView = new Rect(0f, 0f, contentW, headerH);
         var labelView  = new Rect(0f, 0f, labelW, contentH);
         var tableView = new Rect(0f, 0f, contentW, contentH);
@@ -97,7 +97,7 @@ public static class PawnTable_PawnTableOnGUI
         _hoveredColumnContent = -1;
         Widgets.EndScrollView();
         ___scrollPosition.x = hPos.x;
-        
+
         // scrollview for label column - VERTICAL ONLY
         if (_hoveredColumnLabel == 0) Widgets.DrawHighlight(labelOut);
 
@@ -136,14 +136,14 @@ public static class PawnTable_PawnTableOnGUI
 
         // Main table scroll
         Widgets.BeginScrollView(tableOut, ref ___scrollPosition, tableView);
-        
+
         // Column content sync highlight
         curX = 0f;
         for (var i = 1; i < columns.Count; i++)
         {
             var w = (i == columns.Count - 1) ? contentW - curX : widths[i];
             var rect = new Rect(curX, 0f, w, tableOut.height);
-            if (Mouse.IsOver(rect)) 
+            if (Mouse.IsOver(rect))
             {
                 Widgets.DrawHighlight(rect);
                 _hoveredColumnContent = i;
@@ -152,7 +152,7 @@ public static class PawnTable_PawnTableOnGUI
             curX += w;
         }
         _hoveredColumnLabel = -1;
-        
+
         // Draw rows with separators and cells
         var rowY = 0f;
         for (var j = 0; j < pawns.Count; j++)
@@ -197,7 +197,7 @@ public static class PawnTable_PawnTableOnGUI
         Widgets.EndScrollView();
         return false;
     }
-    
+
     private static float InitialSize(Vector2 size)
     {
         const float margin = 6f;

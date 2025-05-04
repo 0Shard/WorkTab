@@ -5,6 +5,16 @@
             <li>WorkTab.PawnTable_PawnTableOnGUI</li>
             <li>WorkTab.PawnColumnWorker_WorkType</li>
             <li>WorkTab.PawnColumnWorker_WorkGiver</li>
+            <li>WorkTab.PriorityManager</li>
+            <li>WorkTab.PriorityTracker</li>
+            <li>WorkTab.WorkPriority</li>
+            <li>WorkTab.PawnPriorityTracker</li>
+            <li>WorkTab.FavouriteManager</li>
+            <li>WorkTab.PawnPriorityTracker</li>
+            <li>WorkTab.Pawn_Extensions</li>
+            <li>WorkTab.WorkType_Extensions</li>
+            <li>WorkTab.WorkGiver_Extensions</li>
+            <li>WorkTab.PawnTable_Extensions</li>
         </Types>
         <Methods>
             <li>WorkTab.MainTabWindow_WorkTab:DoWindowContents</li>
