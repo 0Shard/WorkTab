@@ -17,17 +17,12 @@ namespace WorkTab {
             // initialize settings
             GetSettings<Settings>();
 
-            // prefix implied PawnColumnWorker_WorkType generation 
-            // prefix get/set workPriorities
 #if DEBUG
             Harmony.DEBUG = true;
 #endif
             Harmony harmony = new Harmony( "fluffy.worktab" );
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-            //            if ( MP.enabled )
-            //                MP.RegisterAll();
-            
             WorkManagerPatches.UnPatch(harmony);
         }
 
