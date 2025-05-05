@@ -4,15 +4,13 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using RimWorld;
-using UnityEngine;
-using Verse;
 
 namespace WorkTab;
 
 [HarmonyPatch(typeof(PawnColumnWorker_WorkPriority), "HeaderClicked")]
 public static class PawnColumnWorker_WorkPriority_HeaderClicked
 {
-    
+
     private static int GetDefaultPriority()
     {
         return Settings.defaultPriority;
@@ -22,31 +20,48 @@ public static class PawnColumnWorker_WorkPriority_HeaderClicked
     {
         return Settings.maxPriority;
     }
-    
+
+    private static bool Execute(PawnColumnDef def)
+    {
+        return def.workerClass != typeof(PawnColumnWorker_WorkGiver);
+    }
+
     public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> _instr)
     {
         var instructions = _instr.ToList();
 
+        var method = AccessTools.PropertyGetter("UnityEngine.Event:current");
+        var flag = true;
         var count = instructions.Count;
         for (var i = 0; i < count; i++)
         {
             var code = instructions[i];
+
+            if (flag && code.Calls(method))
+            {
+                flag = false;
+                yield return new CodeInstruction(OpCodes.Ldarg_0);
+                yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(PawnColumnWorker), "def"));
+                yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_HeaderClicked), nameof(Execute)));
+                yield return new CodeInstruction(instructions[i + 2]).WithLabels(instructions[i + 2].labels);
+            }
+
             if (code.opcode == OpCodes.Ldc_I4_4 && i < count - 1 &&
                 (instructions[i + 1].opcode == OpCodes.Stloc_S || instructions[i + 1].opcode == OpCodes.Ble_S))
             {
-                yield return new CodeInstruction(OpCodes.Call, 
+                yield return new CodeInstruction(OpCodes.Call,
                     AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_HeaderClicked), nameof(GetMaxPriority)));
                 continue;
             }
-                
+
             if (i < count - 1 && code.opcode == OpCodes.Ldc_I4_3 &&
                 instructions[i + 1].opcode == OpCodes.Callvirt &&
                 instructions[i + 1].operand is MethodInfo { Name: "SetPriority" }) {
-                yield return new CodeInstruction(OpCodes.Call, 
+                yield return new CodeInstruction(OpCodes.Call,
                     AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_HeaderClicked), nameof(GetDefaultPriority)));
                 continue;
             }
-            
+
             yield return code;
         }
     }

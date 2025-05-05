@@ -10,15 +10,15 @@ using Verse.Sound;
 using static WorkTab.InteractionUtilities;
 
 namespace WorkTab {
-    
+
     [Obsolete("PawnColumnWorker_WorkTabLabel is abandoned. See PawnColumnWorker_Label_DoCell.cs for a replacement.")]
-    public class PawnColumnWorker_WorkTabLabel: PawnColumnWorker_Label {
-        public override int Compare(Pawn a, Pawn b) {
+    public class PawnColumnWorker_WorkTabLabel {
+        public int Compare(Pawn a, Pawn b) {
             return string.Compare(a.Name.ToStringShort, b.Name.ToStringShort,
                                   StringComparison.CurrentCultureIgnoreCase);
         }
 
-        public override void DoCell(Rect rect, Pawn pawn, PawnTable table) {
+        public void DoCell(Rect rect, Pawn pawn, PawnTable table) {
             // intercept interactions before base has a chance to act on them
             if (Shift && Mouse.IsOver(rect)) {
                 if (RightClicked(rect) || ScrolledUp(rect, true)) {
@@ -32,15 +32,12 @@ namespace WorkTab {
                 }
             }
 
-            // call base
-            base.DoCell(rect, pawn, table);
-
             // override tooltip
             TooltipHandler.ClearTooltipsFrom(rect);
             TooltipHandler.TipRegion(rect, GetTooltip(pawn));
         }
-        
-        public override int GetMinWidth(PawnTable table) => Mathf.Max(base.GetMinWidth(table), 145);
+
+        public int GetMinWidth(PawnTable table) => 145;
 
         private static string GetTooltip(Pawn pawn) {
             return "WorkTab.LabelCellTip".Translate() + "\n\n" + pawn.GetTooltip().text;

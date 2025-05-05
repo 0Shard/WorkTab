@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,280 +11,286 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-namespace WorkTab {
-    [StaticConstructorOnStartup]
-    public static class DrawUtilities {
-        private static MethodInfo _drawWorkBoxBackgroundMethodInfo;
+namespace WorkTab;
 
-        public static void DrawPartScheduled(Rect box) {
-            // draw clock icon in top left
-            Color colour = GUI.color;
-            GUI.color = Color.grey;
-            GUI.DrawTexture(new Rect(box.xMin, box.yMin, box.height / 2f, box.width / 2f).ContractedBy(2f),
-                             Resources.Half);
-            GUI.color = colour;
+public static class DrawUtilities {
+    private static MethodInfo _drawWorkBoxBackgroundMethodInfo;
+
+    public static void DrawPartScheduled(Rect box) {
+        // draw clock icon in top left
+        Color colour = GUI.color;
+        GUI.color = Color.grey;
+        GUI.DrawTexture(new Rect(box.xMin, box.yMin, box.height / 2f, box.width / 2f).ContractedBy(2f),
+                         Resources.Half);
+        GUI.color = colour;
+    }
+
+    public static void DrawPriority(Rect box, int priority, bool small = false) {
+        // bail out if priority is 0
+        if (priority == 0) {
+            return;
         }
 
-        public static void DrawPriority(Rect box, int priority, bool small = false) {
-            // bail out if priority is 0
-            if (priority == 0) {
-                return;
-            }
+        GameFont font = small ? GameFont.Small : GameFont.Medium;
 
-            GameFont font = small ? GameFont.Small : GameFont.Medium;
-
-            // detailed mode
-            if (Find.PlaySettings.useWorkPriorities) {
-                Text.Anchor = TextAnchor.MiddleCenter;
-                Text.Font = font;
-                GUI.color = ColorOfPriority(priority);
-                Widgets.Label(box, priority.ToStringCached());
-                GUI.color = Color.white;
-                Text.Font = GameFont.Small;
-                Text.Anchor = TextAnchor.UpperLeft;
-            }
-
-            // toggle mode
-            else {
-                GUI.DrawTexture(box.ContractedBy(3f), WidgetsWork.WorkBoxCheckTex);
-            }
+        // detailed mode
+        if (Find.PlaySettings.useWorkPriorities) {
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Text.Font = font;
+            GUI.color = ColorOfPriority(priority);
+            Widgets.Label(box.ContractedBy(-3f), priority.ToStringCached());
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.UpperLeft;
         }
 
-        public static void DrawTimeScheduled(Rect box) {
-            // draw clock icon in bottom left
-            Color colour = GUI.color;
-            GUI.color = Color.grey;
-            GUI.DrawTexture(
-                new Rect(box.xMin, box.yMin + (box.height / 2f), box.height / 2f, box.width / 2f).ContractedBy(2f),
-                Resources.Clock);
-            GUI.color = colour;
+        // toggle mode
+        else {
+            GUI.DrawTexture(box, WidgetsWork.WorkBoxCheckTex);
         }
+    }
 
-        public static void DrawWorkBoxBackground(Rect box, Pawn pawn, WorkTypeDef worktype) {
+    public static void DrawTimeScheduled(Rect box) {
+        // draw clock icon in bottom left
+        Color colour = GUI.color;
+        GUI.color = Color.grey;
+        GUI.DrawTexture(
+            new Rect(box.xMin, box.yMin + (box.height / 2f), box.height / 2f, box.width / 2f).ContractedBy(2f),
+            Resources.Clock);
+        GUI.color = colour;
+    }
+
+    public static void DrawWorkBoxBackground(Rect box, Pawn pawn, WorkTypeDef worktype) {
+        if (_drawWorkBoxBackgroundMethodInfo == null) {
+            _drawWorkBoxBackgroundMethodInfo = typeof(WidgetsWork).GetMethod("DrawWorkBoxBackground",
+                                                                                AccessTools.all);
             if (_drawWorkBoxBackgroundMethodInfo == null) {
-                _drawWorkBoxBackgroundMethodInfo = typeof(WidgetsWork).GetMethod("DrawWorkBoxBackground",
-                                                                                    AccessTools.all);
-                if (_drawWorkBoxBackgroundMethodInfo == null) {
-                    throw new NullReferenceException("DrawWorkBoxBackground method info not found!");
-                }
+                throw new NullReferenceException("DrawWorkBoxBackground method info not found!");
             }
-
-            _drawWorkBoxBackgroundMethodInfo.Invoke(null, new object[] { box, pawn, worktype });
         }
 
-        /**
-         *                  9   8   7   6   5   4
-         * top              1   1   1   1   1   1
-         * very high        2   2   2   2
-         * high             3   3   3   3   2   2
-         * above normal     4   4
-         * normal           5       4       3   3
-         * below normal     6   5
-         * low              7   6   5   4   4   4
-         * very low         8   7   6   5
-         * lowest           9   8   7   6   5
-         *
-         * KILL ME NOW.
-         */
-        public static string PriorityLabel(int priority) {
-            string label;
-            switch (priority) {
-                case 0:
-                    label = "Fluffy.WorkTab.Priority.None".Translate();
-                    break;
-                case 1:
-                    label = "Fluffy.WorkTab.Priority.Top".Translate();
-                    break;
-                case 2 when Settings.maxPriority >= 6:
-                    label = "Fluffy.WorkTab.Priority.VeryHigh".Translate();
-                    break;
-                case 2 when Settings.maxPriority <= 5:
-                    label = "Fluffy.WorkTab.Priority.High".Translate();
-                    break;
-                case 3 when !Find.PlaySettings.useWorkPriorities:
-                    label = "Fluffy.WorkTab.Priority.Normal".Translate();
-                    break;
-                case 3 when Settings.maxPriority >= 6:
-                    label = "Fluffy.WorkTab.Priority.High".Translate();
-                    break;
-                case 3 when Settings.maxPriority <= 5:
-                    label = "Fluffy.WorkTab.Priority.Normal".Translate();
-                    break;
-                case 4 when Settings.maxPriority >= 8:
-                    label = "Fluffy.WorkTab.Priority.AboveNormal".Translate();
-                    break;
-                case 4 when Settings.maxPriority == 7:
-                    label = "Fluffy.WorkTab.Priority.Normal".Translate();
-                    break;
-                case 4 when Settings.maxPriority <= 6:
-                    label = "Fluffy.WorkTab.Priority.Low".Translate();
-                    break;
-                case 5 when Settings.maxPriority == 9:
-                    label = "Fluffy.WorkTab.Priority.Normal".Translate();
-                    break;
-                case 5 when Settings.maxPriority == 8:
-                    label = "Fluffy.WorkTab.Priority.BelowNormal".Translate();
-                    break;
-                case 5 when Settings.maxPriority == 7:
-                    label = "Fluffy.WorkTab.Priority.Low".Translate();
-                    break;
-                case 5 when Settings.maxPriority == 6:
-                    label = "Fluffy.WorkTab.Priority.VeryLow".Translate();
-                    break;
-                case 5 when Settings.maxPriority == 5:
-                    label = "Fluffy.WorkTab.Priority.Lowest".Translate();
-                    break;
-                case 6 when Settings.maxPriority == 9:
-                    label = "Fluffy.WorkTab.Priority.BelowNormal".Translate();
-                    break;
-                case 6 when Settings.maxPriority == 8:
-                    label = "Fluffy.WorkTab.Priority.Low".Translate();
-                    break;
-                case 6 when Settings.maxPriority == 7:
-                    label = "Fluffy.WorkTab.Priority.VeryLow".Translate();
-                    break;
-                case 6 when Settings.maxPriority == 6:
-                    label = "Fluffy.WorkTab.Priority.Lowest".Translate();
-                    break;
-                case 7 when Settings.maxPriority == 9:
-                    label = "Fluffy.WorkTab.Priority.Low".Translate();
-                    break;
-                case 7 when Settings.maxPriority == 8:
-                    label = "Fluffy.WorkTab.Priority.VeryLow".Translate();
-                    break;
-                case 7 when Settings.maxPriority == 7:
-                    label = "Fluffy.WorkTab.Priority.Lowest".Translate();
-                    break;
-                case 8 when Settings.maxPriority == 9:
-                    label = "Fluffy.WorkTab.Priority.VeryLow".Translate();
-                    break;
-                case 8 when Settings.maxPriority == 8:
-                    label = "Fluffy.WorkTab.Priority.Lowest".Translate();
-                    break;
-                case 9:
-                    label = "Fluffy.WorkTab.Priority.Lowest".Translate();
-                    break;
-                default:
-                    label = "Fluffy.WorkTab.Priority.Unknown".Translate();
-                    break;
-            }
+        _drawWorkBoxBackgroundMethodInfo.Invoke(null, new object[] { box, pawn, worktype });
+    }
 
-            return label.Colorize(ColorOfPriority(priority));
+    private struct PriorityRange
+    {
+        public int? MinInclusive;
+        public int? MaxInclusive;
+        public string Label;
+
+        public bool Matches(int value)
+        {
+            if (MinInclusive.HasValue && value < MinInclusive.Value)
+                return false;
+            if (MaxInclusive.HasValue && value > MaxInclusive.Value)
+                return false;
+            return true;
         }
 
-        public static string TimeScheduledTip(int[] priorities, string label) {
-            string tip = "";
-            int start = -1;
-            int priority = -1;
+    }
 
-            for (int hour = 0; hour < GenDate.HoursPerDay; hour++) {
-                int curpriority = priorities[hour];
+    /**
+     *                  9   8   7   6   5   4
+     * top              1   1   1   1   1   1
+     * very high        2   2   2   2
+     * high             3   3   3   3   2   2
+     * above normal     4   4
+     * normal           5       4       3   3
+     * below normal     6   5
+     * low              7   6   5   4   4   4
+     * very low         8   7   6   5
+     * lowest           9   8   7   6   5
+     *
+     * KILL ME NOW.
+     */
+    private static readonly Dictionary<int, List<PriorityRange>> PriorityLabelMap = new()
+    {
+        [2] =
+        [
+            new PriorityRange { MinInclusive = 6, Label = "VeryHigh" },
+            new PriorityRange { MaxInclusive = 5, Label = "High" }
+        ],
+        [3] =
+        [
+            new PriorityRange { MinInclusive = 6, Label = "High" },
+            new PriorityRange { MaxInclusive = 5, Label = "Normal" }
+        ],
+        [4] =
+        [
+            new PriorityRange { MinInclusive = 8, Label = "AboveNormal" },
+            new PriorityRange { MinInclusive = 7, MaxInclusive = 7, Label = "Normal" },
+            new PriorityRange { MaxInclusive = 6, Label = "Low" }
+        ],
+        [5] =
+        [
+            new PriorityRange { MinInclusive = 9, MaxInclusive = 9, Label = "Normal" },
+            new PriorityRange { MinInclusive = 8, MaxInclusive = 8, Label = "BelowNormal" },
+            new PriorityRange { MinInclusive = 7, MaxInclusive = 7, Label = "Low" },
+            new PriorityRange { MinInclusive = 6, MaxInclusive = 6, Label = "VeryLow" },
+            new PriorityRange { MaxInclusive = 5, Label = "Lowest" }
+        ],
+        [6] =
+        [
+            new PriorityRange { MinInclusive = 9, MaxInclusive = 9, Label = "BelowNormal" },
+            new PriorityRange { MinInclusive = 8, MaxInclusive = 8, Label = "Low" },
+            new PriorityRange { MinInclusive = 7, MaxInclusive = 7, Label = "VeryLow" },
+            new PriorityRange { MaxInclusive = 6, Label = "Lowest" }
+        ],
+        [7] =
+        [
+            new PriorityRange { MinInclusive = 9, MaxInclusive = 9, Label = "Low" },
+            new PriorityRange { MinInclusive = 8, MaxInclusive = 8, Label = "VeryLow" },
+            new PriorityRange { MaxInclusive = 7, Label = "Lowest" }
+        ],
+        [8] =
+        [
+            new PriorityRange { MinInclusive = 9, MaxInclusive = 9, Label = "VeryLow" },
+            new PriorityRange { MaxInclusive = 8, Label = "Lowest" }
+        ],
+        [9] = [new PriorityRange { Label = "Lowest" }]  // catch-all
+    };
 
-                // stop condition
-                if (curpriority != priority && start >= 0) {
-                    tip += "\n   ";
-                    tip += start.FormatHour() + " - " + hour.FormatHour();
-                    if (Find.PlaySettings.useWorkPriorities) {
-                        tip += " (" + priority + ")";
-                    }
+    private static bool TryMatchMaxPriority(List<PriorityRange> ranges, int max, out string label)
+    {
+        foreach (var range in ranges.Where(range => range.Matches(max)))
+        {
+            label = range.Label;
+            return true;
+        }
 
-                    // reset start & priority
-                    start = -1;
-                    priority = -1;
-                }
+        label = null;
+        return false;
+    }
 
-                // start condition
-                if (curpriority > 0 && curpriority != priority && start < 0) {
-                    priority = curpriority;
-                    start = hour;
-                }
-            }
+    public static string PriorityLabel(int priority)
+    {
+        if (priority == 0)
+            return "Fluffy.WorkTab.Priority.None".Translate().Colorize(ColorOfPriority(priority));
+        if (priority == 1)
+            return "Fluffy.WorkTab.Priority.Top".Translate().Colorize(ColorOfPriority(priority));
+        if (priority == Settings.defaultPriority && !Find.PlaySettings.useWorkPriorities)
+            return "Fluffy.WorkTab.Priority.Normal".Translate().Colorize(ColorOfPriority(priority));
 
-            // final check for x till midnight
-            if (start > 0) {
+        if (!PriorityLabelMap.TryGetValue(priority, out var ranges) ||
+            !TryMatchMaxPriority(ranges, Settings.maxPriority, out var labelKey))
+        {
+            return "Fluffy.WorkTab.Priority.Unknown".Translate().Colorize(ColorOfPriority(priority));
+        }
+        return $"Fluffy.WorkTab.Priority.{labelKey}".Translate().Colorize(ColorOfPriority(priority));
+    }
+
+    public static string TimeScheduledTip(int[] priorities, string label) {
+        var tip = "";
+        var start = -1;
+        var priority = -1;
+
+        for (var hour = 0; hour < GenDate.HoursPerDay; hour++) {
+            var curpriority = priorities[hour];
+
+            // stop condition
+            if (curpriority != priority && start >= 0) {
                 tip += "\n   ";
-                tip += start.FormatHour() + " - " + 0.FormatHour();
+                tip += start.FormatHour() + " - " + hour.FormatHour();
                 if (Find.PlaySettings.useWorkPriorities) {
                     tip += " (" + priority + ")";
                 }
+
+                // reset start & priority
+                start = -1;
+                priority = -1;
             }
 
-            return tip;
+            // start condition
+            if (curpriority > 0 && curpriority != priority && start < 0) {
+                priority = curpriority;
+                start = hour;
+            }
         }
 
-        public static string TipForPawnWorker(Pawn pawn, WorkGiverDef workgiver, bool incapableBecauseOfCapacities) {
-            var tip = new StringBuilder();
-            tip.Append(workgiver.LabelCap);
-            tip.Append(": " + PriorityLabel(pawn.GetPriority(workgiver, -1)));
-            tip.AppendLine();
+        // final check for x till midnight
+        if (start > 0) {
+            tip += "\n   ";
+            tip += start.FormatHour() + " - " + 0.FormatHour();
+            if (Find.PlaySettings.useWorkPriorities) {
+                tip += " (" + priority + ")";
+            }
+        }
 
-            if (!pawn.AllowedToDo(workgiver)) {
-                string str = "CannotDoThisWork".Translate( pawn.LabelShort, pawn);
-                var disabledWorkType = pawn.GetReasonsForDisabledWorkType(workgiver.workType);
-                if (!disabledWorkType.NullOrEmpty())
-                {
-                    var s = "\n\n" + string.Join(". ", disabledWorkType);
-                    if (disabledWorkType.Count == 1)
-                        s += ".";
-                    str += s.Colorize(ColorLibrary.RedReadable);
-                }
-                tip.Append(str);
-            } else {
-                var num = pawn.skills.AverageOfRelevantSkillsFor(workgiver.workType);
-                if (workgiver.workType.relevantSkills.Any()) {
-                    var str = workgiver.workType.relevantSkills
-                                       .Aggregate("", (current, relevantSkill) => $"{current}{relevantSkill.skillLabel.CapitalizeFirst()}, ");
-                    tip.AppendLine("RelevantSkills".Translate(str.Substring(0, str.Length - 2), num.ToString("0.#"), 20));
-                }
-                
-                if (pawn.Ideo != null && pawn.Ideo.IsWorkTypeConsideredDangerous(workgiver.workType))
-                {
-                    tip.AppendLine();
-                    tip.AppendLine(((string) "SelectedWorkTypeOpposedByIdeo".Translate(pawn)).Colorize(WidgetsWork.ColorOfPriority(2)));
-                }
-                
-                if (workgiver.workType.relevantSkills.Any() && num <= 2.0 && pawn.workSettings.WorkIsActive(workgiver.workType))
-                {
-                    tip.AppendLine();
-                    tip.AppendLine(((string) "SelectedWorkTypeWithVeryBadSkill".Translate()).Colorize(WidgetsWork.ColorOfPriority(2)));
-                }
+        return tip;
+    }
 
-                if (!workgiver.description.NullOrEmpty()) {
-                    tip.AppendLine();
-                    tip.Append(workgiver.description);
-                }
+    public static string TipForPawnWorker(Pawn pawn, WorkGiverDef workgiver, bool incapableBecauseOfCapacities) {
+        var tip = new StringBuilder();
+        tip.Append(workgiver.LabelCap.CapitalizeFirst().Colorize(ColoredText.TipSectionTitleColor));
+        tip.Append(": " + PriorityLabel(pawn.GetPriority(workgiver, -1)));
+        tip.AppendLine();
 
-                if (incapableBecauseOfCapacities) {
-                    tip.AppendLine();
-                    tip.AppendLine();
-                    tip.Append("IncapableOfWorkTypeBecauseOfCapacities".Translate());
-                }
+        if (!pawn.AllowedToDo(workgiver)) {
+            string str = "CannotDoThisWork".Translate( pawn.LabelShort, pawn);
+            var disabledWorkType = pawn.GetReasonsForDisabledWorkType(workgiver.workType);
+            if (!disabledWorkType.NullOrEmpty())
+            {
+                var s = "\n\n" + string.Join(". ", disabledWorkType);
+                if (disabledWorkType.Count == 1)
+                    s += ".";
+                str += s.Colorize(ColorLibrary.RedReadable);
+            }
+            tip.Append(str);
+        } else {
+            var num = pawn.skills.AverageOfRelevantSkillsFor(workgiver.workType);
+            if (workgiver.workType.relevantSkills.Any()) {
+                var str = workgiver.workType.relevantSkills
+                                   .Aggregate("", (current, relevantSkill) => $"{current}{relevantSkill.skillLabel.CapitalizeFirst()}, ");
+                tip.AppendLine("RelevantSkills".Translate(str.Substring(0, str.Length - 2), num.ToString("0.#"), 20));
+            }
 
-                var tracker = PriorityManager.Get[pawn];
-                if (!tracker.TimeScheduled(workgiver))
-                {
-                    return tip.ToString();
-                }
+            if (pawn.Ideo != null && pawn.Ideo.IsWorkTypeConsideredDangerous(workgiver.workType))
+            {
                 tip.AppendLine();
-                tip.Append("WorkTab.XIsAssignedToY".Translate(pawn.NameShortColored, workgiver.LabelCap));
-                tip.Append(tracker.TimeScheduledTip(workgiver));
+                tip.AppendLine(((string) "SelectedWorkTypeOpposedByIdeo".Translate(pawn)).Colorize(WidgetsWork.ColorOfPriority(2)));
             }
 
-            return tip.ToString();
+            if (workgiver.workType.relevantSkills.Any() && num <= 2.0 && pawn.workSettings.WorkIsActive(workgiver.workType))
+            {
+                tip.AppendLine();
+                tip.AppendLine(((string) "SelectedWorkTypeWithVeryBadSkill".Translate()).Colorize(WidgetsWork.ColorOfPriority(2)));
+            }
+
+            if (!workgiver.description.NullOrEmpty()) {
+                tip.AppendLine();
+                tip.Append(workgiver.description);
+            }
+
+            if (incapableBecauseOfCapacities) {
+                tip.AppendLine();
+                tip.AppendLine();
+                tip.Append("IncapableOfWorkTypeBecauseOfCapacities".Translate());
+            }
+
+            var tracker = PriorityManager.Get[pawn];
+            if (!tracker.TimeScheduled(workgiver))
+            {
+                return tip.ToString();
+            }
+            tip.AppendLine();
+            tip.Append("WorkTab.XIsAssignedToY".Translate(pawn.NameShortColored, workgiver.LabelCap));
+            tip.Append(tracker.TimeScheduledTip(workgiver));
         }
 
-        public static Color ColorOfPriority(int priority) {
-            if (priority == 0) {
-                return Color.grey;
-            }
+        return tip.ToString();
+    }
 
-            float halfway = Settings.maxPriority / 2f;
-
-            if (priority <= halfway) {
-                return Color.Lerp(Color.green, Color.white, Mathf.InverseLerp(1, halfway, priority));
-            }
-
-            return Color.Lerp(Color.white, Color.grey, Mathf.InverseLerp(halfway, Settings.maxPriority, priority));
+    public static Color ColorOfPriority(int priority) {
+        if (priority == 0) {
+            return Color.grey;
         }
+
+        float halfway = Settings.maxPriority / 2f;
+
+        if (priority <= halfway) {
+            return Color.Lerp(Color.green, Color.white, Mathf.InverseLerp(1, halfway, priority));
+        }
+
+        return Color.Lerp(Color.white, Color.grey, Mathf.InverseLerp(halfway, Settings.maxPriority, priority));
     }
 }

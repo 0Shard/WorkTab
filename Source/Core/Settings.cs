@@ -44,7 +44,7 @@ namespace WorkTab {
                                              1 / 8f);
             options.CheckboxLabeled("WorkTab.24HourMode".Translate(), ref TwentyFourHourMode,
                                      "WorkTab.24HourModeTip".Translate());
-            
+
             options.CheckboxLabeled("WorkTab.DisableScrollwheel".Translate(), ref disableScrollwheel,
                                      "WorkTab.DisableScrollwheelTip".Translate());
             options.CheckboxLabeled("WorkTab.HighlightActiveWorkCells".Translate(), ref highlightActiveWorkCells,

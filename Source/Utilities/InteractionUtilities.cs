@@ -34,27 +34,36 @@ namespace WorkTab {
             }
         }
 
-        public static bool Clicked(Rect rect, int button = 0) {
-            return Event.current.type == EventType.MouseDown && Event.current.button == button && Mouse.IsOver(rect);
+        private static bool Clicked(Rect rect, int button = 0) {
+            return Event.current.type == EventType.MouseDown && Clicked(button) && Mouse.IsOver(rect);
+        }
+
+        private static bool Clicked(int button = 0) {
+            return Event.current.button == button;
         }
 
         public static bool LeftClicked(Rect rect) {
             return Clicked(rect);
         }
 
+        public static bool LeftClicked() {
+            return Clicked();
+        }
+
         public static bool RightClicked(Rect rect) {
             return Clicked(rect, 1);
         }
 
-        public static bool Scrolled(Rect rect, ScrollDirection direction, bool stopPropagation) {
+        public static bool RightClicked() {
+            return Clicked(1);
+        }
+
+        private static bool Scrolled(Rect rect, ScrollDirection direction, bool stopPropagation) {
             if (Settings.disableScrollwheel) {
                 return false;
             }
 
-            bool scrolled = Event.current.type == EventType.ScrollWheel &&
-                           ( Event.current.delta.y > 0 && direction == ScrollDirection.Up ||
-                             Event.current.delta.y < 0 && direction == ScrollDirection.Down ) &&
-                           Mouse.IsOver( rect );
+            var scrolled = Event.current.type == EventType.ScrollWheel && Scrolled(direction) && Mouse.IsOver(rect);
 
             if (scrolled && stopPropagation) {
                 Event.current.Use();
@@ -63,12 +72,31 @@ namespace WorkTab {
             return scrolled;
         }
 
+        private static bool Scrolled(ScrollDirection direction) {
+            if (Settings.disableScrollwheel) {
+                return false;
+            }
+
+            var scrolled = Event.current.delta.y > 0 && direction == ScrollDirection.Up ||
+                           Event.current.delta.y < 0 && direction == ScrollDirection.Down;
+
+            return scrolled;
+        }
+
         public static bool ScrolledDown(Rect rect, bool stopPropagation = false) {
             return Scrolled(rect, ScrollDirection.Down, stopPropagation);
         }
 
+        public static bool ScrolledDown() {
+            return Scrolled(ScrollDirection.Down);
+        }
+
         public static bool ScrolledUp(Rect rect, bool stopPropagation = false) {
             return Scrolled(rect, ScrollDirection.Up, stopPropagation);
+        }
+
+        public static bool ScrolledUp() {
+            return Scrolled(ScrollDirection.Up);
         }
     }
 }

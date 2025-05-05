@@ -35,6 +35,8 @@ namespace WorkTab {
                 // we're also not adding the def to the table, we'll do that dynamically when a worktype is expanded.
                 var column = new PawnColumnDef_WorkGiver {
                     defName = "WorkGiver_" + workgiver.defName,
+                    description = workgiver.description,
+                    workType = workgiver.workType,
                     workgiver = workgiver,
                     workerClass = typeof(PawnColumnWorker_WorkGiver),
                     sortable = true

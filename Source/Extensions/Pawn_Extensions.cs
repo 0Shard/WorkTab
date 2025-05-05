@@ -7,20 +7,20 @@ using Verse;
 
 namespace WorkTab {
     public static class Pawn_Extensions {
-        
+
         public static bool AllowedToDo(this Pawn pawn, WorkGiverDef workgiver)
         {
             return !pawn.WorkTypeIsDisabled(workgiver.workType) &&
                    (pawn.CombinedDisabledWorkTags & workgiver.workTags) == WorkTags.None &&
                    // (pawn.CombinedDisabledWorkTags & workgiver.workType?.workTags) == WorkTags.None &&
                    (workgiver.workTags & pawn.story?.DisabledWorkTagsBackstoryAndTraits) == WorkTags.None;
-        }   
-        
+        }
+
         public static bool AllowedToDo(this Pawn pawn, WorkTypeDef workType)
         {
             return !pawn.WorkTypeIsDisabled(workType) && (pawn.CombinedDisabledWorkTags & workType.workTags) == WorkTags.None;
         }
-        
+
         public static bool NotAllowedToDo(this Pawn pawn, WorkTypeDef workType)
         {
             return !AllowedToDo(pawn, workType);
@@ -37,7 +37,7 @@ namespace WorkTab {
         }
 
         public static bool CapableOf(this Pawn pawn, WorkGiverDef workgiver) {
-            return !workgiver.requiredCapacities.Any(c => !pawn.health.capacities.CapableOf(c));
+            return workgiver != null && !workgiver.requiredCapacities.Any(c => !pawn.health.capacities.CapableOf(c));
         }
 
         public static void Disable(this Pawn pawn, WorkTypeDef worktype) {
