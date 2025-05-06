@@ -11,10 +11,10 @@ namespace WorkTab;
 public static class PawnColumnWorker_Label_DoCell
 {
     private static readonly PawnColumnWorker_WorkTabLabel Instance = new();
-    
+
     public static bool Prefix(Rect rect, Pawn pawn, PawnTable table)
     {
-        var pawnTableDef = table.Def();
+        var pawnTableDef = table.def;
         if (pawnTableDef == null || pawnTableDef != PawnTableDefOf.Work)
         {
             return true;
@@ -25,7 +25,7 @@ public static class PawnColumnWorker_Label_DoCell
         {
             return true;
         }
-        
+
         if (RightClicked(rect) || ScrolledUp(rect, true)) {
             Instance.Increment(pawn);
             return false;

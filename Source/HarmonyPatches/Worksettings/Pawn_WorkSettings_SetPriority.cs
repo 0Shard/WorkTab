@@ -14,7 +14,7 @@ namespace WorkTab
     {
         private static void Prefix(Pawn_WorkSettings __instance, WorkTypeDef w, ref int priority)
         {
-            var pawn = __instance.Pawn();
+            var pawn = __instance.pawn;
             if (!pawn.Humanlike())
             {
                 return;

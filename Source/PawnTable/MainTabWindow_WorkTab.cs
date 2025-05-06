@@ -4,10 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using HarmonyLib;
 using RimWorld;
-using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using static WorkTab.Constants;
@@ -17,19 +14,11 @@ using static WorkTab.Resources;
 namespace WorkTab {
     public class MainTabWindow_WorkTab: MainTabWindow_PawnTable {
         private static          List<int> _selectedHours = TimeUtilities.WholeDay;
-        private static readonly FieldInfo _tableFieldInfo;
         private static          int       _visibleHour = -1;
 
         private bool _columnsChanged;
-        
-        private Rect _timeBarRect;
 
-        static MainTabWindow_WorkTab() {
-            _tableFieldInfo = AccessTools.Field(typeof(MainTabWindow_PawnTable), "table");
-            if (_tableFieldInfo == null) {
-                throw new NullReferenceException("table field not found!");
-            }
-        }
+        private Rect _timeBarRect;
 
         public MainTabWindow_WorkTab() {
             Instance = this;
@@ -89,7 +78,7 @@ namespace WorkTab {
 
         protected override float ExtraTopSpace => base.ExtraTopSpace + Constants.ExtraTopSpace;
         protected override PawnTableDef PawnTableDef => PawnTableDefOf.Work;
-        
+
         protected override IEnumerable<Pawn> Pawns => base.Pawns.Where(pawn => !pawn.DevelopmentalStage.Baby());
 
         private bool AnyExpanded => PawnTableDef.columns
@@ -183,13 +172,13 @@ namespace WorkTab {
         }
 
         public void RecacheTimeBarRect() {
-            List<float> widths  = Traverse.Create( Table ).Field( "cachedColumnWidths" ).GetValue<List<float>>();
-            var   columns = Table.Columns;
+            List<float> widths  = table.cachedColumnWidths;
+            var   columns = table.Columns;
             float start   = 0;
             float width   = 0;
 
             // loop over columns, initially add any column that is not a workbox to the start, but not after we've seen a workbox.
-            // Add widths for workboxes to width. 
+            // Add widths for workboxes to width.
             // NOTE: This assumes a single contiguous block of workboxes!
             for (int i = 0; i < columns.Count; i++) {
                 var column = columns[i].Worker;
@@ -210,8 +199,6 @@ namespace WorkTab {
 
             // limit maximum size
             _timeBarRect.xMax = Mathf.Min(_timeBarRect.xMax, UI.screenWidth - StandardMargin);
-
-            Logger.Debug("created time bar rect: " + _timeBarRect);
         }
 
         private void DoPriorityLabels(Rect canvas) {

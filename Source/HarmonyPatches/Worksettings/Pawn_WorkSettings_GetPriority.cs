@@ -10,7 +10,7 @@ namespace WorkTab {
     [HarmonyPatch(typeof(Pawn_WorkSettings), "GetPriority")]
     public class Pawn_WorkSettings_GetPriority {
         private static void Postfix(WorkTypeDef w, Pawn_WorkSettings __instance, ref int __result) {
-            var pawn = __instance.Pawn();
+            var pawn = __instance.pawn;
             if (!pawn.Humanlike())
             {
                 return;

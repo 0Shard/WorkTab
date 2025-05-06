@@ -57,7 +57,7 @@ namespace WorkTab {
 
             // draw background
             GUI.color = incapable ? new Color(1f, .3f, .3f) : Color.white;
-            DrawUtilities.DrawWorkBoxBackground(box, pawn, WorkGiver.workType);
+            WidgetsWork.DrawWorkBoxBackground(box, pawn, WorkGiver.workType);
             GUI.color = Color.white;
 
             // draw extras

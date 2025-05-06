@@ -6,9 +6,13 @@ namespace WorkTab;
 
 public abstract class AbstractPawnColumnWorker : PawnColumnWorker_WorkPriority, IAlternatingColumn
 {
-    public Vector2 LabelSize => Vector2.zero;
+    public Vector2 LabelSize => cachedWorkLabelSize;
 
-    public bool MoveDown { get; set; }
+    public bool MoveDown
+    {
+        get => def.moveWorkTypeLabelDown;
+        set => def.moveWorkTypeLabelDown = value;
+    }
 
     protected virtual bool ShouldDrawCell(Pawn pawn)
     {

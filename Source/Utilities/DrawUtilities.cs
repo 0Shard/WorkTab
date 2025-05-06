@@ -4,9 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -14,7 +12,6 @@ using Verse;
 namespace WorkTab;
 
 public static class DrawUtilities {
-    private static MethodInfo _drawWorkBoxBackgroundMethodInfo;
 
     public static void DrawPartScheduled(Rect box) {
         // draw clock icon in top left
@@ -60,18 +57,13 @@ public static class DrawUtilities {
         GUI.color = colour;
     }
 
+    // HIGHLIGHT: Don't rename param worktype. 'Grouped Pawns Lists' mod need.
+    [Obsolete("DrawWorkBoxBackground is abandoned. See WidgetsWork.DrawWorkBoxBackground instead.")]
     public static void DrawWorkBoxBackground(Rect box, Pawn pawn, WorkTypeDef worktype) {
-        if (_drawWorkBoxBackgroundMethodInfo == null) {
-            _drawWorkBoxBackgroundMethodInfo = typeof(WidgetsWork).GetMethod("DrawWorkBoxBackground",
-                                                                                AccessTools.all);
-            if (_drawWorkBoxBackgroundMethodInfo == null) {
-                throw new NullReferenceException("DrawWorkBoxBackground method info not found!");
-            }
-        }
 
-        _drawWorkBoxBackgroundMethodInfo.Invoke(null, new object[] { box, pawn, worktype });
     }
 
+    #region PriorityRange Dictionary
     private struct PriorityRange
     {
         public int? MinInclusive;
@@ -86,7 +78,6 @@ public static class DrawUtilities {
                 return false;
             return true;
         }
-
     }
 
     /**
@@ -161,6 +152,7 @@ public static class DrawUtilities {
         label = null;
         return false;
     }
+    #endregion
 
     public static string PriorityLabel(int priority)
     {
