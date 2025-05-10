@@ -1,9 +1,7 @@
 // PawnTable_PawnTableOnGUI.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -14,18 +12,13 @@ namespace WorkTab;
 [HarmonyPatch(typeof(PawnTable), nameof(PawnTable.PawnTableOnGUI))]
 public static class PawnTable_PawnTableOnGUI
 {
+    private static readonly Color BorderColor = PawnTable.BorderColor;
+
     private static int _hoveredColumnContent = -1;
     private static int _hoveredColumnLabel = -1;
     private static int _hoveredRowContent = -1;
     private static int _hoveredRowLabel = -1;
 
-    private static readonly FieldInfo widthsField = AccessTools.Field(typeof(PawnTable), "cachedColumnWidths");
-    private static readonly FieldInfo heightsField = AccessTools.Field(typeof(PawnTable), "cachedRowHeights");
-    private static readonly FieldInfo borderField = AccessTools.Field(typeof(PawnTable), "BorderColor");
-
-    private static readonly MethodInfo recache = AccessTools.Method(typeof(PawnTable), "RecacheIfDirty");
-
-    // The above three FieldInfos can actually be injected into method parameters through ___field, but in order to maintain compatibility
     // HIGHLIGHT: Don't change this method param. 'Grouped Pawns Lists' mod need.
     public static bool Prefix(PawnTable __instance, Vector2 position, PawnTableDef ___def, ref Vector2 ___scrollPosition)
     {
@@ -36,26 +29,20 @@ public static class PawnTable_PawnTableOnGUI
 
         // Refresh cache
         _hoveredRowLabel = -1;
-        recache.Invoke(__instance, null);
+        __instance.RecacheIfDirty();
 
         var columns = __instance.Columns;
         var pawns = __instance.PawnsListForReading;
-        var widths = (List<float>)widthsField.GetValue(__instance);
-        var heights = (List<float>)heightsField.GetValue(__instance);
-        var borderColor = (Color)borderField.GetValue(__instance);
+        var widths = __instance.CachedColumnWidths();
+        var heights = __instance.CachedRowHeights();
 
         var headerH = __instance.HeaderHeight;
         var heightNoScroll = __instance.HeightNoScrollbar;
         var labelW = widths[0];
 
-        // Calculate vertical space, clamped to screen, considering bottom space for the timeline
-        const float bottomMargin = MainButtonDef.ButtonHeight + Constants.TimeBarHeight + 42f;
-        var maxScrollH = UI.screenHeight - position.y - bottomMargin;
-        var outH = Mathf.Min(heightNoScroll - headerH, maxScrollH);
-        var outW = InitialSize(__instance.Size) - labelW;
-
-        // Adjust outH based on timeline height to ensure enough space for the timeline at the bottom
-        outH = Mathf.Min(outH, maxScrollH - Constants.TimeBarHeight);
+        var initialSize = InitialSize(__instance.Size);
+        var outH = Mathf.Min(heightNoScroll - headerH, initialSize.y - position.y);
+        var outW = initialSize.x - labelW;
 
         // Define rects
         var headerOut = new Rect(position.x + labelW, position.y, outW, headerH);
@@ -72,7 +59,7 @@ public static class PawnTable_PawnTableOnGUI
 
         // Enable scrollbars if content is too large
         if (needH) { headerOut.height += 16f; tableOut.height += 16f; }
-        if (needV) { labelOut.width += 16f; tableOut.width += 16f; }
+        if (needV) { tableOut.width += 16f; }
 
         var headerView = new Rect(0f, 0f, contentW, headerH);
         var labelView  = new Rect(0f, 0f, labelW, contentH);
@@ -87,7 +74,7 @@ public static class PawnTable_PawnTableOnGUI
         var curX = 0f;
         for (var i = 1; i < columns.Count; i++)
         {
-            var w = (i == columns.Count - 1) ? contentW - curX : widths[i];
+            var w = widths[i];
             var rect = new Rect(curX, 0f, w, headerH);
             if (Mouse.IsOver(rect)) _hoveredColumnLabel = i;
             if (_hoveredColumnContent == i) Widgets.DrawHighlight(rect);
@@ -104,22 +91,23 @@ public static class PawnTable_PawnTableOnGUI
         // Vertical label scroll with separators
         var vPos = new Vector2(0f, ___scrollPosition.y);
         Widgets.BeginScrollView(labelOut, ref vPos, labelView, false);
-        var curY = 0f;
+        var rowY = 0f;
         for (var j = 0; j < pawns.Count; j++)
         {
-            // only draw if on screen
-            if (tableView.height <= tableOut.height ||
-                curY - ___scrollPosition.y + heights[j] >= 0f &&
-                curY - ___scrollPosition.y <= tableOut.height)
+            var rowHeight = heights[j];
+            var isVisible = tableView.height <= tableOut.height ||
+                            rowY - ___scrollPosition.y + rowHeight >= 0f &&
+                            rowY - ___scrollPosition.y <= tableOut.height;
+            if (isVisible)
             {
-                GUI.color = borderColor;
-                Widgets.DrawLineHorizontal(0f, curY, labelW);
-                GUI.color = Color.white;
-
-                var cellRect = new Rect(0f, curY, labelW, heights[j]);
-                columns[0].Worker.DoCell(cellRect, pawns[j], __instance);
+                var cellRect = new Rect(0f, rowY, labelW, rowHeight);
                 if (_hoveredRowContent == j) Widgets.DrawHighlight(cellRect);
                 if (Mouse.IsOver(cellRect)) _hoveredRowLabel = j;
+
+                GUI.color = BorderColor;
+                Widgets.DrawLineHorizontal(0f, rowY, labelW);
+                GUI.color = Color.white;
+                columns[0].Worker.DoCell(cellRect, pawns[j], __instance);
                 if (pawns[j].Downed)
                 {
                     GUI.color = new Color(1f, 0f, 0f, 0.5f);
@@ -128,7 +116,7 @@ public static class PawnTable_PawnTableOnGUI
                 }
             }
 
-            curY += heights[j];
+            rowY += rowHeight;
         }
         Widgets.EndScrollView();
         ___scrollPosition.y = vPos.y;
@@ -138,47 +126,59 @@ public static class PawnTable_PawnTableOnGUI
         Widgets.BeginScrollView(tableOut, ref ___scrollPosition, tableView);
 
         // Column content sync highlight
+        var newHoveredColContent = -1;
         curX = 0f;
         for (var i = 1; i < columns.Count; i++)
         {
-            var w = (i == columns.Count - 1) ? contentW - curX : widths[i];
-            var rect = new Rect(curX, 0f, w, tableOut.height);
+            var w = widths[i];
+            var rect = new Rect(curX, 0f, w, contentH);
             if (Mouse.IsOver(rect))
             {
-                Widgets.DrawHighlight(rect);
-                _hoveredColumnContent = i;
+                newHoveredColContent = i;
             }
-            if (_hoveredColumnLabel == i) Widgets.DrawHighlight(rect);
+            curX += w;
+        }
+        _hoveredColumnContent = newHoveredColContent;
+
+        curX = 0f;
+        for (var i = 1; i < columns.Count; i++)
+        {
+            var w = widths[i];
+            if (_hoveredColumnContent == i || _hoveredColumnLabel == i)
+            {
+                var highlightDrawRect = new Rect(curX, ___scrollPosition.y, w, outH);
+                Widgets.DrawHighlight(highlightDrawRect);
+            }
             curX += w;
         }
         _hoveredColumnLabel = -1;
 
         // Draw rows with separators and cells
-        var rowY = 0f;
+        rowY = 0f;
         for (var j = 0; j < pawns.Count; j++)
         {
-            if (tableView.height <= tableOut.height ||
-                rowY - ___scrollPosition.y + heights[j] >= 0f &&
-                rowY - ___scrollPosition.y <= tableOut.height)
+            var rowHeight = heights[j];
+            var isVisible = tableView.height <= tableOut.height ||
+                            rowY - ___scrollPosition.y + rowHeight >= 0f &&
+                            rowY - ___scrollPosition.y <= tableOut.height;
+            if (isVisible)
             {
-                GUI.color = borderColor;
-                Widgets.DrawLineHorizontal(0f, rowY, tableView.width);
-                GUI.color = Color.white;
-
-                var rowRect = new Rect(0f, rowY, tableView.width, heights[j]);
+                var rowRect = new Rect(0f, rowY, contentW, rowHeight);
                 if (Mouse.IsOver(rowRect))
                 {
                     Widgets.DrawHighlight(rowRect);
                     _hoveredRowContent = j;
                 }
-
                 if (_hoveredRowLabel == j) Widgets.DrawHighlight(rowRect);
 
+                GUI.color = BorderColor;
+                Widgets.DrawLineHorizontal(0f, rowY, contentW);
+                GUI.color = Color.white;
                 var cellX = 0f;
                 for (var c = 1; c < columns.Count; c++)
                 {
-                    var w = (c == columns.Count - 1) ? contentW - cellX : widths[c];
-                    var cellR = new Rect(cellX, rowY, w, heights[j]);
+                    var w = widths[c];
+                    var cellR = new Rect(cellX, rowY, w, rowHeight);
                     columns[c].Worker.DoCell(cellR, pawns[j], __instance);
                     cellX += w;
                 }
@@ -186,24 +186,30 @@ public static class PawnTable_PawnTableOnGUI
                 if (pawns[j].Downed)
                 {
                     GUI.color = new Color(1f, 0f, 0f, 0.5f);
-                    Widgets.DrawLineHorizontal(0f, rowRect.center.y, tableView.width);
+                    Widgets.DrawLineHorizontal(0f, rowRect.center.y, contentW);
                     GUI.color = Color.white;
                 }
             }
 
-            rowY += heights[j];
+            rowY += rowHeight;
         }
 
         Widgets.EndScrollView();
         return false;
     }
 
-    private static float InitialSize(Vector2 size)
+    private static Vector2 InitialSize(Vector2 size)
     {
-        const float margin = 6f;
-        var initialSize = size.x - margin * 2f;
-        if (initialSize > UI.screenWidth)
-            initialSize = UI.screenWidth - margin * 2f;
-        return initialSize;
+        const float margin = 8f;
+        size.x -= margin * 2f;
+        if (size.x > UI.screenWidth)
+        {
+            size.x = UI.screenWidth - 30f;
+        }
+
+        const float baseExtraBottomSpace = 53f;
+        var extraBottomSpace = PriorityManager.ShowScheduler ? (baseExtraBottomSpace / 2f) + Constants.TimeBarHeight : baseExtraBottomSpace;
+        size.y = UI.screenHeight - 35 - extraBottomSpace - Constants.ExtraTopSpace - margin * 2f;
+        return size;
     }
 }

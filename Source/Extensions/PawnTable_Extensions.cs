@@ -1,19 +1,27 @@
-﻿using System.Reflection;
-using HarmonyLib;
+﻿using System.Collections.Generic;
 using RimWorld;
 
 namespace WorkTab;
 
 public static class PawnTable_Extensions
 {
-    private static FieldInfo _fieldInfo;
-    
-    public static PawnTableDef Def(this PawnTable table)
+    public static List<float> CachedColumnWidths(this PawnTable table)
     {
-        if (_fieldInfo == null)
+        table.RecacheIfDirty();
+        if (table.cachedColumnWidths.Count != table.Columns.Count)
         {
-            _fieldInfo = AccessTools.Field(typeof(PawnTable), "def");
+            table.RecacheColumnWidths();
         }
-        return _fieldInfo.GetValue(table) as PawnTableDef;
+        return table.cachedColumnWidths;
+    }
+
+    public static List<float> CachedRowHeights(this PawnTable table)
+    {
+        table.RecacheIfDirty();
+        if (table.cachedRowHeights.Count != table.PawnsListForReading.Count)
+        {
+            table.RecacheRowHeights();
+        }
+        return table.cachedRowHeights;
     }
 }
