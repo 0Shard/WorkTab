@@ -14,7 +14,7 @@ public static class AchtungPatches
     {
         return ModsConfig.IsActive("brrainz.achtung");
     }
-    
+
     [HarmonyPatch("Brrainz.DynamicWorkTypes", "Update")]
     public static class DynamicWorkTypesUpdate
     {
@@ -22,30 +22,14 @@ public static class AchtungPatches
         {
             return AchtungPatches.Prepare();
         }
-        
+
         public static bool Prefix(PawnTableDef workTable)
         {
             WorkType_Extensions.ClearCache();
-            // update alternating vertical positions
-            var moveNextDown = false;
-            foreach (var columnDef in workTable.columns) {
-                if (columnDef.Worker is IAlternatingColumn worker) {
-                    moveNextDown = !moveNextDown;
-                    worker.MoveDown = moveNextDown;
-                    columnDef.moveWorkTypeLabelDown = moveNextDown;
-                } else {
-                    moveNextDown = false;
-                }
-            }
-            Controller.allColumns = workTable.columns;
-            if (MainTabWindow_WorkTab.Instance != null)
-            {
-                MainTabWindow_WorkTab.Instance.Notify_ColumnsChanged();
-            }
             return false;
         }
     }
-    
+
     [HarmonyPatch("Brrainz.DynamicWorkTypes", "AddWorkTypeDef")]
     public static class DynamicWorkTypesAddWorkTypeDef
     {
@@ -53,7 +37,7 @@ public static class AchtungPatches
         {
             return AchtungPatches.Prepare();
         }
-        
+
         public static void Prefix(ref WorkTypeDef copyFrom)
         {
             if (copyFrom == WorkTypeDefOf.Doctor)

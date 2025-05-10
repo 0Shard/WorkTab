@@ -1,7 +1,6 @@
 // MainTabWindow_WorkTab.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -9,7 +8,6 @@ using UnityEngine;
 using Verse;
 using static WorkTab.Constants;
 using static WorkTab.InteractionUtilities;
-using static WorkTab.Resources;
 
 namespace WorkTab {
     public class MainTabWindow_WorkTab: MainTabWindow_PawnTable {
@@ -30,37 +28,10 @@ namespace WorkTab {
 
         public static int VisibleHour => PriorityManager.ShowScheduler ? _visibleHour : -1;
 
-        private static List<PawnColumnDef> Columns {
-            get {
-                // get clean copy of base columns
-                var columns = new List<PawnColumnDef>( Controller.allColumns );
+        private static List<PawnColumnDef> Columns => Instance.Table.Columns;
 
-                if (columns[0] != PawnColumnDefOf.LabelWithIcon)
-                {
-                    columns.Remove(PawnColumnDefOf.LabelWithIcon);
-                    columns.Insert(0, PawnColumnDefOf.LabelWithIcon);
-                }
-
-                // add workgiver columns for expanded worktypes
-                var tempList = new List<PawnColumnDef>( columns );
-                foreach (var column in tempList)
-                {
-                    if (column.Worker is not IExpandableColumn { Expanded: true } expandable)
-                    {
-                        continue;
-                    }
-                    var index = columns.IndexOf( column );
-                    columns.InsertRange(index + 1, expandable.ChildColumns);
-                }
-
-                return columns;
-            }
-        }
-
-        public PawnTable Table {
-            get => _tableFieldInfo.GetValue(this) as PawnTable;
-            private set => _tableFieldInfo.SetValue(this, value);
-        }
+        // HIGHLIGHT: 'Grouped Pawns Lists' mod need.
+        public PawnTable Table => table;
 
         public Rect TimeBarRect {
             get {
@@ -123,10 +94,11 @@ namespace WorkTab {
                 return;
             }
 
-            DoToggleButtons(rect);
-            DoPriorityLabels(rect);
+            var canvas = new Rect(rect.x, rect.y, Mathf.Min(rect.width, UI.screenWidth), rect.height);
+            DoToggleButtons(canvas);
+            DoPriorityLabels(canvas);
             if (PriorityManager.ShowScheduler) {
-                DoTimeBar(rect);
+                DoTimeBar(canvas);
             }
         }
 
@@ -136,34 +108,26 @@ namespace WorkTab {
 
         public override void PostOpen() {
             base.PostOpen();
-            Find.World.renderer.wantedMode = WorldRenderMode.None;
             RebuildTable();
         }
 
         public void RebuildTable() {
             // get columns
             var columns = Columns;
-
-            // update alternating vertical positions
-            var moveNextDown = false;
-            foreach (PawnColumnDef columnDef in columns) {
-                if (columnDef.Worker is IAlternatingColumn worker) {
-                    moveNextDown = !moveNextDown;
-                    worker.MoveDown = moveNextDown;
-                    columnDef.moveWorkTypeLabelDown = moveNextDown;
-                } else {
-                    moveNextDown = false;
+            foreach (var expandableColumn in columns.Select(c => c.Worker).OfType<IExpandableColumn>())
+            {
+                if (expandableColumn.NeedExpand)
+                {
+                    Expand(expandableColumn, expandableColumn.NeedExpand);
+                }
+                if (expandableColumn.NeedCollapse)
+                {
+                    Expand(expandableColumn, !expandableColumn.NeedCollapse);
                 }
             }
-
-            // rebuild table
-            PawnTableDef.columns = columns;
-
             // force recache of table sizes: set the table to be dirty, then get the size - which calls the private recache routine.
             SetDirty();
-            var tmp = Table.Size;
-            windowRect.width = Math.Min(tmp.x, UI.screenWidth);
-
+            windowRect.width = Mathf.Min(Table.Size.x + Margin * 2f, UI.screenWidth);
             // force recache of timeBarRect
             _timeBarRect = default;
 
@@ -172,7 +136,7 @@ namespace WorkTab {
         }
 
         public void RecacheTimeBarRect() {
-            List<float> widths  = table.cachedColumnWidths;
+            var widths  = table.cachedColumnWidths;
             var   columns = table.Columns;
             float start   = 0;
             float width   = 0;
@@ -180,9 +144,8 @@ namespace WorkTab {
             // loop over columns, initially add any column that is not a workbox to the start, but not after we've seen a workbox.
             // Add widths for workboxes to width.
             // NOTE: This assumes a single contiguous block of workboxes!
-            for (int i = 0; i < columns.Count; i++) {
-                var column = columns[i].Worker;
-                if (column is PawnColumnWorker_WorkType || column is PawnColumnWorker_WorkGiver) {
+            for (var i = 0; i < columns.Count; i++) {
+                if (typeof(PawnColumnWorker_WorkPriority).IsAssignableFrom(columns[i].workerClass)) {
                     width += widths[i];
                 } else if (width < 1) {
                     start += widths[i];
@@ -192,8 +155,8 @@ namespace WorkTab {
             // build the rect
             _timeBarRect = new Rect(
                 start,
-                windowRect.height -
-                base.ExtraBottomSpace, // note that we're not subtracting the time bar height itself, as at this point the window's height has not yet been updated to include it.
+                // note that we're not subtracting the time bar height itself, as at this point the window's height has not yet been updated to include it.
+                windowRect.height - base.ExtraBottomSpace - Margin,
                 width,
                 TimeBarHeight);
 
@@ -238,13 +201,13 @@ namespace WorkTab {
 
             // draw buttons
             TooltipHandler.TipRegion(button, "WorkTab.SelectWholeDayTip".Translate());
-            if (Widgets.ButtonImage(button, PrioritiesWholeDay, Color.white, GenUI.MouseoverColor)) {
+            if (Widgets.ButtonImage(button, Resources.PrioritiesWholeDay, Color.white, GenUI.MouseoverColor)) {
                 SelectWholeDay();
             }
 
-            button.x -= button.height + Constants.Margin;
+            button.x -= button.height + Margin;
             TooltipHandler.TipRegion(button, "WorkTab.SelectCurrentHourTip".Translate());
-            if (Widgets.ButtonImage(button, Now, Color.white, GenUI.MouseoverColor)) {
+            if (Widgets.ButtonImage(button, Resources.Now, Color.white, GenUI.MouseoverColor)) {
                 AddSelectedHour(GenLocalDate.HourOfDay(Find.CurrentMap), true);
             }
 
@@ -327,7 +290,7 @@ namespace WorkTab {
                     Rect eyeRect = new Rect( hourRect.center.x                 - (timeIndicatorSize * 1 / 2f),
                                             hourRect.yMax - timeIndicatorSize - (hourRect.height   * 1 / 6f),
                                             timeIndicatorSize, timeIndicatorSize );
-                    GUI.DrawTexture(eyeRect, PinEye);
+                    GUI.DrawTexture(eyeRect, Resources.PinEye);
                 }
 
                 // also highlight all selected timeslots
@@ -351,33 +314,38 @@ namespace WorkTab {
                                         hourRect.yMax - timeIndicatorSize - (hourRect.height   * 1 / 6f),
                                         timeIndicatorSize,
                                         timeIndicatorSize );
-            GUI.DrawTexture(curTimeRect, PinClock);
+            GUI.DrawTexture(curTimeRect, Resources.PinClock);
         }
 
         private void DoToggleButtons(Rect canvas) {
-            Rect button = new Rect( canvas.xMax - 30f, canvas.yMin, 30f, 30f );
+            var button = new Rect( canvas.xMax - 30f - Margin, canvas.yMin, 30f, 30f );
 
             ButtonImageToggle(() => PriorityManager.ShowPriorities, val => PriorityManager.ShowPriorities = val,
                                button,
-                               "WorkTab.PrioritiesDetailed".Translate(), PrioritiesDetailed,
-                               "WorkTab.PrioritiesSimple".Translate(), PrioritiesSimple);
+                               "WorkTab.PrioritiesDetailed".Translate(), Resources.PrioritiesDetailed,
+                               "WorkTab.PrioritiesSimple".Translate(), Resources.PrioritiesSimple);
             button.x -= 30f + Margin;
 
             ButtonImageToggle(() => PriorityManager.ShowScheduler, val => PriorityManager.ShowScheduler = val, button,
-                               "WorkTab.PrioritiesTimed".Translate(), PrioritiesTimed,
-                               "WorkTab.PrioritiesWholeDay".Translate(), PrioritiesWholeDay);
+                               "WorkTab.PrioritiesTimed".Translate(), Resources.PrioritiesTimed,
+                               "WorkTab.PrioritiesWholeDay".Translate(), Resources.PrioritiesWholeDay);
             button.x -= 30f + Margin;
 
             ButtonImageToggle(() => AnyExpanded, ExpandAll, button,
-                               "WorkTab.ExpandAll".Translate(), Expand,
-                               "WorkTab.CollapseAll".Translate(), Collapse);
+                               "WorkTab.ExpandAll".Translate(), Resources.Expand,
+                               "WorkTab.CollapseAll".Translate(), Resources.Collapse);
         }
 
         private void ExpandAll(bool expand) {
-            foreach (IExpandableColumn expandableColumn in PawnTableDef.columns.Select(c => c.Worker).OfType<IExpandableColumn>()) {
-                if (expandableColumn.Expanded != expand && expandableColumn.CanExpand) {
-                    expandableColumn.Expanded = expand;
-                }
+            foreach (var expandableColumn in PawnTableDef.columns.Select(c => c.Worker).OfType<IExpandableColumn>()) {
+                Expand(expandableColumn, expand);
+            }
+            Notify_ColumnsChanged();
+        }
+
+        private void Expand(IExpandableColumn expandableColumn, bool expand) {
+            if (expandableColumn.Expanded != expand && expandableColumn.CanExpand) {
+                expandableColumn.Expanded = expand;
             }
         }
     }

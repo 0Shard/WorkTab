@@ -12,15 +12,22 @@ using static WorkTab.InteractionUtilities;
 using static WorkTab.MainTabWindow_WorkTab;
 
 namespace WorkTab {
-    public class PawnColumnWorker_WorkGiver : AbstractPawnColumnWorker {
+    public class PawnColumnWorker_WorkGiver : AbstractPawnColumnWorker, IHasParentColumn {
         private PawnColumnDef_WorkGiver Def => def as PawnColumnDef_WorkGiver;
 
         private string Label => def.LabelCap.Resolve();
 
         // HIGHLIGHT: Do not modify the modifier, Grouped Pawns Lists mod requires direct access
-        public WorkGiverDef WorkGiver => Def?.workgiver;
+        public WorkGiverDef WorkGiver => Def.workgiver;
 
-        public override bool VisibleCurrently => WorkGiver.workType.VisibleCurrently;
+        public override bool VisibleCurrently => base.VisibleCurrently && VisibleNow();
+
+        public PawnColumnDef ParentColumn { get; set; }
+
+        private bool VisibleNow()
+        {
+            return ParentColumn != null && ((PawnColumnWorker_WorkType)ParentColumn.Worker).Expanded;
+        }
 
         protected override Color DefaultHeaderColor => new(1f, 1f, 1f, .8f);
 

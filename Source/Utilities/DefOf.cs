@@ -10,7 +10,8 @@ namespace WorkTab {
     public static class PawnColumnDefOf {
         public static                      PawnColumnDef LabelWithIcon;
         public static                      PawnColumnDef CopyPasteWorkPriorities;
-        
+        public static                      PawnColumnDef RemainingSpace;
+
         public static                      PawnColumnDef Favourite;
         public static                      PawnColumnDef Job;
         public static                      PawnColumnDef Mood;

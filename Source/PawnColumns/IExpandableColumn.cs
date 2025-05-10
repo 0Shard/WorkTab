@@ -1,16 +1,15 @@
 // IExpandableColumn.cs
 // Copyright Karel Kroeze, 2017-2020
 
-using System.Collections.Generic;
-using RimWorld;
-
 namespace WorkTab;
 
-public interface IExpandableColumn
+public interface IExpandableColumn : IHasChildColumns
 {
     bool CanExpand { get; }
 
-    List<PawnColumnDef> ChildColumns { get; }
+    bool NeedExpand { get; }
+
+    bool NeedCollapse { get; }
 
     bool Expanded { get; set; }
 }

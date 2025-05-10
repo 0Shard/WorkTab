@@ -12,29 +12,37 @@ namespace WorkTab;
 public static class PawnColumnWorker_WorkPriority_DoHeader
 {
 
-    private static Vector2 CalcSize(string text, PawnColumnDef def)
+    private static Vector2 CalcSize(string label, PawnColumnDef def, TextAnchor defaultHeaderAlignment)
     {
-        var result = Text.CalcSize(text);
-        if (def.workerClass != typeof(PawnColumnWorker_WorkGiver))
+        Text.WordWrap = false;
+        Text.Anchor = defaultHeaderAlignment;
+        if (def.workerClass == typeof(PawnColumnWorker_WorkGiver))
         {
-            return result;
+            label = def.LabelCap;
         }
-        result = Text.CalcSize(def.LabelCap);
-        result.x = Mathf.Min(result.x, (Constants.WorkGiverWidth * 2) - Constants.Margin);
+        var result = Text.CalcSize(label);
+        if (def.workerClass == typeof(PawnColumnWorker_WorkGiver))
+        {
+            result.x = Mathf.Min(result.x, (Constants.WorkGiverWidth * 2) - Constants.Margin);
+        }
         return result;
     }
 
-    private static void DrawLabel(Rect labelRect, string text, PawnColumnDef def, Color defaultHeaderColor)
+    private static void DrawLabel(Rect labelRect, string label, PawnColumnDef def, Color defaultHeaderColor)
     {
         GUI.color = defaultHeaderColor;
         if (def.workerClass == typeof(PawnColumnWorker_WorkGiver))
         {
-            text = def.LabelCap.Resolve().Truncate(labelRect.width);
+            label = def.LabelCap.Resolve().Truncate(labelRect.width);
         }
-        Widgets.Label(labelRect, text);
+        Widgets.Label(labelRect, label);
         Text.Font = GameFont.Small;
+        GUI.color = Color.white;
+        Text.Anchor = TextAnchor.UpperLeft;
+        Text.WordWrap = true;
     }
 
+    // base.DoHeader(rect, table); therefore, the Prefix method is not adopted
     public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> _instr)
     {
         var instructions = _instr.ToList();
@@ -69,6 +77,8 @@ public static class PawnColumnWorker_WorkPriority_DoHeader
             {
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Ldfld, defField);
+                yield return new CodeInstruction(OpCodes.Ldarg_0);
+                yield return new CodeInstruction(OpCodes.Callvirt, defaultHeaderAlignmentGetter);
                 code.operand = AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_DoHeader), nameof(CalcSize));
             }
 
