@@ -22,7 +22,7 @@ public static class PawnColumnWorker_WorkPriority_HeaderClicked
         return Settings.maxPriority;
     }
 
-    private static bool Execute(PawnColumnDef def)
+    private static bool Execute(PawnColumnDef def, PawnTable table)
     {
         if (def.Worker is not PawnColumnWorker_WorkType workerWorkType)
         {
@@ -31,7 +31,7 @@ public static class PawnColumnWorker_WorkPriority_HeaderClicked
 
         if (workerWorkType.HeaderExpand())
         {
-            MainTabWindow_WorkTab.SetCurrentWorkTabDirty();
+            MainTabWindow_WorkTab.SetCurrentWorkTabDirty(table);
         }
 
         return true;
@@ -53,6 +53,7 @@ public static class PawnColumnWorker_WorkPriority_HeaderClicked
                 flag = false;
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(PawnColumnWorker), "def"));
+                yield return new CodeInstruction(OpCodes.Ldarg_2);
                 yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_HeaderClicked), nameof(Execute)));
                 yield return new CodeInstruction(instructions[i + 2]).WithLabels(instructions[i + 2].labels); // brfalse => ret
             }

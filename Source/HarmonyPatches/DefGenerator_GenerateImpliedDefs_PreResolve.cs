@@ -10,9 +10,9 @@ using Verse;
 namespace WorkTab;
 
 [HarmonyPatch(typeof(DefGenerator), nameof(DefGenerator.GenerateImpliedDefs_PreResolve))]
-public class DefGenerator_GenerateImpliedDefs_PreResolve {
+public static class DefGenerator_GenerateImpliedDefs_PreResolve {
 
-    private static void Postfix() {
+    public static void Postfix() {
         // replace worker on Work MainButtonDef
         MainButtonDefOf.Work.tabWindowClass = typeof(MainTabWindow_WorkTab);
 
@@ -33,7 +33,6 @@ public class DefGenerator_GenerateImpliedDefs_PreResolve {
         }
 
         // add PawnColumnDefs for all workgivers
-        var pawnColumnDefWorkGiverCount = 0;
         foreach (var column in DefDatabase<WorkGiverDef>.AllDefsListForReading
                                                         .Where(workgiver => workgiver.workType != null)
                                                         .Select(workgiver => new PawnColumnDef_WorkGiver {
@@ -47,26 +46,41 @@ public class DefGenerator_GenerateImpliedDefs_PreResolve {
                                                         }).Cast<PawnColumnDef>())
         {
             DefGenerator.AddImpliedDef(column);
-            ++pawnColumnDefWorkGiverCount;
         }
 
-        var count = workTableColumns.Count;
-        var columns = new List<PawnColumnDef>(pawnColumnDefWorkGiverCount + count);
-        for (var index = 0; index < count; index++)
-        {
-            var column = workTableColumns[index];
+        // Insert the corresponding workGiverColumn after each workTypeColumn
+        var columns = ProcessWorkGiverColumns(workTableColumns);
 
+        MoveCopyPasteToRemainingSpace(columns);
+
+        EnsureLabelWithIconIsFirst(columns);
+
+        PawnTableDefOf.Work.columns = columns;
+    }
+
+    public static List<PawnColumnDef> ProcessWorkGiverColumns(List<PawnColumnDef> workTableColumns)
+    {
+        var pawnColumnDefWorkGivers = DefDatabase<PawnColumnDef>.AllDefsListForReading
+                                                       .Where(c => c.Worker is PawnColumnWorker_WorkGiver)
+                                                       .ToList();
+        var count = workTableColumns.Count;
+        var columns = new List<PawnColumnDef>(count + pawnColumnDefWorkGivers.Count);
+        foreach (var column in workTableColumns)
+        {
             if (!typeof(PawnColumnWorker_WorkPriority).IsAssignableFrom(column.workerClass))
             {
                 columns.Add(column);
                 continue;
             }
 
-            var list = DefDatabase<PawnColumnDef>.AllDefsListForReading
-                                                 .Where(c => c.workerClass == typeof(PawnColumnWorker_WorkGiver))
-                                                 .Where(c => c.workType == column.workType)
-                                                 .OrderByDescending(c => ((PawnColumnDef_WorkGiver)c).workgiver.priorityInType)
-                                                 .ToList();
+            if (column.Worker is not PawnColumnWorker_WorkType)
+            {
+                continue;
+            }
+
+            var list = pawnColumnDefWorkGivers.Where(c => ((PawnColumnDef_WorkGiver)c).workgiver.workType == column.workType)
+                                              .OrderByDescending(c => ((PawnColumnDef_WorkGiver)c).workgiver.priorityInType)
+                                              .ToList();
 
             columns.Add(column);
             if (list.NullOrEmpty())
@@ -85,22 +99,31 @@ public class DefGenerator_GenerateImpliedDefs_PreResolve {
                     pawnColumnWorkerWorkGiver.ParentColumn = column;
                 }
             }
+
+            pawnColumnDefWorkGivers = pawnColumnDefWorkGivers.Except(list).ToList();
         }
 
+        return columns;
+    }
+
+    private static void MoveCopyPasteToRemainingSpace(List<PawnColumnDef> columns)
+    {
         // move copy/paste to the right
         var copyPasteColumnIndex = columns.IndexOf(PawnColumnDefOf.CopyPasteWorkPriorities);
         columns.RemoveAt(copyPasteColumnIndex);
 
         var remainingSpaceColumnIndex = columns.IndexOf(PawnColumnDefOf.RemainingSpace);
         columns.InsertRange(remainingSpaceColumnIndex, [PawnColumnDefOf.Favourite, PawnColumnDefOf.CopyPasteWorkPriorities]);
+    }
 
-        // keep the LabelWithIcon column first and freeze. Fix 'WorkManager' mod insert order error.
-        if (columns[0] != PawnColumnDefOf.LabelWithIcon)
+    private static void EnsureLabelWithIconIsFirst(List<PawnColumnDef> columns)
+    {
+        // Keep the LabelWithIcon column first and freeze. Fix 'WorkManager' mod insert order error.
+        if (columns[0] == PawnColumnDefOf.LabelWithIcon)
         {
-            columns.Remove(PawnColumnDefOf.LabelWithIcon);
-            columns.Insert(0, PawnColumnDefOf.LabelWithIcon);
+            return;
         }
-
-        PawnTableDefOf.Work.columns = columns;
+        columns.Remove(PawnColumnDefOf.LabelWithIcon);
+        columns.Insert(0, PawnColumnDefOf.LabelWithIcon);
     }
 }

@@ -86,7 +86,7 @@ namespace WorkTab {
 
         public override void DoWindowContents(Rect rect) {
             if (_columnsChanged) {
-                RebuildTable();
+                RebuildTable(false);
             }
 
             base.DoWindowContents(rect);
@@ -108,11 +108,11 @@ namespace WorkTab {
 
         public override void PostOpen() {
             base.PostOpen();
-            RebuildTable(true);
+            RebuildTable();
         }
 
-        // HIGHLIGHT: 'Grouped Pawns Lists' mod need.
-        private void RebuildTable(bool alreadyDirty = false) {
+        // HIGHLIGHT: Do not modify the modifier, 'Grouped Pawns Lists' mod requires direct access
+        public void RebuildTable(bool alreadyDirty = true) {
             if (!alreadyDirty)
             {
                 // force recache of table sizes: set the table to be dirty, then get the size - which calls the private recache routine.
@@ -337,7 +337,7 @@ namespace WorkTab {
             foreach (var expandableColumn in table.Columns.Select(c => c.Worker).OfType<IExpandableColumn>()) {
                 Expand(expandableColumn, expand);
             }
-            SetCurrentWorkTabDirty();
+            SetCurrentWorkTabDirty(table);
         }
 
         public static void Expand(IExpandableColumn expandableColumn, bool expand) {
@@ -346,7 +346,7 @@ namespace WorkTab {
             }
         }
 
-        public static void SetCurrentWorkTabDirty()
+        public static void SetCurrentWorkTabDirty(PawnTable table)
         {
             if (Find.WindowStack == null || !UnityData.IsInMainThread)
             {
@@ -358,7 +358,8 @@ namespace WorkTab {
                 if (windowStack[index] is MainTabWindow_PawnTable tabWindowPawnTable)
                     tabWindowPawnTable.SetDirty();
             }
-            Instance?.RebuildTable(true);
+            Instance?.Notify_ColumnsChanged();
+            table.RecacheIfDirty();
         }
     }
 }

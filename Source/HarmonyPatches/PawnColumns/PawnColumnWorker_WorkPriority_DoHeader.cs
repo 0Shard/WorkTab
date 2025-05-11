@@ -28,6 +28,7 @@ public static class PawnColumnWorker_WorkPriority_DoHeader
         {
             result =  Text.CalcSize(label);
         }
+        Text.WordWrap = true;
         return result;
     }
 
