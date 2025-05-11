@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using RimWorld;
+using Verse;
 
 namespace WorkTab;
 
@@ -23,7 +24,17 @@ public static class PawnColumnWorker_WorkPriority_HeaderClicked
 
     private static bool Execute(PawnColumnDef def)
     {
-        return def.workerClass != typeof(PawnColumnWorker_WorkGiver);
+        if (def.Worker is not PawnColumnWorker_WorkType workerWorkType)
+        {
+            return false;
+        }
+
+        if (workerWorkType.HeaderExpand())
+        {
+            MainTabWindow_WorkTab.SetCurrentWorkTabDirty();
+        }
+
+        return true;
     }
 
     public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> _instr)
@@ -43,7 +54,7 @@ public static class PawnColumnWorker_WorkPriority_HeaderClicked
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(PawnColumnWorker), "def"));
                 yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_HeaderClicked), nameof(Execute)));
-                yield return new CodeInstruction(instructions[i + 2]).WithLabels(instructions[i + 2].labels);
+                yield return new CodeInstruction(instructions[i + 2]).WithLabels(instructions[i + 2].labels); // brfalse => ret
             }
 
             if (code.opcode == OpCodes.Ldc_I4_4 && i < count - 1 &&

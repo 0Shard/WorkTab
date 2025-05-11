@@ -1,6 +1,7 @@
 // MainTabWindow_WorkTab.cs
 // Copyright Karel Kroeze, 2020-2020
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -48,14 +49,13 @@ namespace WorkTab {
             : base.ExtraBottomSpace;
 
         protected override float ExtraTopSpace => base.ExtraTopSpace + Constants.ExtraTopSpace;
-        protected override PawnTableDef PawnTableDef => PawnTableDefOf.Work;
+        public override PawnTableDef PawnTableDef => PawnTableDefOf.Work;
 
         protected override IEnumerable<Pawn> Pawns => base.Pawns.Where(pawn => !pawn.DevelopmentalStage.Baby());
 
-        private bool AnyExpanded => PawnTableDef.columns
-                                                .Select(c => c.Worker)
-                                                .OfType<IExpandableColumn>()
-                                                .Any(w => w.Expanded);
+        // HIGHLIGHT: 'Grouped Pawns Lists' mod need.
+        [Obsolete("Use AnyExpandedNew(PawnTable table) instead.")]
+        private bool AnyExpanded => AnyExpandedNew(Table);
 
         public static void AddSelectedHour(int hour, bool replace) {
             if (replace) {
@@ -108,26 +108,16 @@ namespace WorkTab {
 
         public override void PostOpen() {
             base.PostOpen();
-            RebuildTable();
+            RebuildTable(true);
         }
 
-        public void RebuildTable() {
-            // get columns
-            var columns = Columns;
-            foreach (var expandableColumn in columns.Select(c => c.Worker).OfType<IExpandableColumn>())
+        // HIGHLIGHT: 'Grouped Pawns Lists' mod need.
+        private void RebuildTable(bool alreadyDirty = false) {
+            if (!alreadyDirty)
             {
-                if (expandableColumn.NeedExpand)
-                {
-                    Expand(expandableColumn, expandableColumn.NeedExpand);
-                }
-                if (expandableColumn.NeedCollapse)
-                {
-                    Expand(expandableColumn, !expandableColumn.NeedCollapse);
-                }
+                // force recache of table sizes: set the table to be dirty, then get the size - which calls the private recache routine.
+                SetDirty();
             }
-            // force recache of table sizes: set the table to be dirty, then get the size - which calls the private recache routine.
-            SetDirty();
-            windowRect.width = Mathf.Min(Table.Size.x + Margin * 2f, UI.screenWidth);
             // force recache of timeBarRect
             _timeBarRect = default;
 
@@ -331,22 +321,44 @@ namespace WorkTab {
                                "WorkTab.PrioritiesWholeDay".Translate(), Resources.PrioritiesWholeDay);
             button.x -= 30f + Margin;
 
-            ButtonImageToggle(() => AnyExpanded, ExpandAll, button,
+            ButtonImageToggle(() => AnyExpandedNew(Table),
+                              v => ExpandAll(Table, v),
+                              button,
                                "WorkTab.ExpandAll".Translate(), Resources.Expand,
                                "WorkTab.CollapseAll".Translate(), Resources.Collapse);
         }
 
-        private void ExpandAll(bool expand) {
-            foreach (var expandableColumn in PawnTableDef.columns.Select(c => c.Worker).OfType<IExpandableColumn>()) {
+        public static bool AnyExpandedNew(PawnTable table) => table.Columns
+                                                                   .Select(c => c.Worker)
+                                                                   .OfType<IExpandableColumn>()
+                                                                   .Any(w => w.Expanded);
+
+        public static void ExpandAll(PawnTable table, bool expand) {
+            foreach (var expandableColumn in table.Columns.Select(c => c.Worker).OfType<IExpandableColumn>()) {
                 Expand(expandableColumn, expand);
             }
-            Notify_ColumnsChanged();
+            SetCurrentWorkTabDirty();
         }
 
-        private void Expand(IExpandableColumn expandableColumn, bool expand) {
+        public static void Expand(IExpandableColumn expandableColumn, bool expand) {
             if (expandableColumn.Expanded != expand && expandableColumn.CanExpand) {
                 expandableColumn.Expanded = expand;
             }
+        }
+
+        public static void SetCurrentWorkTabDirty()
+        {
+            if (Find.WindowStack == null || !UnityData.IsInMainThread)
+            {
+                return;
+            }
+            var windowStack = Find.WindowStack;
+            for (var index = 0; index < windowStack.Count; ++index)
+            {
+                if (windowStack[index] is MainTabWindow_PawnTable tabWindowPawnTable)
+                    tabWindowPawnTable.SetDirty();
+            }
+            Instance?.RebuildTable(true);
         }
     }
 }

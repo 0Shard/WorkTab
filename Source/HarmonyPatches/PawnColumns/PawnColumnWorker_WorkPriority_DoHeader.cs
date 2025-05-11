@@ -12,28 +12,32 @@ namespace WorkTab;
 public static class PawnColumnWorker_WorkPriority_DoHeader
 {
 
-    private static Vector2 CalcSize(string label, PawnColumnDef def, TextAnchor defaultHeaderAlignment)
+    private static Vector2 CalcSize(string label, PawnColumnDef def,
+                                    TextAnchor defaultHeaderAlignment, PawnTable table)
     {
+        Vector2 result;
         Text.WordWrap = false;
         Text.Anchor = defaultHeaderAlignment;
-        if (def.workerClass == typeof(PawnColumnWorker_WorkGiver))
+        if (def.Worker is PawnColumnWorker_WorkGiver workGiver)
         {
-            label = def.LabelCap;
+            label = def.LabelCap.Resolve();
+            result =  Text.CalcSize(label);
+            result.x = Mathf.Min(result.x, workGiver.GetOptimalWidth(table));
         }
-        var result = Text.CalcSize(label);
-        if (def.workerClass == typeof(PawnColumnWorker_WorkGiver))
+        else
         {
-            result.x = Mathf.Min(result.x, (Constants.WorkGiverWidth * 2) - Constants.Margin);
+            result =  Text.CalcSize(label);
         }
         return result;
     }
 
-    private static void DrawLabel(Rect labelRect, string label, PawnColumnDef def, Color defaultHeaderColor)
+    private static void DrawLabel(Rect labelRect, string label, PawnColumnDef def,
+                                  Color defaultHeaderColor, PawnTable table)
     {
         GUI.color = defaultHeaderColor;
-        if (def.workerClass == typeof(PawnColumnWorker_WorkGiver))
+        if (def.Worker is PawnColumnWorker_WorkGiver)
         {
-            label = def.LabelCap.Resolve().Truncate(labelRect.width);
+            label = def.LabelCap.Resolve().Truncate(labelRect.width, Constants.TruncationCache);
         }
         Widgets.Label(labelRect, label);
         Text.Font = GameFont.Small;
@@ -79,6 +83,7 @@ public static class PawnColumnWorker_WorkPriority_DoHeader
                 yield return new CodeInstruction(OpCodes.Ldfld, defField);
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Callvirt, defaultHeaderAlignmentGetter);
+                yield return new CodeInstruction(OpCodes.Ldarg_2);
                 code.operand = AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_DoHeader), nameof(CalcSize));
             }
 
@@ -102,6 +107,7 @@ public static class PawnColumnWorker_WorkPriority_DoHeader
                 yield return new CodeInstruction(OpCodes.Ldfld, defField);
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Callvirt, defaultHeaderColorGetter);
+                yield return new CodeInstruction(OpCodes.Ldarg_2);
                 code.operand = AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_DoHeader), nameof(DrawLabel));
             }
 

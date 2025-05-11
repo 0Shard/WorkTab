@@ -59,17 +59,11 @@ namespace WorkTab {
             DrawWorkTypeBoxFor(box, pawn, def.workType);
         }
 
-        protected override void HeaderClicked(Rect headerRect, PawnTable table)
+        public bool HeaderExpand()
         {
-            HeaderExpand();
-            base.HeaderClicked(headerRect, table);
-        }
-
-        private void HeaderExpand()
-        {
-            if (!Ctrl || !CanExpand || Instance == null)
+            if (!Ctrl || !CanExpand)
             {
-                return;
+                return false;
             }
             // Note: The column cannot be updated immediately within OnGUI and expect the view to adapt immediately.
             // Unity's UI lifecycle does not allow you to change the layout structure during drawing.
@@ -83,7 +77,7 @@ namespace WorkTab {
             {
                 NeedExpand = true;
             }
-            Instance.Notify_ColumnsChanged();
+            return true;
         }
 
         protected override bool ShouldDrawCell(Pawn pawn) {
@@ -130,7 +124,7 @@ namespace WorkTab {
 
         // HIGHLIGHT: Numbers mod need the table param. Don't remove it.
         protected override void HeaderInteractions(Rect headerRect, PawnTable table, bool clicked = false) {
-            if (!Mouse.IsOver(headerRect) || !Shift || Instance == null) {
+            if (!Mouse.IsOver(headerRect) || !Shift) {
                 return;
             }
 

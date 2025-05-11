@@ -121,14 +121,6 @@ namespace WorkTab {
             return base.CreateHeaderTip(tip);
         }
 
-        protected override Rect GetInteractableHeaderRect(Rect headerRect, PawnTable table)
-        {
-            var interactableHeaderRect = base.GetInteractableHeaderRect(headerRect, table);
-            interactableHeaderRect.x -= 2f;
-            interactableHeaderRect.y -= 3f;
-            return interactableHeaderRect;
-        }
-
         protected override void HeaderClicked(Rect headerRect, PawnTable table)
         {
             base.HeaderClicked(headerRect, table);
@@ -137,7 +129,7 @@ namespace WorkTab {
 
         protected override void HeaderInteractions(Rect headerRect, PawnTable table, bool clicked = false)
         {
-            if (!Mouse.IsOver(headerRect) || !Shift || Instance == null)
+            if (!Mouse.IsOver(headerRect) || !Shift)
             {
                 return;
             }

@@ -54,6 +54,7 @@ namespace WorkTab {
             }
         }
 
+        // HIGHLIGHT: 'Grouped Pawns Lists' mod need.
         public static bool ShowScheduler {
             get => _showScheduler;
             set {
