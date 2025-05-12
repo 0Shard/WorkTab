@@ -352,14 +352,14 @@ namespace WorkTab {
             {
                 return;
             }
-            var windowStack = Find.WindowStack;
-            for (var index = 0; index < windowStack.Count; ++index)
-            {
-                if (windowStack[index] is MainTabWindow_PawnTable tabWindowPawnTable)
-                    tabWindowPawnTable.SetDirty();
-            }
+            // var windowStack = Find.WindowStack;
+            // for (var index = 0; index < windowStack.Count; ++index)
+            // {
+            //     if (windowStack[index] is MainTabWindow_PawnTable tabWindowPawnTable)
+            //         tabWindowPawnTable.SetDirty();
+            // }
             Instance?.Notify_ColumnsChanged();
-            table.RecacheIfDirty();
+            MainTabWindow_Work_DoWindowContents.ColumnsChanged = true;
         }
     }
 }

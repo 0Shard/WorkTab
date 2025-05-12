@@ -8,6 +8,18 @@ namespace WorkTab;
 [HarmonyPatch(typeof(MainTabWindow_Work), "DoWindowContents")]
 public static class MainTabWindow_Work_DoWindowContents
 {
+    public static bool ColumnsChanged;
+
+    public static void Prefix(MainTabWindow_Work __instance, Rect rect)
+    {
+        if (ColumnsChanged)
+        {
+            __instance.SetDirty();
+            __instance.table.RecacheIfDirty();
+        }
+        ColumnsChanged = false;
+    }
+
     public static void Postfix(MainTabWindow_Work __instance, Rect rect)
     {
         var canvas = new Rect(rect.x, rect.y, Mathf.Min(rect.width, UI.screenWidth), rect.height);
