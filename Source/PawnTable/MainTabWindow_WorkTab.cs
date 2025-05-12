@@ -11,7 +11,7 @@ using static WorkTab.Constants;
 using static WorkTab.InteractionUtilities;
 
 namespace WorkTab {
-    public class MainTabWindow_WorkTab: MainTabWindow_PawnTable {
+    public class MainTabWindow_WorkTab : MainTabWindow_PawnTable {
         private static          List<int> _selectedHours = TimeUtilities.WholeDay;
         private static          int       _visibleHour = -1;
 
@@ -359,7 +359,7 @@ namespace WorkTab {
             //         tabWindowPawnTable.SetDirty();
             // }
             Instance?.Notify_ColumnsChanged();
-            MainTabWindow_Work_DoWindowContents.ColumnsChanged = true;
+            MainTabWindow_PawnTable_DoWindowContents.ColumnsChanged = true;
         }
     }
 }
