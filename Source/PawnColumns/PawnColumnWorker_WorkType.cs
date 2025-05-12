@@ -16,7 +16,7 @@ namespace WorkTab {
     {
         private bool _expanded;
 
-        public bool CanExpand => ChildColumns?.Count > 1;
+        public bool CanExpand { get; set; }
 
         public bool NeedExpand { get; private set; }
 
@@ -30,8 +30,6 @@ namespace WorkTab {
                 NeedCollapse = false;
             }
         }
-
-        public List<PawnColumnDef> ChildColumns { get; set; }
 
         protected override Color DefaultHeaderColor => Color.white;
 

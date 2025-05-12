@@ -3,7 +3,7 @@
 
 namespace WorkTab;
 
-public interface IExpandableColumn : IHasChildColumns
+public interface IExpandableColumn
 {
     bool CanExpand { get; }
 

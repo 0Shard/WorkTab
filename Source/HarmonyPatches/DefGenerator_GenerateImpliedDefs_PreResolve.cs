@@ -88,15 +88,15 @@ public static class DefGenerator_GenerateImpliedDefs_PreResolve {
                 continue;
             }
             columns.AddRange(list);
-            if (column.Worker is PawnColumnWorker_WorkType worker)
+            if (column.Worker is PawnColumnWorker_WorkType worker && list.Count > 1)
             {
-                worker.ChildColumns = list;
-            }
-            foreach (var pawnColumnWorkerWorkGiver in list.Select(d => d.Worker as PawnColumnWorker_WorkGiver))
-            {
-                if (pawnColumnWorkerWorkGiver != null)
+                worker.CanExpand = true;
+                foreach (var pawnColumnWorkerWorkGiver in list.Select(d => d.Worker as PawnColumnWorker_WorkGiver))
                 {
-                    pawnColumnWorkerWorkGiver.ParentColumn = column;
+                    if (pawnColumnWorkerWorkGiver != null)
+                    {
+                        pawnColumnWorkerWorkGiver.ColumnWorkerWorkType = worker;
+                    }
                 }
             }
 

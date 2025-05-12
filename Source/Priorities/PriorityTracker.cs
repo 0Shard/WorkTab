@@ -33,10 +33,10 @@ namespace WorkTab {
                 {
                     return item;
                 };
-                
+
                 Logger.Debug(
                     $"requested {workgiver.defName} priorities for {Pawn?.LabelShort ?? "<no pawn>"}, which did not yet exist.");
-                
+
                 item = new WorkPriority(this, workgiver);
                 priorities.Add(workgiver, item);
                 return item;
@@ -47,7 +47,6 @@ namespace WorkTab {
         public virtual Pawn Pawn { get; set; }
 
         public virtual void ExposeData() {
-            Logger.Assert(Scribe.mode, "Priority ScribeMode");
             if (Scribe.mode == LoadSaveMode.Saving) {
                 workPriorityTrackersScribe = priorities.Values.ToList();
             }
@@ -162,9 +161,9 @@ namespace WorkTab {
 
             // is any workgiver different from the whole at any time during the day?
             _partScheduledWorkType[worktype] = TimeUtilities.WholeDay
-                                                            .Any(hour => 
+                                                            .Any(hour =>
                                                                 worktype.WorkGivers()
-                                                                        .Any(wg => 
+                                                                        .Any(wg =>
                                                                             Pawn.AllowedToDo(wg) &&
                                                                             GetPriority(worktype, hour) != GetPriority(wg, hour))
                                                                 );
@@ -179,7 +178,7 @@ namespace WorkTab {
             {
                 return;
             }
-            
+
             if (priority > Settings.maxPriority) {
                 priority = 0;
             }
