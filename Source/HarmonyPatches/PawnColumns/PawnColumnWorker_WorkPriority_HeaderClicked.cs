@@ -31,7 +31,7 @@ public static class PawnColumnWorker_WorkPriority_HeaderClicked
 
         if (workerWorkType.HeaderExpand())
         {
-            MainTabWindow_WorkTab.SetCurrentWorkTabDirty(table);
+            MainTabWindow_WorkTab.SetCurrentWorkTabDirty();
         }
 
         return true;

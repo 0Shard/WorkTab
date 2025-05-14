@@ -41,7 +41,7 @@ public static class PawnTable_PawnTableOnGUI
         var labelW = widths[0];
 
         var initialSize = InitialSize(__instance.Size);
-        var outH = Mathf.Min(heightNoScroll - headerH, initialSize.y - position.y);
+        var outH = Mathf.Min(heightNoScroll - headerH, initialSize.y - headerH);
         var outW = initialSize.x - labelW;
 
         // Define rects
@@ -206,10 +206,6 @@ public static class PawnTable_PawnTableOnGUI
         {
             size.x = UI.screenWidth - 30f;
         }
-
-        const float baseExtraBottomSpace = 53f;
-        var extraBottomSpace = PriorityManager.ShowScheduler ? (baseExtraBottomSpace / 2f) + Constants.TimeBarHeight : baseExtraBottomSpace;
-        size.y = UI.screenHeight - 35 - extraBottomSpace - Constants.ExtraTopSpace - margin * 2f;
         return size;
     }
 }

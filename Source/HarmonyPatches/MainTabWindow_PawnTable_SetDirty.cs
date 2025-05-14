@@ -36,6 +36,6 @@ public static class MainTabWindow_PawnTable_SetDirty
                     break;
             }
         }
-        __instance.windowRect.width = Mathf.Min(__instance.table.Size.x + __instance.Margin * 2f, UI.screenWidth - 16f);
+        __instance.windowRect.width = Mathf.Min(__instance.table.Size.x + __instance.Margin * 2f, UI.screenWidth - 30f);
     }
 }

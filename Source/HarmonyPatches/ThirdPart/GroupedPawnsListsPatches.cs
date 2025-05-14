@@ -31,14 +31,14 @@ public static class GroupedPawnsListsPatches
         {
             var table = ___table.Target;
             const float scrollBar = 16f;
-            var cachedColumnWidths = table.CachedColumnWidths();
+            var cachedColumnWidths = table.cachedColumnWidths;
             var optimalWidth = table.Size.x - scrollBar;
 
             // if (model.AllowHScroll)
             if (true) // this mod always allow horizontal scroll bar.
             {
                 float minWidth = 0;
-                var columns = table.Columns;
+                var columns = table.columns;
                 for (int i = 0; i < columns.Count; i++)
                 {
                     var column = columns[i];
@@ -111,7 +111,7 @@ public static class GroupedPawnsListsPatches
                     yield return new CodeInstruction(codeInstructions[10]);
                     yield return new CodeInstruction(codeInstructions[11]);
                     yield return new CodeInstruction(codeInstructions[12]);
-                    yield return new CodeInstruction(OpCodes.Ldftn, typeof(PawnTable_RecacheSize).GetMethod("Prefix"));
+                    yield return new CodeInstruction(OpCodes.Ldftn, AccessTools.Method(typeof(PawnTable_RecacheSize), nameof(PawnTable_RecacheSize.Prefix)));;
                     yield return new CodeInstruction(OpCodes.Newobj, AccessTools.Constructor(typeof(PawnTable_RecacheSize_Prefix_Delegate), [typeof(object), typeof(IntPtr)]));
                     yield return new CodeInstruction(codeInstructions[15]);
                     yield return new CodeInstruction(codeInstructions[16]);
@@ -124,5 +124,21 @@ public static class GroupedPawnsListsPatches
                 yield return code;
             }
         }
+    }
+
+    [HarmonyPatch("PawnTableGrouped.PawnTableGroupedModel", "SetGUIDirty")]
+    public static class PawnTableGroupedModel_SetGUIDirty
+    {
+        public static bool Prepare()
+        {
+            return GroupedPawnsListsPatches.Prepare();
+        }
+
+        public static bool Prefix()
+        {
+            MainTabWindowUtility.NotifyAllPawnTables_PawnsChanged();
+            return false;
+        }
+
     }
 }

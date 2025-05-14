@@ -63,7 +63,7 @@ namespace WorkTab {
                 }
 
                 _showScheduler = value;
-                MainTabWindow_WorkTab.Instance.RecacheTimeBarRect();
+                MainTabWindow_WorkTab.SetCurrentWorkTabDirty();
             }
         }
 

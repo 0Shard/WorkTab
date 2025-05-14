@@ -19,7 +19,6 @@ public static class PawnTable_RecacheSize
         }
 
         __instance.maxTableWidth = int.MaxValue;
-        __instance.maxTableHeight = int.MaxValue;
 
         if (__instance.hasFixedSize)
         {

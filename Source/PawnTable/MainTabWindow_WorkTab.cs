@@ -44,10 +44,6 @@ namespace WorkTab {
             }
         }
 
-        protected override float ExtraBottomSpace => PriorityManager.ShowScheduler
-            ? (base.ExtraBottomSpace / 2f) + TimeBarHeight // slightly less margin if we're showing the scheduler, as it already takes quite a sizeable chunk of screen space
-            : base.ExtraBottomSpace;
-
         protected override float ExtraTopSpace => base.ExtraTopSpace + Constants.ExtraTopSpace;
         public override PawnTableDef PawnTableDef => PawnTableDefOf.Work;
 
@@ -111,6 +107,12 @@ namespace WorkTab {
             RebuildTable();
         }
 
+        protected override void SetInitialSizeAndPosition()
+        {
+            base.SetInitialSizeAndPosition();
+            RecacheTimeBarRect();
+        }
+
         // HIGHLIGHT: Do not modify the modifier, 'Grouped Pawns Lists' mod requires direct access
         public void RebuildTable(bool alreadyDirty = true) {
             if (!alreadyDirty)
@@ -126,6 +128,10 @@ namespace WorkTab {
         }
 
         public void RecacheTimeBarRect() {
+            if (table == null)
+            {
+                return;
+            }
             var widths  = table.cachedColumnWidths;
             var   columns = Columns;
             float start   = 0;
@@ -146,7 +152,7 @@ namespace WorkTab {
             _timeBarRect = new Rect(
                 start,
                 // note that we're not subtracting the time bar height itself, as at this point the window's height has not yet been updated to include it.
-                windowRect.height - base.ExtraBottomSpace - Margin,
+                windowRect.height - base.ExtraBottomSpace,
                 width,
                 TimeBarHeight);
 
@@ -337,7 +343,7 @@ namespace WorkTab {
             foreach (var expandableColumn in table.columns.Select(c => c.Worker).OfType<IExpandableColumn>()) {
                 Expand(expandableColumn, expand);
             }
-            SetCurrentWorkTabDirty(table);
+            SetCurrentWorkTabDirty();
         }
 
         public static void Expand(IExpandableColumn expandableColumn, bool expand) {
@@ -346,18 +352,8 @@ namespace WorkTab {
             }
         }
 
-        public static void SetCurrentWorkTabDirty(PawnTable table)
+        public static void SetCurrentWorkTabDirty()
         {
-            // if (Find.WindowStack == null || !UnityData.IsInMainThread)
-            // {
-            //     return;
-            // }
-            // var windowStack = Find.WindowStack;
-            // for (var index = 0; index < windowStack.Count; ++index)
-            // {
-            //     if (windowStack[index] is MainTabWindow_PawnTable tabWindowPawnTable)
-            //         tabWindowPawnTable.SetDirty();
-            // }
             Instance?.Notify_ColumnsChanged();
             MainTabWindow_PawnTable_DoWindowContents.ColumnsChanged = true;
         }
