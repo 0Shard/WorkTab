@@ -20,11 +20,24 @@ namespace WorkTab {
         // HIGHLIGHT: Do not modify the modifier, Grouped Pawns Lists mod requires direct access
         public WorkGiverDef WorkGiver => Def.workgiver;
 
-        public override bool VisibleCurrently => base.VisibleCurrently && VisibleNow;
+        private bool? _cachedVisibleCurrently;
+
+        public override bool VisibleCurrently
+        {
+            get
+            {
+                if (_cachedVisibleCurrently.HasValue)
+                {
+                    return _cachedVisibleCurrently.Value;
+                }
+                _cachedVisibleCurrently = ColumnWorkerWorkType is { Expanded: true };
+                return _cachedVisibleCurrently.Value;
+            }
+        }
+
+        public void InvalidateVisibility() => _cachedVisibleCurrently = null;
 
         public PawnColumnWorker_WorkType ColumnWorkerWorkType { get; set; }
-
-        private bool VisibleNow => ColumnWorkerWorkType is { Expanded: true };
 
         protected override Color DefaultHeaderColor => new(1f, 1f, 1f, .8f);
 

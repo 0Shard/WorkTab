@@ -29,7 +29,7 @@ namespace WorkTab {
 
         public static int VisibleHour => PriorityManager.ShowScheduler ? _visibleHour : -1;
 
-        private static List<PawnColumnDef> Columns => Instance.Table.Columns;
+        private static List<PawnColumnDef> Columns => Instance.Table.columns;
 
         // HIGHLIGHT: 'Grouped Pawns Lists' mod need.
         public PawnTable Table => table;
@@ -127,7 +127,7 @@ namespace WorkTab {
 
         public void RecacheTimeBarRect() {
             var widths  = table.cachedColumnWidths;
-            var   columns = table.Columns;
+            var   columns = Columns;
             float start   = 0;
             float width   = 0;
 
@@ -328,13 +328,13 @@ namespace WorkTab {
                                "WorkTab.CollapseAll".Translate(), Resources.Collapse);
         }
 
-        public static bool AnyExpandedNew(PawnTable table) => table.Columns
+        public static bool AnyExpandedNew(PawnTable table) => table.columns
                                                                    .Select(c => c.Worker)
                                                                    .OfType<IExpandableColumn>()
                                                                    .Any(w => w.Expanded);
 
         public static void ExpandAll(PawnTable table, bool expand) {
-            foreach (var expandableColumn in table.Columns.Select(c => c.Worker).OfType<IExpandableColumn>()) {
+            foreach (var expandableColumn in table.columns.Select(c => c.Worker).OfType<IExpandableColumn>()) {
                 Expand(expandableColumn, expand);
             }
             SetCurrentWorkTabDirty(table);
@@ -348,10 +348,10 @@ namespace WorkTab {
 
         public static void SetCurrentWorkTabDirty(PawnTable table)
         {
-            if (Find.WindowStack == null || !UnityData.IsInMainThread)
-            {
-                return;
-            }
+            // if (Find.WindowStack == null || !UnityData.IsInMainThread)
+            // {
+            //     return;
+            // }
             // var windowStack = Find.WindowStack;
             // for (var index = 0; index < windowStack.Count; ++index)
             // {

@@ -1,6 +1,7 @@
 // PriorityTracker.cs
 // Copyright Karel Kroeze, 2020-2020
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -93,13 +94,26 @@ namespace WorkTab {
             if (workType == null) {
                 return 0;
             }
-            var priorityList = workType.WorkGivers()
-                                       .Where(wg => Pawn.AllowedToDo(wg))
-                                       .Select(wg => this[wg][hour] )
-                                       .Where(p => p > 0 )
-                                       .ToList();
 
-            return priorityList.Any() ? priorityList.Min() : 0;
+            var minPriority = int.MaxValue;
+            var found = false;
+            foreach (var wg in workType.workGiversByPriority)
+            {
+                if (!Pawn.AllowedToDo(wg))
+                {
+                    continue;
+                }
+
+                var p = this[wg][hour];
+                if (p <= 0)
+                {
+                    continue;
+                }
+                minPriority = Math.Min(minPriority, p);
+                found = true;
+            }
+
+            return found ? minPriority : 0;
         }
 
         public void InvalidateCache(WorkGiverDef workgiver, bool bubble = true) {

@@ -10,10 +10,7 @@ namespace WorkTab {
 
         public static bool AllowedToDo(this Pawn pawn, WorkGiverDef workgiver)
         {
-            return !pawn.WorkTypeIsDisabled(workgiver.workType) &&
-                   (pawn.CombinedDisabledWorkTags & workgiver.workTags) == WorkTags.None &&
-                   // (pawn.CombinedDisabledWorkTags & workgiver.workType?.workTags) == WorkTags.None &&
-                   (workgiver.workTags & pawn.story?.DisabledWorkTagsBackstoryAndTraits) == WorkTags.None;
+            return !pawn.WorkTypeIsDisabled(workgiver.workType) && (pawn.CombinedDisabledWorkTags & workgiver.workTags) == WorkTags.None;
         }
 
         public static bool AllowedToDo(this Pawn pawn, WorkTypeDef workType)

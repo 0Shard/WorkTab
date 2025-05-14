@@ -31,10 +31,10 @@ public static class PawnTable_PawnTableOnGUI
         _hoveredRowLabel = -1;
         __instance.RecacheIfDirty();
 
-        var columns = __instance.Columns;
+        var columns = __instance.columns;
         var pawns = __instance.PawnsListForReading;
-        var widths = __instance.CachedColumnWidths();
-        var heights = __instance.CachedRowHeights();
+        var widths = __instance.cachedColumnWidths;
+        var heights = __instance.cachedRowHeights;
 
         var headerH = __instance.HeaderHeight;
         var heightNoScroll = __instance.HeightNoScrollbar;
