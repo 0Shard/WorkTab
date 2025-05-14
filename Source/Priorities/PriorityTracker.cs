@@ -121,7 +121,7 @@ namespace WorkTab {
             _timeScheduledWorkTypeTip.Remove(worktype);
 
             if (bubble) {
-                worktype.WorkGivers().ForEach(wg => InvalidateCache(wg, false));
+                worktype.workGiversByPriority.ForEach(wg => InvalidateCache(wg, false));
             }
         }
 
@@ -146,7 +146,7 @@ namespace WorkTab {
                 return;
             }
 
-            List<WorkGiverDef> workgivers = worktype.WorkGivers();
+            List<WorkGiverDef> workgivers = worktype.workGiversByPriority;
             int[] priorities = GetPriorities( worktype );
 
             // first make sure all workgivers are cached
@@ -162,7 +162,7 @@ namespace WorkTab {
             // is any workgiver different from the whole at any time during the day?
             _partScheduledWorkType[worktype] = TimeUtilities.WholeDay
                                                             .Any(hour =>
-                                                                worktype.WorkGivers()
+                                                                worktype.workGiversByPriority
                                                                         .Any(wg =>
                                                                             Pawn.AllowedToDo(wg) &&
                                                                             GetPriority(worktype, hour) != GetPriority(wg, hour))
@@ -213,7 +213,7 @@ namespace WorkTab {
                 return;
             }
 
-            foreach (WorkGiverDef workgiver in worktype.WorkGivers()) {
+            foreach (WorkGiverDef workgiver in worktype.workGiversByPriority) {
                 SetPriority(workgiver, priority, hour, false);
             }
 

@@ -25,7 +25,6 @@ public static class AchtungPatches
 
         public static bool Prefix(PawnTableDef workTable)
         {
-            WorkType_Extensions.ClearCache();
             workTable.columns = DefGenerator_GenerateImpliedDefs_PreResolve.ProcessWorkGiverColumns(workTable.columns);
             MainTabWindow_WorkTab.Instance?.Notify_ColumnsChanged();
             return false;

@@ -10,7 +10,8 @@ using Verse.Sound;
 
 namespace WorkTab {
     public static class WorkType_Extensions {
-        
+
+        [Obsolete("_workgiversByType field is abandoned.")]
         private static readonly Dictionary<WorkTypeDef, List<WorkGiverDef>> _workgiversByType = new();
 
         [Obsolete("workListCache field is abandoned.")]
@@ -104,22 +105,9 @@ namespace WorkTab {
             }
         }
 
+        [Obsolete("Use WorkTypeDef.workGiversByPriority instead. This method is deprecated and will be removed in a future version.")]
         public static List<WorkGiverDef> WorkGivers(this WorkTypeDef worktype) {
-            if (_workgiversByType.TryGetValue(worktype, out var result))
-            {
-                return result;
-            }
-            result = DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(wg => wg.workType == worktype).ToList();
-            _workgiversByType[worktype] = result;
-            return result;
-        }
-
-        public static void ClearCache()
-        {
-            _workgiversByType.Clear();
-#pragma warning disable CS0618
-            workListCache.Clear();
-#pragma warning restore CS0618
+            return worktype.workGiversByPriority;
         }
     }
 }

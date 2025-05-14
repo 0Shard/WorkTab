@@ -30,7 +30,7 @@ namespace WorkTab
                          .Where(workTypeDef => !pawn.WorkTypeIsDisabled(workTypeDef)))
             {
                 // apply all workgivers for this type
-                foreach (var workgiver in workTypeDef.WorkGivers())
+                foreach (var workgiver in workTypeDef.workGiversByPriority)
                 {
                     for (var hour = 0; hour < GenDate.HoursPerDay; hour++)
                     {
