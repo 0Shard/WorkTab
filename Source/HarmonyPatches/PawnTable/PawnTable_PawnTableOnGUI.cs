@@ -177,6 +177,8 @@ public static class PawnTable_PawnTableOnGUI
                 var cellX = 0f;
                 for (var c = 1; c < columns.Count; c++)
                 {
+                    // TODO: The logic of pawnColumnDef.groupable is to be added, but the work tab is not required at present.
+                    // Currently, only the work mode of the mechanical body is merged.
                     var w = widths[c];
                     var cellR = new Rect(cellX, rowY, w, rowHeight);
                     columns[c].Worker.DoCell(cellR, pawns[j], __instance);

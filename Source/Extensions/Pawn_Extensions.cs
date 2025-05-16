@@ -10,12 +10,16 @@ namespace WorkTab {
 
         public static bool AllowedToDo(this Pawn pawn, WorkGiverDef workgiver)
         {
-            return !pawn.WorkTypeIsDisabled(workgiver.workType) && (pawn.CombinedDisabledWorkTags & workgiver.workTags) == WorkTags.None;
+            return AllowedToDo(pawn, workgiver.workType);
         }
 
         public static bool AllowedToDo(this Pawn pawn, WorkTypeDef workType)
         {
-            return !pawn.WorkTypeIsDisabled(workType) && (pawn.CombinedDisabledWorkTags & workType.workTags) == WorkTags.None;
+            if (workType == null)
+            {
+                return false;
+            }
+            return !pawn.WorkTypeIsDisabled(workType);
         }
 
         public static bool NotAllowedToDo(this Pawn pawn, WorkTypeDef workType)
@@ -75,7 +79,7 @@ namespace WorkTab {
             PriorityManager.Get[pawn].SetPriority(worktype, priority, hours);
         }
 
-        public static void SetPriority(Pawn pawn, WorkTypeDef worktype, int priority, int hour, bool recache = true) {
+        public static void SetPriority(this Pawn pawn, WorkTypeDef worktype, int priority, int hour, bool recache = true) {
             if (hour < 0) {
                 hour = GenLocalDate.HourOfDay(pawn);
             }
@@ -87,8 +91,7 @@ namespace WorkTab {
             PriorityManager.Get[pawn].SetPriority(workgiver, priority, hours);
         }
 
-        public static void SetPriority(this Pawn pawn, WorkGiverDef workgiver, int priority, int hour,
-                                        bool recache = true) {
+        public static void SetPriority(this Pawn pawn, WorkGiverDef workgiver, int priority, int hour, bool recache = true) {
             if (hour < 0) {
                 hour = GenLocalDate.HourOfDay(pawn);
             }

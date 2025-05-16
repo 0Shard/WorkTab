@@ -26,8 +26,7 @@ namespace WorkTab
 
         public void PasteTo(Pawn pawn)
         {
-            foreach (var workTypeDef in DefDatabase<WorkTypeDef>.AllDefsListForReading
-                         .Where(workTypeDef => !pawn.WorkTypeIsDisabled(workTypeDef)))
+            foreach (var workTypeDef in DefDatabase<WorkTypeDef>.AllDefsListForReading.Where(pawn.AllowedToDo))
             {
                 // apply all workgivers for this type
                 foreach (var workgiver in workTypeDef.workGiversByPriority)

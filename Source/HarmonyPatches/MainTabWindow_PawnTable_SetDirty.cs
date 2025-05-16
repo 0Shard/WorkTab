@@ -31,8 +31,8 @@ public static class MainTabWindow_PawnTable_SetDirty
                     }
                     break;
                 }
-                case PawnColumnWorker_WorkGiver workerWorkGiver:
-                    workerWorkGiver.InvalidateVisibility();
+                case AbstractPawnColumnWorker worker:
+                    worker.InvalidateCache();
                     break;
             }
         }

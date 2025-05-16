@@ -91,7 +91,7 @@ namespace WorkTab {
         }
 
         public int GetPriority(WorkTypeDef workType, int hour) {
-            if (workType == null) {
+            if (!Pawn.AllowedToDo(workType)) {
                 return 0;
             }
 
@@ -99,11 +99,6 @@ namespace WorkTab {
             var found = false;
             foreach (var wg in workType.workGiversByPriority)
             {
-                if (!Pawn.AllowedToDo(wg))
-                {
-                    continue;
-                }
-
                 var p = this[wg][hour];
                 if (p <= 0)
                 {
@@ -156,7 +151,7 @@ namespace WorkTab {
         }
 
         public void Recache(WorkTypeDef worktype) {
-            if (worktype == null) {
+            if (!Pawn.AllowedToDo(worktype)) {
                 return;
             }
 
@@ -177,9 +172,7 @@ namespace WorkTab {
             _partScheduledWorkType[worktype] = TimeUtilities.WholeDay
                                                             .Any(hour =>
                                                                 worktype.workGiversByPriority
-                                                                        .Any(wg =>
-                                                                            Pawn.AllowedToDo(wg) &&
-                                                                            GetPriority(worktype, hour) != GetPriority(wg, hour))
+                                                                        .Any(wg => GetPriority(worktype, hour) != GetPriority(wg, hour))
                                                                 );
         }
 
@@ -188,11 +181,6 @@ namespace WorkTab {
         }
 
         public void SetPriority(WorkGiverDef workgiver, int priority, int hour, bool recache = true) {
-            if (!Pawn.AllowedToDo(workgiver))
-            {
-                return;
-            }
-
             if (priority > Settings.maxPriority) {
                 priority = 0;
             }
@@ -223,7 +211,7 @@ namespace WorkTab {
         }
 
         public void SetPriority(WorkTypeDef worktype, int priority, int hour, bool recache = true) {
-            if (worktype == null) {
+            if (!Pawn.AllowedToDo(worktype)) {
                 return;
             }
 
@@ -238,7 +226,7 @@ namespace WorkTab {
         }
 
         public void SetPriority(WorkTypeDef worktype, int priority, List<int> hours) {
-            if (worktype == null) {
+            if (!Pawn.AllowedToDo(worktype)) {
                 return;
             }
 

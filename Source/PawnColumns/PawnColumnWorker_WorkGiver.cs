@@ -35,7 +35,11 @@ namespace WorkTab {
             }
         }
 
-        public void InvalidateVisibility() => _cachedVisibleCurrently = null;
+        public override void InvalidateCache()
+        {
+            base.InvalidateCache();
+            _cachedVisibleCurrently = null;
+        }
 
         public PawnColumnWorker_WorkType ColumnWorkerWorkType { get; set; }
 
@@ -46,10 +50,6 @@ namespace WorkTab {
         protected override TextAnchor DefaultHeaderAlignment => TextAnchor.MiddleLeft;
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table) {
-            if (pawn.NothingCanBeDone()) {
-                return;
-            }
-
             if (!ShouldDrawCell(pawn)) {
                 return;
             }

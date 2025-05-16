@@ -28,6 +28,7 @@ namespace WorkTab {
                 _expanded = value;
                 NeedExpand = false;
                 NeedCollapse = false;
+                InvalidateCache();
             }
         }
 
@@ -109,11 +110,11 @@ namespace WorkTab {
         }
 
         protected override string CreateHeaderTip(string tip) {
-            if (_expanded)
+            if (Expanded)
             {
                 tip += "\n" + "WorkTab.CollapseWorkgiversColumnTip".Translate().Colorize(ColoredText.SubtleGrayColor);
             }
-            if (CanExpand && !_expanded)
+            if (CanExpand && !Expanded)
             {
                 tip += "\n" + "WorkTab.ExpandWorkgiversColumnTip".Translate().Colorize(ColoredText.SubtleGrayColor);
             }

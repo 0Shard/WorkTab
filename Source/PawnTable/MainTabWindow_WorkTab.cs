@@ -1,7 +1,6 @@
 // MainTabWindow_WorkTab.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -50,7 +49,6 @@ namespace WorkTab {
         protected override IEnumerable<Pawn> Pawns => base.Pawns.Where(pawn => !pawn.DevelopmentalStage.Baby());
 
         // HIGHLIGHT: 'Grouped Pawns Lists' mod need.
-        [Obsolete("Use AnyExpandedNew(PawnTable table) instead.")]
         private bool AnyExpanded => AnyExpandedNew(Table);
 
         public static void AddSelectedHour(int hour, bool replace) {
@@ -327,7 +325,7 @@ namespace WorkTab {
                                "WorkTab.PrioritiesWholeDay".Translate(), Resources.PrioritiesWholeDay);
             button.x -= 30f + Margin;
 
-            ButtonImageToggle(() => AnyExpandedNew(Table),
+            ButtonImageToggle(() => AnyExpanded,
                               v => ExpandAll(Table, v),
                               button,
                                "WorkTab.ExpandAll".Translate(), Resources.Expand,

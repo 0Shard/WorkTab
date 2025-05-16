@@ -6,6 +6,8 @@ namespace WorkTab;
 
 public abstract class AbstractPawnColumnWorker : PawnColumnWorker_WorkPriority, IAlternatingColumn
 {
+    private string _cachedHeaderTip;
+
     public Vector2 LabelSize => cachedWorkLabelSize;
 
     public bool MoveDown
@@ -46,12 +48,23 @@ public abstract class AbstractPawnColumnWorker : PawnColumnWorker_WorkPriority, 
     }
 
     protected virtual string CreateHeaderTip(string tip) {
+        if (!_cachedHeaderTip.NullOrEmpty())
+        {
+            return _cachedHeaderTip;
+        }
         if (Find.PlaySettings.useWorkPriorities && !Settings.disableScrollwheel) {
             tip += "\n" + "WorkTab.DetailedColumnTip".Translate().Colorize(ColoredText.SubtleGrayColor);
         } else if (!Settings.disableScrollwheel) {
             tip += "\n" + "WorkTab.ToggleColumnTip".Translate().Colorize(ColoredText.SubtleGrayColor);
         }
-        return tip;
+
+        _cachedHeaderTip = tip;
+        return _cachedHeaderTip;
+    }
+
+    public virtual void InvalidateCache()
+    {
+        _cachedHeaderTip = null;
     }
 
     protected virtual void HandleInteractions(Rect rect, Pawn pawn)

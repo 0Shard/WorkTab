@@ -19,7 +19,6 @@
         <Methods>
             <li>WorkTab.DrawUtilities:PriorityLabel</li>
             <li>WorkTab.DrawUtilities:ColorOfPriority</li>
-            <li>WorkTab.MainTabWindow_WorkTab:PostOpen</li>
         </Methods>
     </WorkTab>
 </Analyzer>
