@@ -1,30 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <RootNamespace>WorkTab</RootNamespace>
+    <AssemblyTitle>WorkTab</AssemblyTitle>
+    <AssemblyName>WorkTab</AssemblyName>
     <TargetFramework>net48</TargetFramework>
     <RuntimeIdentifier>win</RuntimeIdentifier>
-    <AssemblyTitle>WorkTab</AssemblyTitle>
     <Product>WorkTab</Product>
     <Copyright>Copyright © 2017-2025</Copyright>
     <OutputPath>..\Assemblies\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <LangVersion>latest</LangVersion>
+    <WarningLevel>4</WarningLevel>
     <Version>1.5.15</Version>
   </PropertyGroup>
+
+  <!-- All published builds have to be built as 'release' because of the debug flag! -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DefineConstants>DEBUG</DefineConstants>
+    <Optimize>false</Optimize>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants />
-    <Optimize>true</Optimize>
-  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*" />
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*" ExcludeAssets="runtime" />
     <PackageReference Include="Lib.Harmony" Version="2.3.*" ExcludeAssets="runtime" />
-    <PackageReference Include="Krafs.Publicizer" Version="2.3.*">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Krafs.Publicizer" Version="2.3.*" ExcludeAssets="runtime" />
     <Publicize Include="Assembly-CSharp" MemberPattern="^RimWorld\.PawnTable\..*" />
     <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_PawnTable.table" />
     <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_PawnTable.PawnTableDef" />
