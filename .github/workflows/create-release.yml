@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0     # ✅ 获取完整提交历史
+          fetch-tags: true   # ✅ 确保所有 tag 被拉取
 
       - name: Generate grouped and pretty changelog
         id: changelog
@@ -20,6 +23,8 @@ jobs:
           # 获取上一个 tag（排除当前 tag）
           CURRENT_TAG="${{ github.ref_name }}"
           PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -n 1)
+          
+          echo "CURRENT_TAG: $CURRENT_TAG"
 
           # 判断是否为首次发布
           if [ -z "$PREV_TAG" ]; then
@@ -27,13 +32,13 @@ jobs:
             GIT_RANGE=$(git rev-list --max-parents=0 HEAD)..HEAD
           else
             echo "📌 Previous tag: $PREV_TAG"
-            GIT_RANGE=$PREV_TAG..HEAD
+            GIT_RANGE=$PREV_TAG..$CURRENT_TAG
           fi
 
           # 准备分组 changelog（带 emoji）
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           echo "## ✨ Features" >> $GITHUB_ENV
-          git log $GIT_RANGE --pretty=format:"%s (%an)" | grep -iE '^feat' | sed 's/^/ - /' >> $GITHUB_ENV || true
+          git log $GIT_RANGE --pretty=format:"%s (%an)" | grep -iE '^feat' | sed 's/^/ - /' >> $GITHUB_ENV || echo " - No new features" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
 
           echo "## 🐛 Fixes" >> $GITHUB_ENV
@@ -57,12 +62,15 @@ jobs:
           cd release
           zip -r "../WorkTab-${{ github.ref_name }}.zip" .
 
-      - name: Upload release asset with pretty changelog
-        uses: softprops/action-gh-release@v2
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1.16.0
         with:
-          tag_name: ${{ github.ref_name }}
-          name: "Release ${{ github.ref_name }}"
-          files: WorkTab-${{ github.ref_name }}.zip
+          tag: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          artifacts: WorkTab-${{ github.ref_name }}.zip
+          generateReleaseNotes: true
           body: ${{ env.CHANGELOG }}
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
