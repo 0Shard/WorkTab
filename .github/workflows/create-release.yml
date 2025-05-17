@@ -17,36 +17,60 @@ jobs:
           fetch-depth: 0     # ✅ 获取完整提交历史
           fetch-tags: true   # ✅ 确保所有 tag 被拉取
 
-      - name: Generate grouped and pretty changelog
+      - name: Generate Changelog
         id: changelog
         run: |
-          # 获取上一个 tag（排除当前 tag）
           CURRENT_TAG="${{ github.ref_name }}"
           PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -n 1)
-          
-          echo "CURRENT_TAG: $CURRENT_TAG"
 
-          # 判断是否为首次发布
+          echo "📌 Current tag: $CURRENT_TAG"
+          echo "📌 Previous tag: $PREV_TAG"
+
           if [ -z "$PREV_TAG" ]; then
             echo "🔔 No previous tag found. Using initial commit as range."
             GIT_RANGE=$(git rev-list --max-parents=0 HEAD)..HEAD
           else
-            echo "📌 Previous tag: $PREV_TAG"
             GIT_RANGE=$PREV_TAG..$CURRENT_TAG
           fi
 
-          # 准备分组 changelog（带 emoji）
+          COMMITS=$(git log $GIT_RANGE --pretty=format:"%s||%an")
+          FILTERED_COMMITS=$(echo "$COMMITS" | grep -vi "||${{ github.actor }}$")
+          CONTRIBUTORS=$(echo "$FILTERED_COMMITS" | cut -d"|" -f2 | sort -u)
+
+          # 构建 AUTHOR_MAP（原名 => markdown 链接）
+          AUTHOR_MAP=$(echo "$CONTRIBUTORS" | while read author; do
+            echo "$author|[@$author](https://github.com/$author)"
+          done)
+
+          format_author_links() {
+            echo "$1" | while IFS= read -r line; do
+              author=$(echo "$line" | cut -d"|" -f2)
+              message=$(echo "$line" | cut -d"|" -f1)
+              mapped=$(echo "$AUTHOR_MAP" | grep "^$author|" | cut -d"|" -f2)
+              echo " - $message (by $mapped)"
+            done
+          }
+
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+
           echo "## ✨ Features" >> $GITHUB_ENV
-          git log $GIT_RANGE --pretty=format:"%s (%an)" | grep -iE '^feat' | sed 's/^/ - /' >> $GITHUB_ENV || echo " - No new features" >> $GITHUB_ENV
+          format_author_links "$(echo "$FILTERED_COMMITS" | grep -iE '^feat')" >> $GITHUB_ENV || echo " - No new features" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
 
           echo "## 🐛 Fixes" >> $GITHUB_ENV
-          git log $GIT_RANGE --pretty=format:"%s (%an)" | grep -iE '^fix' | sed 's/^/ - /' >> $GITHUB_ENV || true
+          format_author_links "$(echo "$FILTERED_COMMITS" | grep -iE '^fix')" >> $GITHUB_ENV || echo " - No fixes" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
 
           echo "## 🧰 Others" >> $GITHUB_ENV
-          git log $GIT_RANGE --pretty=format:"%s (%an)" | grep -viE '^(fix|feat)' | sed 's/^/ - /' >> $GITHUB_ENV || true
+          format_author_links "$(echo "$FILTERED_COMMITS" | grep -viE '^(fix|feat)')" >> $GITHUB_ENV || echo " - No other changes" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+
+          if [ -n "$CONTRIBUTORS" ]; then
+            echo "## 👥 New Contributors" >> $GITHUB_ENV
+            echo "$CONTRIBUTORS" | grep -vi "^${{ github.actor }}$" | sed 's/^/ - [/' | sed 's/$/](https:\/\/github.com\/&)/' >> $GITHUB_ENV
+            echo "" >> $GITHUB_ENV
+          fi
+
           echo "EOF" >> $GITHUB_ENV
 
       - name: Create zip file
