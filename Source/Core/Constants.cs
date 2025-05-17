@@ -14,6 +14,7 @@ public static class Constants {
     public const           int                        TimeBarHeight           = 40;
     public const           int                        WorkGiverBoxSize        = 20;
     public const           int                        WorkGiverWidth          = 25;
+    public const           int                        WorkGiverHeaderWidth    = 50;
     public const           int                        WorkTypeBoxSize         = 25;
     public static readonly Vector2                    PriorityLabelSize       = new Vector2( 160, 30 );
     public static          Dictionary<string, string> TruncationCache         = new Dictionary<string, string>();

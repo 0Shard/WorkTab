@@ -98,6 +98,10 @@ namespace WorkTab {
             return WorkGiverWidth;
         }
 
+        public override int GetOptimalHeaderWidth(PawnTable table) {
+            return WorkGiverHeaderWidth;
+        }
+
         protected override bool ShouldDrawCell(Pawn pawn) {
             return base.ShouldDrawCell(pawn) && pawn.AllowedToDo(WorkGiver);
         }

@@ -78,6 +78,12 @@ public abstract class AbstractPawnColumnWorker : PawnColumnWorker_WorkPriority, 
             HandleInteractionsToggle(rect, pawn);
         }
     }
+
+    public virtual int GetOptimalHeaderWidth(PawnTable table)
+    {
+        return GetOptimalWidth(table);
+    }
+
     protected abstract void HeaderInteractions(Rect interactableHeaderRect, PawnTable table, bool clicked = false);
 
     protected abstract void HandleInteractionsDetailed(Rect rect, Pawn pawn);

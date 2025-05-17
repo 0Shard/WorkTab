@@ -22,7 +22,7 @@ public static class PawnColumnWorker_WorkPriority_DoHeader
         {
             label = def.LabelCap.Resolve();
             result =  Text.CalcSize(label);
-            result.x = Mathf.Min(result.x, workGiver.GetOptimalWidth(table));
+            result.x = Mathf.Min(result.x, workGiver.GetOptimalHeaderWidth(table));
         }
         else
         {
