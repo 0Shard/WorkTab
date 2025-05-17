@@ -14,6 +14,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Generate grouped and pretty changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)
+          echo "Previous tag: $PREV_TAG"
+
+          # 初始化 changelog 分组
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "## ✨ Features" >> $GITHUB_ENV
+          git log ${PREV_TAG}..HEAD --pretty=format:"%s (%an)" | grep -iE '^feat' | sed 's/^/ - /' >> $GITHUB_ENV || true
+          echo "" >> $GITHUB_ENV
+
+          echo "## 🐛 Fixes" >> $GITHUB_ENV
+          git log ${PREV_TAG}..HEAD --pretty=format:"%s (%an)" | grep -iE '^fix' | sed 's/^/ - /' >> $GITHUB_ENV || true
+          echo "" >> $GITHUB_ENV
+
+          echo "## 🧰 Others" >> $GITHUB_ENV
+          git log ${PREV_TAG}..HEAD --pretty=format:"%s (%an)" | grep -viE '^(fix|feat)' | sed 's/^/ - /' >> $GITHUB_ENV || true
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Create zip file
         run: |
           mkdir release
@@ -27,9 +47,12 @@ jobs:
           cd release
           zip -r "../WorkTab-${{ github.ref_name }}.zip" .
 
-      - name: Upload release asset
+      - name: Upload release asset with pretty changelog
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
+          name: "Release ${{ github.ref_name }}"
           files: WorkTab-${{ github.ref_name }}.zip
+          body: ${{ env.CHANGELOG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
