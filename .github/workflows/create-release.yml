@@ -44,11 +44,20 @@ jobs:
 
           format_author_links() {
             echo "$1" | while IFS= read -r line; do
-              author=$(echo "$line" | cut -d"|" -f2)
+              # 跳过空行
+              [ -z "$line" ] && continue
+
               message=$(echo "$line" | cut -d"|" -f1)
-              echo " - $message (by @$author)"
+              author=$(echo "$line" | cut -d"|" -f2)
+
+              # 只有作者不为空才显示
+              if [ -n "$author" ]; then
+                echo " - $message (by @$author)"
+              else
+                echo " - $message"
+              fi
             done
-          }
+          }  
 
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
 
