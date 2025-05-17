@@ -17,21 +17,31 @@ jobs:
       - name: Generate grouped and pretty changelog
         id: changelog
         run: |
-          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)
-          echo "Previous tag: $PREV_TAG"
+          # 获取上一个 tag（排除当前 tag）
+          CURRENT_TAG="${{ github.ref_name }}"
+          PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -n 1)
 
-          # 初始化 changelog 分组
+          # 判断是否为首次发布
+          if [ -z "$PREV_TAG" ]; then
+            echo "🔔 No previous tag found. Using initial commit as range."
+            GIT_RANGE=$(git rev-list --max-parents=0 HEAD)..HEAD
+          else
+            echo "📌 Previous tag: $PREV_TAG"
+            GIT_RANGE=$PREV_TAG..HEAD
+          fi
+
+          # 准备分组 changelog（带 emoji）
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           echo "## ✨ Features" >> $GITHUB_ENV
-          git log ${PREV_TAG}..HEAD --pretty=format:"%s (%an)" | grep -iE '^feat' | sed 's/^/ - /' >> $GITHUB_ENV || true
+          git log $GIT_RANGE --pretty=format:"%s (%an)" | grep -iE '^feat' | sed 's/^/ - /' >> $GITHUB_ENV || true
           echo "" >> $GITHUB_ENV
 
           echo "## 🐛 Fixes" >> $GITHUB_ENV
-          git log ${PREV_TAG}..HEAD --pretty=format:"%s (%an)" | grep -iE '^fix' | sed 's/^/ - /' >> $GITHUB_ENV || true
+          git log $GIT_RANGE --pretty=format:"%s (%an)" | grep -iE '^fix' | sed 's/^/ - /' >> $GITHUB_ENV || true
           echo "" >> $GITHUB_ENV
 
           echo "## 🧰 Others" >> $GITHUB_ENV
-          git log ${PREV_TAG}..HEAD --pretty=format:"%s (%an)" | grep -viE '^(fix|feat)' | sed 's/^/ - /' >> $GITHUB_ENV || true
+          git log $GIT_RANGE --pretty=format:"%s (%an)" | grep -viE '^(fix|feat)' | sed 's/^/ - /' >> $GITHUB_ENV || true
           echo "EOF" >> $GITHUB_ENV
 
       - name: Create zip file
