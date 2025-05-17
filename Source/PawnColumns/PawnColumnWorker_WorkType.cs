@@ -1,7 +1,6 @@
 // PawnColumnWorker_WorkType.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
 using UnityEngine;
@@ -28,7 +27,6 @@ namespace WorkTab {
                 _expanded = value;
                 NeedExpand = false;
                 NeedCollapse = false;
-                InvalidateCache();
             }
         }
 
@@ -76,6 +74,7 @@ namespace WorkTab {
             {
                 NeedExpand = true;
             }
+            InvalidateCache();
             return true;
         }
 

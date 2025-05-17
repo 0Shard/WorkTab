@@ -10,59 +10,121 @@ using Verse;
 namespace WorkTab;
 
 [HarmonyPatch(typeof(DefGenerator), nameof(DefGenerator.GenerateImpliedDefs_PreResolve))]
-public static class DefGenerator_GenerateImpliedDefs_PreResolve {
+public static class DefGenerator_GenerateImpliedDefs_PreResolve
+{
+    private const string PawnColumnDefWorkGiverDefNamePrefix = "WorkPriority_WorkGiver_";
 
-    public static void Postfix() {
+    public static bool ExpandableColumnsInitialized = true;
+
+    public static void Postfix()
+    {
         // replace worker on Work MainButtonDef
         MainButtonDefOf.Work.tabWindowClass = typeof(MainTabWindow_WorkTab);
 
+        // Current is in rimworld async thread.
+        ReBuildWorkTabColumns(true, true);
+
+        ExpandableColumnsInitialized = false;
+    }
+
+    public static void ReBuildWorkTabColumns(bool isBuildColumns = false, bool isInRimWorldAsyncThread = false)
+    {
         // get our table
         var workTable = PawnTableDefOf.Work;
         var workTableColumns = workTable.columns;
 
-        // insert mood and job columns before first work column name
-        var firstWorkIndex = workTableColumns.FindIndex(d => d.workerClass == typeof(PawnColumnWorker_WorkPriority));
-        workTableColumns.Insert(firstWorkIndex, PawnColumnDefOf.Job);
-        workTableColumns.Insert(firstWorkIndex + 1, PawnColumnDefOf.Mood);
+        if (isBuildColumns)
+        {
+            // Insert mood and job columns before the first work column.
+            InsertMoodAndJobColumns(workTableColumns);
+
+            MoveCopyPasteToRemainingSpace(workTableColumns);
+        }
+
+        // Keep the LabelWithIcon column first and freeze. Fix 'WorkManager' mod insert order error.
+        EnsureLabelWithIconIsFirst(workTableColumns);
 
         // go over PawnColumnDefs and replace all PawnColumnWorker_WorkPriority
-        foreach (var column in DefDatabase<PawnColumnDef>.AllDefs) {
-            if (column.workerClass == typeof(PawnColumnWorker_WorkPriority)) {
+        ReplacePawnColumnDefWorkerClass();
+
+        // add PawnColumnDefs for all workgivers
+        WrapperWorkGiverDefToPawnColumnDef();
+
+        // Inserts the corresponding workGiverColumn after each workTypeColumn
+        var columns = ProcessWorkGiverColumns(workTableColumns, isInRimWorldAsyncThread);
+
+        PawnTableDefOf.Work.columns = columns;
+
+        MainTabWindow_WorkTab.SetCurrentWorkTabDirty();
+    }
+
+    private static void InsertMoodAndJobColumns(List<PawnColumnDef> workTableColumns)
+    {
+        var firstWorkIndex = workTableColumns.FindIndex(d => d.workerClass == typeof(PawnColumnWorker_WorkPriority));
+        workTableColumns.InsertRange(firstWorkIndex, [PawnColumnDefOf.Job, PawnColumnDefOf.Mood]);
+    }
+
+    private static void MoveCopyPasteToRemainingSpace(List<PawnColumnDef> columns)
+    {
+        // move copy/paste to the right
+        var copyPasteColumnIndex = columns.IndexOf(PawnColumnDefOf.CopyPasteWorkPriorities);
+        columns.RemoveAt(copyPasteColumnIndex);
+
+        var remainingSpaceColumnIndex = columns.IndexOf(PawnColumnDefOf.RemainingSpace);
+        columns.InsertRange(remainingSpaceColumnIndex, [PawnColumnDefOf.Favourite, PawnColumnDefOf.CopyPasteWorkPriorities]);
+    }
+
+    private static void EnsureLabelWithIconIsFirst(List<PawnColumnDef> columns)
+    {
+        if (columns[0] == PawnColumnDefOf.LabelWithIcon)
+        {
+            return;
+        }
+
+        columns.Remove(PawnColumnDefOf.LabelWithIcon);
+        columns.Insert(0, PawnColumnDefOf.LabelWithIcon);
+    }
+
+    private static void ReplacePawnColumnDefWorkerClass()
+    {
+        foreach (var column in DefDatabase<PawnColumnDef>.AllDefs)
+        {
+            if (column.workerClass == typeof(PawnColumnWorker_WorkPriority))
+            {
                 column.workerClass = typeof(PawnColumnWorker_WorkType);
             }
         }
+    }
 
-        // add PawnColumnDefs for all workgivers
+    private static void WrapperWorkGiverDefToPawnColumnDef()
+    {
         foreach (var column in DefDatabase<WorkGiverDef>.AllDefsListForReading
                                                         .Where(workgiver => workgiver.workType != null)
-                                                        .Select(workgiver => new PawnColumnDef_WorkGiver {
-                                                            defName = "WorkPriority_WorkGiver_" + workgiver.defName,
+                                                        .Select(workgiver => new PawnColumnDef_WorkGiver
+                                                        {
+                                                            defName = PawnColumnDefWorkGiverDefNamePrefix + workgiver.defName,
                                                             description = workgiver.description,
                                                             workType = workgiver.workType,
                                                             workgiver = workgiver,
                                                             workerClass = typeof(PawnColumnWorker_WorkGiver),
                                                             sortable = true,
                                                             modContentPack = Controller.Instance.Content
-                                                        }).Cast<PawnColumnDef>())
+                                                        })
+                                                        .Cast<PawnColumnDef>())
         {
-            DefGenerator.AddImpliedDef(column);
+            if (DefDatabase<PawnColumnDef>.GetNamedSilentFail(column.defName) == null)
+            {
+                DefGenerator.AddImpliedDef(column);
+            }
         }
-
-        // Insert the corresponding workGiverColumn after each workTypeColumn
-        var columns = ProcessWorkGiverColumns(workTableColumns);
-
-        MoveCopyPasteToRemainingSpace(columns);
-
-        EnsureLabelWithIconIsFirst(columns);
-
-        PawnTableDefOf.Work.columns = columns;
     }
 
-    public static List<PawnColumnDef> ProcessWorkGiverColumns(List<PawnColumnDef> workTableColumns)
+    // Note: All column addition, deletion and modification operations must be called once.
+    private static List<PawnColumnDef> ProcessWorkGiverColumns(List<PawnColumnDef> workTableColumns, bool isInRimWorldAsyncThread = false)
     {
         var pawnColumnDefWorkGivers = DefDatabase<PawnColumnDef>.AllDefsListForReading
-                                                       .Where(c => c.Worker is PawnColumnWorker_WorkGiver)
-                                                       .ToList();
+                                                                .Where(c => c.workerClass == typeof(PawnColumnWorker_WorkGiver))
+                                                                .ToList();
         var count = workTableColumns.Count;
         var columns = new List<PawnColumnDef>(count + pawnColumnDefWorkGivers.Count);
         foreach (var column in workTableColumns)
@@ -73,7 +135,7 @@ public static class DefGenerator_GenerateImpliedDefs_PreResolve {
                 continue;
             }
 
-            if (column.Worker is not PawnColumnWorker_WorkType)
+            if (column.workerClass != typeof(PawnColumnWorker_WorkType))
             {
                 continue;
             }
@@ -83,14 +145,29 @@ public static class DefGenerator_GenerateImpliedDefs_PreResolve {
                                               .ToList();
 
             columns.Add(column);
+
             if (list.NullOrEmpty())
             {
                 continue;
             }
+
             columns.AddRange(list);
-            if (column.Worker is PawnColumnWorker_WorkType worker && list.Count > 1)
+
+            if (isInRimWorldAsyncThread)
             {
-                worker.CanExpand = true;
+                continue;
+            }
+
+            // If you are currently in an asynchronous thread, you cannot directly access the Worker instance,
+            // because some custom Workers with mods directly define Texture2D fields.
+            // The first direct access will trigger instantiation and will cause an error:
+            // 'Tried to get a resource "xxx" from a different thread. All resources must be loaded in the main thread.'
+            if (column.Worker is PawnColumnWorker_WorkType worker)
+            {
+                if (list.Count > 1)
+                {
+                    worker.CanExpand = true;
+                }
                 foreach (var pawnColumnWorkerWorkGiver in list.Select(d => d.Worker as PawnColumnWorker_WorkGiver))
                 {
                     if (pawnColumnWorkerWorkGiver != null)
@@ -106,24 +183,39 @@ public static class DefGenerator_GenerateImpliedDefs_PreResolve {
         return columns;
     }
 
-    private static void MoveCopyPasteToRemainingSpace(List<PawnColumnDef> columns)
+    public static void InitializeExpandableColumns()
     {
-        // move copy/paste to the right
-        var copyPasteColumnIndex = columns.IndexOf(PawnColumnDefOf.CopyPasteWorkPriorities);
-        columns.RemoveAt(copyPasteColumnIndex);
-
-        var remainingSpaceColumnIndex = columns.IndexOf(PawnColumnDefOf.RemainingSpace);
-        columns.InsertRange(remainingSpaceColumnIndex, [PawnColumnDefOf.Favourite, PawnColumnDefOf.CopyPasteWorkPriorities]);
-    }
-
-    private static void EnsureLabelWithIconIsFirst(List<PawnColumnDef> columns)
-    {
-        // Keep the LabelWithIcon column first and freeze. Fix 'WorkManager' mod insert order error.
-        if (columns[0] == PawnColumnDefOf.LabelWithIcon)
+        var workTableColumns = PawnTableDefOf.Work.columns;
+        var count = workTableColumns.Count;
+        for (var i = 0; i < count; i++)
         {
-            return;
+            if (workTableColumns[i].Worker is not PawnColumnWorker_WorkType workerWorkType)
+            {
+                continue;
+            }
+
+            var j = i + 1;
+            var start = j;
+
+            while (j < count && workTableColumns[j].Worker is PawnColumnWorker_WorkGiver)
+            {
+                j++;
+            }
+
+            var num = j - start;
+            if (num > 1)
+            {
+                workerWorkType.CanExpand = true;
+            }
+            for (var k = start; k < j; k++)
+            {
+                var workerWorkGiver = (PawnColumnWorker_WorkGiver)workTableColumns[k].Worker;
+                workerWorkGiver.ColumnWorkerWorkType = workerWorkType;
+            }
+
+            i = j - 1;
         }
-        columns.Remove(PawnColumnDefOf.LabelWithIcon);
-        columns.Insert(0, PawnColumnDefOf.LabelWithIcon);
+
+        ExpandableColumnsInitialized = true;
     }
 }

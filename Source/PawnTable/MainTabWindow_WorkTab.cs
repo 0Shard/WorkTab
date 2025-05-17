@@ -33,7 +33,7 @@ namespace WorkTab {
         // HIGHLIGHT: 'Grouped Pawns Lists' mod need.
         public PawnTable Table => table;
 
-        public Rect TimeBarRect {
+        private Rect TimeBarRect {
             get {
                 if (_timeBarRect == default) {
                     RecacheTimeBarRect();
@@ -50,33 +50,6 @@ namespace WorkTab {
 
         // HIGHLIGHT: 'Grouped Pawns Lists' mod need.
         private bool AnyExpanded => AnyExpandedNew(Table);
-
-        public static void AddSelectedHour(int hour, bool replace) {
-            if (replace) {
-                _selectedHours.Clear();
-            }
-
-            if (replace || !_selectedHours.Contains(hour)) {
-                _selectedHours.Add(hour);
-            }
-
-            _visibleHour = hour;
-        }
-
-        public static void RemoveSelectedHour(int hour) {
-            if (_selectedHours.Contains(hour)) {
-                _selectedHours.Remove(hour);
-            }
-
-            if (_visibleHour == hour) {
-                _visibleHour = -1;
-            }
-        }
-
-        public static void SelectWholeDay() {
-            _selectedHours = TimeUtilities.WholeDay;
-            _visibleHour = -1;
-        }
 
         public override void DoWindowContents(Rect rect) {
             if (_columnsChanged) {
@@ -330,6 +303,33 @@ namespace WorkTab {
                               button,
                                "WorkTab.ExpandAll".Translate(), Resources.Expand,
                                "WorkTab.CollapseAll".Translate(), Resources.Collapse);
+        }
+
+        private static void AddSelectedHour(int hour, bool replace) {
+            if (replace) {
+                _selectedHours.Clear();
+            }
+
+            if (replace || !_selectedHours.Contains(hour)) {
+                _selectedHours.Add(hour);
+            }
+
+            _visibleHour = hour;
+        }
+
+        private static void RemoveSelectedHour(int hour) {
+            if (_selectedHours.Contains(hour)) {
+                _selectedHours.Remove(hour);
+            }
+
+            if (_visibleHour == hour) {
+                _visibleHour = -1;
+            }
+        }
+
+        private static void SelectWholeDay() {
+            _selectedHours = TimeUtilities.WholeDay;
+            _visibleHour = -1;
         }
 
         public static bool AnyExpandedNew(PawnTable table) => table.columns

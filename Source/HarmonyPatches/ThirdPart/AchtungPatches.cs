@@ -23,10 +23,9 @@ public static class AchtungPatches
             return AchtungPatches.Prepare();
         }
 
-        public static bool Prefix(PawnTableDef workTable)
+        public static bool Prefix()
         {
-            workTable.columns = DefGenerator_GenerateImpliedDefs_PreResolve.ProcessWorkGiverColumns(workTable.columns);
-            MainTabWindow_WorkTab.Instance?.Notify_ColumnsChanged();
+            DefGenerator_GenerateImpliedDefs_PreResolve.ReBuildWorkTabColumns();
             return false;
         }
     }

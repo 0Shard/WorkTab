@@ -15,7 +15,7 @@ namespace WorkTab {
 
         [Conditional("DEBUG")]
         public static void Debug(string msg) {
-            Log.Message(FormatMessage(msg));
+            // Log.Message(FormatMessage(msg));
         }
 
         public static void Error(string msg) {
