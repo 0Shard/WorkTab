@@ -33,21 +33,20 @@ jobs:
             GIT_RANGE=$PREV_TAG..$CURRENT_TAG
           fi
 
-          COMMITS=$(git log $GIT_RANGE --pretty=format:"%s||%an")
+          # 获取提交列表并排除提交信息等于当前tag的提交
+          COMMITS=$(git log $GIT_RANGE --pretty=format:"%s||%an" | awk -F'||' -v tag="$CURRENT_TAG" '$1 != tag')
+          
+          # 去除当前触发者的提交
           FILTERED_COMMITS=$(echo "$COMMITS" | grep -vi "||${{ github.actor }}$")
-          CONTRIBUTORS=$(echo "$FILTERED_COMMITS" | cut -d"|" -f2 | sort -u)
 
-          # 构建 AUTHOR_MAP（原名 => markdown 链接）
-          AUTHOR_MAP=$(echo "$CONTRIBUTORS" | while read author; do
-            echo "$author|[@$author](https://github.com/$author)"
-          done)
+          # 获取唯一作者列表（贡献者）
+          CONTRIBUTORS=$(echo "$FILTERED_COMMITS" | cut -d"|" -f2 | sort -fu)
 
           format_author_links() {
             echo "$1" | while IFS= read -r line; do
               author=$(echo "$line" | cut -d"|" -f2)
               message=$(echo "$line" | cut -d"|" -f1)
-              mapped=$(echo "$AUTHOR_MAP" | grep "^$author|" | cut -d"|" -f2)
-              echo " - $message (by $mapped)"
+              echo " - $message (by @$author)"
             done
           }
 
@@ -65,10 +64,14 @@ jobs:
           format_author_links "$(echo "$FILTERED_COMMITS" | grep -viE '^(fix|feat)')" >> $GITHUB_ENV || echo " - No other changes" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
 
+          # 只在有贡献者且贡献者不为空时显示 New Contributors
           if [ -n "$CONTRIBUTORS" ]; then
-            echo "## 👥 New Contributors" >> $GITHUB_ENV
-            echo "$CONTRIBUTORS" | grep -vi "^${{ github.actor }}$" | sed 's/^/ - [/' | sed 's/$/](https:\/\/github.com\/&)/' >> $GITHUB_ENV
-            echo "" >> $GITHUB_ENV
+            CLEANED_CONTRIBUTORS=$(echo "$CONTRIBUTORS" | grep -vi "^${{ github.actor }}$" | grep -v '^\s*$')
+            if [ -n "$CLEANED_CONTRIBUTORS" ]; then
+              echo "## 👥 New Contributors" >> $GITHUB_ENV
+              echo "$CLEANED_CONTRIBUTORS" | sed 's/^/ - @/' >> $GITHUB_ENV
+              echo "" >> $GITHUB_ENV
+            fi
           fi
 
           echo "EOF" >> $GITHUB_ENV
