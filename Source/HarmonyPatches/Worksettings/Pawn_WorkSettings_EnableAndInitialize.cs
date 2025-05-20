@@ -10,21 +10,18 @@ using RimWorld;
 namespace WorkTab {
     [HarmonyPatch(typeof(Pawn_WorkSettings), nameof(Pawn_WorkSettings.EnableAndInitialize))]
     public class Pawn_WorkSettings_EnableAndInitialize {
-        private static int GetDefaultPriority() {
-            return Settings.defaultPriority;
-        }
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> _instr) {
             var instructions = _instr.ToList();
             var setPriorityMI = AccessTools.Method( typeof( Pawn_WorkSettings ), nameof( Pawn_WorkSettings.SetPriority ) );
-            var getDefaultPriorityMI = AccessTools.Method( typeof( Pawn_WorkSettings_EnableAndInitialize ), nameof( GetDefaultPriority ) );
+            var getDefaultPriorityMI = AccessTools.PropertyGetter(typeof(Settings), nameof(Settings.DefaultPriority));
 
             var count = instructions.Count;
             for (var i = 0; i < count; i++) {
                 if (i < count - 1 &&
                     instructions[i].opcode == OpCodes.Ldc_I4_3 &&
                     instructions[i + 1].Calls(setPriorityMI)) {
-                    
+
                     yield return new CodeInstruction(OpCodes.Call, getDefaultPriorityMI);
                     continue;
                 }

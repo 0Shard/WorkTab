@@ -6,7 +6,8 @@ using UnityEngine;
 using Verse;
 
 namespace WorkTab {
-    public class Settings: ModSettings {
+    public class Settings : ModSettings {
+        // ReSharper disable InconsistentNaming
         public static int  maxPriority             = 9;
         public static int  defaultPriority         = 3;
         public static bool TwentyFourHourMode      = true;
@@ -33,6 +34,11 @@ namespace WorkTab {
         private static bool _fontFix = true;
 #pragma warning restore CS0414
         #endregion
+        // ReSharper restore InconsistentNaming
+
+        public static int MaxPriority => maxPriority;
+
+        public static int DefaultPriority => defaultPriority;
 
         public static void DoWindowContents(Rect rect) {
             var options = new Listing_Standard();

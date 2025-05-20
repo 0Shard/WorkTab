@@ -10,16 +10,12 @@ namespace WorkTab
     [HarmonyPatch(typeof(GameInitData), nameof(GameInitData.PrepForMapGen))]
     public static class GameInitData_PrepForMapGen
     {
-        private static int GetDefaultPriority()
-        {
-            return Settings.defaultPriority;
-        }
 
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> _instr)
         {
             var instructions = _instr.ToList();
             var setPriorityMI = AccessTools.Method(typeof(Pawn_WorkSettings), nameof(Pawn_WorkSettings.SetPriority));
-            var getDefaultPriorityMI = AccessTools.Method(typeof(GameInitData_PrepForMapGen), nameof(GetDefaultPriority));
+            var getDefaultPriorityMI = AccessTools.PropertyGetter(typeof(Settings), nameof(Settings.DefaultPriority));
 
             var count = instructions.Count;
             for (var i = 0; i < count; i++)

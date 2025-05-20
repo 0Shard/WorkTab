@@ -11,17 +11,6 @@ namespace WorkTab;
 [HarmonyPatch(typeof(PawnColumnWorker_WorkPriority), "HeaderClicked")]
 public static class PawnColumnWorker_WorkPriority_HeaderClicked
 {
-
-    private static int GetDefaultPriority()
-    {
-        return Settings.defaultPriority;
-    }
-
-    private static int GetMaxPriority()
-    {
-        return Settings.maxPriority;
-    }
-
     private static bool Execute(PawnColumnDef def, PawnTable table)
     {
         if (def.Worker is not PawnColumnWorker_WorkType workerWorkType)
@@ -61,16 +50,14 @@ public static class PawnColumnWorker_WorkPriority_HeaderClicked
             if (code.opcode == OpCodes.Ldc_I4_4 && i < count - 1 &&
                 (instructions[i + 1].opcode == OpCodes.Stloc_S || instructions[i + 1].opcode == OpCodes.Ble_S))
             {
-                yield return new CodeInstruction(OpCodes.Call,
-                    AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_HeaderClicked), nameof(GetMaxPriority)));
+                yield return new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(Settings), nameof(Settings.MaxPriority)));
                 continue;
             }
 
             if (i < count - 1 && code.opcode == OpCodes.Ldc_I4_3 &&
                 instructions[i + 1].opcode == OpCodes.Callvirt &&
                 instructions[i + 1].operand is MethodInfo { Name: "SetPriority" }) {
-                yield return new CodeInstruction(OpCodes.Call,
-                    AccessTools.Method(typeof(PawnColumnWorker_WorkPriority_HeaderClicked), nameof(GetDefaultPriority)));
+                yield return new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(Settings), nameof(Settings.DefaultPriority)));
                 continue;
             }
 
