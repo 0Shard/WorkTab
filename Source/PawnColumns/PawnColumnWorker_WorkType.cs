@@ -93,6 +93,10 @@ namespace WorkTab {
             }
         }
 
+        public override int GetMinWidth(PawnTable table) {
+            return WorkTypeWidth;
+        }
+
         protected override string GetHeaderTip(PawnTable table) {
             return CreateHeaderTip(base.GetHeaderTip(table));
         }
