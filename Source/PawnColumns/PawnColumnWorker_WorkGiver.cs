@@ -103,7 +103,7 @@ namespace WorkTab {
         }
 
         protected override bool ShouldDrawCell(Pawn pawn) {
-            return base.ShouldDrawCell(pawn) && pawn.AllowedToDo(WorkGiver);
+            return base.ShouldDrawCell(pawn) && pawn.WorkGiverAllowedToDo(WorkGiver);
         }
 
         protected override bool IsDoCurrentJob(Pawn pawn) => pawn.CurJob?.workGiverDef?.defName == WorkGiver.defName;

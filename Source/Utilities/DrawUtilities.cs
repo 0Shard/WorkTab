@@ -217,7 +217,7 @@ public static class DrawUtilities {
         tip.Append(": " + PriorityLabel(pawn.GetPriority(workgiver, -1)));
         tip.AppendLine();
 
-        if (!pawn.AllowedToDo(workgiver)) {
+        if (!pawn.WorkGiverAllowedToDo(workgiver)) {
             string str = "CannotDoThisWork".Translate( pawn.LabelShort, pawn);
             var disabledWorkType = pawn.GetReasonsForDisabledWorkType(workgiver.workType);
             if (!disabledWorkType.NullOrEmpty())

@@ -28,7 +28,7 @@ namespace WorkTab {
                 priority = 0;
             }
             
-            if (!parent.Pawn.AllowedToDo(workgiver))
+            if (!parent.Pawn.WorkGiverAllowedToDo(workgiver))
             {
                 priority = 0;
             }
@@ -44,7 +44,7 @@ namespace WorkTab {
             get => Priorities[hour];
             set {
                 // check if we're allowed to do this job
-                if (value > 0 && !_parent.Pawn.AllowedToDo(workgiver)) {
+                if (value > 0 && !_parent.Pawn.WorkGiverAllowedToDo(workgiver)) {
                     Logger.Debug(
                         $"Tried to set priority for {workgiver.label} to {_parent.Pawn?.LabelShort}, who is incapable of that work.");
                     return;

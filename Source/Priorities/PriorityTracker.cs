@@ -87,7 +87,7 @@ namespace WorkTab {
 
         public int GetPriority(WorkGiverDef workGiver, int hour)
         {
-            return Pawn.AllowedToDo(workGiver) ? this[workGiver][hour] : 0;
+            return Pawn.WorkGiverAllowedToDo(workGiver) ? this[workGiver][hour] : 0;
         }
 
         public int GetPriority(WorkTypeDef workType, int hour) {

@@ -46,7 +46,7 @@ namespace WorkTab {
         public void Increment(Pawn pawn) {
             var actionTaken = false;
             // just go over all workgivers and increase their priority number by one, with a maximum of maxPriority
-            foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(pawn.AllowedToDo)) {
+            foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(pawn.WorkGiverAllowedToDo)) {
                 // get current priority
                 var priority = pawn.GetPriority(workgiver, MainTabWindow_WorkTab.VisibleHour);
                 var curr = priority;
@@ -83,7 +83,7 @@ namespace WorkTab {
         public void Decrement(Pawn pawn) {
             var actionTaken = false;
             // just go over all workgivers and lower their priority number by one, with a minimum of 1
-            foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(pawn.AllowedToDo)) {
+            foreach (var workgiver in DefDatabase<WorkGiverDef>.AllDefsListForReading.Where(pawn.WorkGiverAllowedToDo)) {
                 // get current priority
                 var priority = pawn.GetPriority(workgiver, MainTabWindow_WorkTab.VisibleHour);
                 var curr = priority;
