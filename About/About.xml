@@ -19,6 +19,6 @@
     <loadAfter>
         <li>brrainz.harmony</li>
     </loadAfter>
-    <description>Forked 1.5 version of [url=steamcommunity.com/workshop/filedetails/?id=725219116] Fluffy Work Tab [/url] mod.</description>
+    <description>A fork of Fluffy's Work Tab mod. Includes bug fixes, new features, and performance improvements.</description>
     <modVersion IgnoreIfNoMatchingField="True">1.5.15.3</modVersion>
 </ModMetaData>
