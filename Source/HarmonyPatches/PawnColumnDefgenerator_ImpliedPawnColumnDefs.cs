@@ -6,7 +6,7 @@ using RimWorld;
 
 namespace WorkTab
 {
-    [HarmonyPatch(typeof(PawnColumnDefgenerator), nameof(PawnColumnDefgenerator.ImpliedPawnColumnDefs))]
+    [HarmonyPatch(typeof(PawnColumnDefGenerator), nameof(PawnColumnDefGenerator.ImpliedPawnColumnDefs))]
     public static class PawnColumnDefgenerator_ImpliedPawnColumnDefs
     {
 
