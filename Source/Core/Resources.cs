@@ -11,8 +11,6 @@ namespace WorkTab {
         public static readonly Texture2D[] Icons;
 
         public static readonly Texture2D
-            SortingIcon,
-            SortingDescendingIcon,
             MoodHappy,
             MoodContent,
             MoodDiscontent,
@@ -36,8 +34,6 @@ namespace WorkTab {
             Edit;
 
         static Resources() {
-            SortingIcon = ContentFinder<Texture2D>.Get("UI/Icons/Sorting");
-            SortingDescendingIcon = ContentFinder<Texture2D>.Get("UI/Icons/SortingDescending");
             MoodHappy = ContentFinder<Texture2D>.Get("UI/Icons/Mood/happy");
             MoodContent = ContentFinder<Texture2D>.Get("UI/Icons/Mood/content");
             MoodDiscontent = ContentFinder<Texture2D>.Get("UI/Icons/Mood/discontent");
