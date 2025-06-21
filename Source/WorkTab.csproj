@@ -7,7 +7,7 @@
     <RuntimeIdentifier>win</RuntimeIdentifier>
     <Product>WorkTab</Product>
     <Copyright>Copyright © 2017-2025 Fluffy</Copyright>
-    <OutputPath>..\Assemblies\</OutputPath>
+    <OutputPath>..\1.5\Assemblies\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <LangVersion>latest</LangVersion>
