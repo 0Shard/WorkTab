@@ -9,7 +9,9 @@ namespace WorkTab;
 public static class PawnColumnWorker_CopyPasteWorkPriorities_CopyFrom_PasteTo
 {
     private static readonly PawnColumnWorker_CopyPasteDetailedWorkPriorities Instance = new();
-    
+
+    private static PawnTableDef _columnBelongTableDef;
+
     [HarmonyPatch]
     public static class PawnColumnWorker_CopyPasteWorkPriorities_AnythingInClipboard
     {
@@ -17,11 +19,24 @@ public static class PawnColumnWorker_CopyPasteWorkPriorities_CopyFrom_PasteTo
         {
             return AccessTools.PropertyGetter(typeof(PawnColumnWorker_CopyPasteWorkPriorities), "AnythingInClipboard");
         }
-        
+
         public static bool Prefix(ref bool __result)
         {
+            if (_columnBelongTableDef != PawnTableDefOf.Work)
+            {
+                return true;
+            }
             __result = PawnColumnWorker_CopyPasteDetailedWorkPriorities.clipboard != null;
             return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(PawnColumnWorker_CopyPasteWorkPriorities), "DoCell")]
+    public static class PawnColumnWorker_CopyPasteWorkPriorities_DoCell
+    {
+        public static void Prefix(PawnTable table)
+        {
+            _columnBelongTableDef = table.def;
         }
     }
 
@@ -30,6 +45,10 @@ public static class PawnColumnWorker_CopyPasteWorkPriorities_CopyFrom_PasteTo
     {
         public static bool Prefix(Pawn p)
         {
+            if (_columnBelongTableDef != PawnTableDefOf.Work)
+            {
+                return true;
+            }
             Instance.CopyFrom(p);
             return false;
         }
@@ -40,6 +59,10 @@ public static class PawnColumnWorker_CopyPasteWorkPriorities_CopyFrom_PasteTo
     {
         public static bool Prefix(Pawn p)
         {
+            if (_columnBelongTableDef != PawnTableDefOf.Work)
+            {
+                return true;
+            }
             Instance.PasteTo(p);
             return false;
         }
