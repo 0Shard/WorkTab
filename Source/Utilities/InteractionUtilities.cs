@@ -57,33 +57,45 @@ namespace WorkTab {
             return Clicked(1);
         }
 
-        private static bool Scrolled(Rect rect, ScrollDirection direction, bool stopPropagation) {
-            if (Settings.disableScrollwheel) {
+        private static bool Scrolled(Rect rect, ScrollDirection direction) {
+            return Mouse.IsOver(rect) && Scrolled(direction);
+        }
+
+        private static bool Scrolled(ScrollDirection direction)
+        {
+            if (Settings.disableScrollwheel)
+            {
                 return false;
             }
 
-            var scrolled = Event.current.type == EventType.ScrollWheel && Scrolled(direction) && Mouse.IsOver(rect);
+            if (Event.current.type != EventType.ScrollWheel)
+            {
+                return false;
+            }
 
-            if (scrolled && stopPropagation) {
+            var delta = Event.current.delta;
+
+            if (Mathf.Approximately(delta.y, 0f) && !Mathf.Approximately(delta.x, 0f))
+            {
+                delta.y = delta.x;
+            }
+
+            if (Mathf.Approximately(delta.y, 0f))
+            {
+                return false;
+            }
+
+            var scrolled = (delta.y > 0 && direction == ScrollDirection.Up) || (delta.y < 0 && direction == ScrollDirection.Down);
+
+            if (scrolled) {
                 Event.current.Use();
             }
 
             return scrolled;
         }
 
-        private static bool Scrolled(ScrollDirection direction) {
-            if (Settings.disableScrollwheel) {
-                return false;
-            }
-
-            var scrolled = Event.current.delta.y > 0 && direction == ScrollDirection.Up ||
-                           Event.current.delta.y < 0 && direction == ScrollDirection.Down;
-
-            return scrolled;
-        }
-
         public static bool ScrolledDown(Rect rect, bool stopPropagation = false) {
-            return Scrolled(rect, ScrollDirection.Down, stopPropagation);
+            return Scrolled(rect, ScrollDirection.Down);
         }
 
         public static bool ScrolledDown() {
@@ -91,7 +103,7 @@ namespace WorkTab {
         }
 
         public static bool ScrolledUp(Rect rect, bool stopPropagation = false) {
-            return Scrolled(rect, ScrollDirection.Up, stopPropagation);
+            return Scrolled(rect, ScrollDirection.Up);
         }
 
         public static bool ScrolledUp() {
