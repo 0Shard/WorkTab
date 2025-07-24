@@ -11,7 +11,7 @@ namespace WorkTab.HarmonyPatches.ThirdPart;
 
 public static class GroupedPawnsListsPatches
 {
-    delegate void PawnTable_RecacheSize_Prefix_Delegate(PawnTable arg1);
+    delegate bool PawnTable_RecacheSize_Prefix_Delegate(PawnTable arg1);
 
     public static bool Prepare()
     {
