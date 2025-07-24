@@ -94,7 +94,7 @@ jobs:
             --exclude='.github/' \
             --exclude='.git/' \
             --exclude='.gitignore' \
-            ./ ./release/
+            ./ ./release/"Work Tab"
           cd release
           zip -r "../WorkTab-${{ github.ref_name }}.zip" .
 
